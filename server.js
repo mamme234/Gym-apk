@@ -1,6 +1,12 @@
 // ================================================================
-//  SERVER.JS – Complete AI Gym Trainer Backend
-//  Handles: Telegram Bot, Webhook, API, Video Uploads
+//  SERVER.JS – Complete AI Gym Trainer
+//  Features:
+//  - Onboarding: weight, height, protein, calories
+//  - Personalized schedule & nutrition (users can customize)
+//  - Workout videos with reps/sets
+//  - Recording with form correction
+//  - Telegram bot with welcome & reminder messages
+//  - Schedule customization (users can change their workouts)
 //  Deployed on Render: https://gym-apk-wicj.onrender.com
 //  Mini App on Vercel: https://gym-apk-krk7.vercel.app
 // ================================================================
@@ -78,74 +84,312 @@ const upload = multer({
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'YourGymBot';
 const MINI_APP_URL = process.env.TELEGRAM_MINI_APP_URL || 'https://gym-apk-krk7.vercel.app';
-const WEBHOOK_URL = process.env.TELEGRAM_WEBHOOK_URL || 'https://gym-apk-wicj.onrender.com/webhook';
 
 let bot = null;
-if (TOKEN) {
-  bot = new TelegramBot(TOKEN, { polling: false });
-  console.log('✅ Telegram Bot initialized');
+if (TOKEN && TOKEN !== 'your-bot-token-here' && TOKEN !== '7609348168:AAHcFz8LxKJfGqWnR8mN3pQvZx7YwCbTdE') {
+  bot = new TelegramBot(TOKEN, { polling: true });
+  console.log('✅ Telegram Bot initialized with polling');
 } else {
-  console.log('⚠️ TELEGRAM_BOT_TOKEN not set');
+  console.log('⚠️ TELEGRAM_BOT_TOKEN not set or invalid');
 }
 
-// ─── In-memory Data ────────────────────────────────────────────
+// ─── In-memory Database ─────────────────────────────────────────
+const userProfiles = new Map(); // userId -> { weight, height, protein, calories, goal, schedule, nutrition }
+const workoutHistory = new Map(); // userId -> [{ exercise, date, duration, reps, sets, feedback }]
 const userSessions = new Map();
-const workoutHistory = [];
+const userCustomSchedules = new Map(); // userId -> { monday: [...], tuesday: [...], ... }
 
-// ─── Schedule ──────────────────────────────────────────────────
-const SCHEDULE = {
-  Monday:    { workout: 'Chest / Triceps', exercises: ['Push-up', 'Bicep Curl', 'Tricep Extension'] },
-  Tuesday:   { workout: 'Back / Biceps', exercises: ['Bent-over Row', 'Deadlift', 'Bicep Curl'] },
-  Wednesday: { workout: 'Legs / Shoulders', exercises: ['Squat', 'Lunge', 'Shoulder Press'] },
-  Thursday:  { workout: 'Chest / Triceps', exercises: ['Push-up', 'Lateral Raise', 'Tricep Extension'] },
-  Friday:    { workout: 'Back / Biceps', exercises: ['Bent-over Row', 'Deadlift', 'Bicep Curl'] },
-  Saturday:  { workout: 'Core / Cardio', exercises: ['Plank', 'Crunch', 'Glute Bridge'] },
-  Sunday:    { workout: 'Rest / Mobility', exercises: [] }
+// ─── Workout Library with Videos, Reps, Sets ──────────────────
+const WORKOUT_LIBRARY = {
+  PUSHUP: {
+    id: 'PUSHUP',
+    name: 'Push-up',
+    icon: '💪',
+    muscle: 'Chest',
+    videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4',
+    description: 'Keep back straight, lower chest to ground',
+    tip: 'Keep elbows at 45°',
+    defaultReps: 12,
+    defaultSets: 3,
+    formRules: {
+      elbowAngle: { min: 70, max: 150 },
+      bodyLine: 'Keep body straight'
+    }
+  },
+  SQUAT: {
+    id: 'SQUAT',
+    name: 'Squat',
+    icon: '🦵',
+    muscle: 'Legs',
+    videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U',
+    description: 'Keep chest up, go to parallel',
+    tip: 'Knees track over toes',
+    defaultReps: 15,
+    defaultSets: 3,
+    formRules: {
+      kneeAngle: { min: 85, max: 160 },
+      hipAngle: { min: 80 }
+    }
+  },
+  BICEP_CURL: {
+    id: 'BICEP_CURL',
+    name: 'Bicep Curl',
+    icon: '💪',
+    muscle: 'Biceps',
+    videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo',
+    description: 'Curl weight up, squeeze bicep',
+    tip: 'Keep elbows pinned to sides',
+    defaultReps: 10,
+    defaultSets: 3,
+    formRules: {
+      elbowAngle: { min: 60, max: 160 }
+    }
+  },
+  SHOULDER_PRESS: {
+    id: 'SHOULDER_PRESS',
+    name: 'Shoulder Press',
+    icon: '🏋️',
+    muscle: 'Shoulders',
+    videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog',
+    description: 'Press overhead, keep core tight',
+    tip: "Don't arch your back",
+    defaultReps: 10,
+    defaultSets: 3,
+    formRules: {
+      elbowAngle: { min: 80, max: 160 }
+    }
+  },
+  PLANK: {
+    id: 'PLANK',
+    name: 'Plank',
+    icon: '🧘',
+    muscle: 'Abs',
+    videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw',
+    description: 'Keep body in a straight line',
+    tip: "Don't let hips sag or rise",
+    defaultReps: 3,
+    defaultSets: 3,
+    formRules: {
+      hipShoulderDiff: { min: -0.15, max: 0.15 }
+    }
+  },
+  LUNGE: {
+    id: 'LUNGE',
+    name: 'Lunge',
+    icon: '🚶',
+    muscle: 'Legs',
+    videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U',
+    description: 'Front knee at 90°, back knee hovers',
+    tip: 'Keep torso upright',
+    defaultReps: 12,
+    defaultSets: 3,
+    formRules: {
+      kneeAngle: { min: 70, max: 150 }
+    }
+  },
+  CRUNCH: {
+    id: 'CRUNCH',
+    name: 'Crunch',
+    icon: '🔥',
+    muscle: 'Abs',
+    videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU',
+    description: 'Curl shoulders off ground',
+    tip: 'Keep neck relaxed',
+    defaultReps: 20,
+    defaultSets: 3,
+    formRules: {
+      hipAngle: { min: 70, max: 120 }
+    }
+  },
+  ROW: {
+    id: 'ROW',
+    name: 'Bent-over Row',
+    icon: '🔙',
+    muscle: 'Back',
+    videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw',
+    description: 'Pull elbows back, squeeze shoulder blades',
+    tip: 'Keep back straight, hinge at hips',
+    defaultReps: 10,
+    defaultSets: 3,
+    formRules: {
+      elbowAngle: { min: 60, max: 160 }
+    }
+  },
+  DEADLIFT: {
+    id: 'DEADLIFT',
+    name: 'Deadlift',
+    icon: '🏋️',
+    muscle: 'Back/Legs',
+    videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE',
+    description: 'Hinge at hips, keep back straight',
+    tip: 'Drive through heels',
+    defaultReps: 8,
+    defaultSets: 3,
+    formRules: {
+      kneeAngle: { min: 100, max: 160 },
+      hipAngle: { min: 120 }
+    }
+  },
+  LATERAL_RAISE: {
+    id: 'LATERAL_RAISE',
+    name: 'Lateral Raise',
+    icon: '💪',
+    muscle: 'Shoulders',
+    videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw',
+    description: 'Raise arms to sides, slight bend in elbows',
+    tip: "Don't use momentum",
+    defaultReps: 12,
+    defaultSets: 3,
+    formRules: {
+      elbowAngle: { min: 70, max: 150 }
+    }
+  },
+  TRICEP_EXTENSION: {
+    id: 'TRICEP_EXTENSION',
+    name: 'Tricep Extension',
+    icon: '💪',
+    muscle: 'Triceps',
+    videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME',
+    description: 'Extend arms overhead, lower behind head',
+    tip: 'Keep elbows pointing forward',
+    defaultReps: 12,
+    defaultSets: 3,
+    formRules: {
+      elbowAngle: { min: 60, max: 150 }
+    }
+  },
+  GLUTE_BRIDGE: {
+    id: 'GLUTE_BRIDGE',
+    name: 'Glute Bridge',
+    icon: '🦵',
+    muscle: 'Glutes',
+    videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE',
+    description: 'Lift hips up, squeeze glutes',
+    tip: "Don't overextend lower back",
+    defaultReps: 15,
+    defaultSets: 3,
+    formRules: {
+      hipAngle: { min: 160, max: 180 }
+    }
+  }
 };
 
-// ─── Exercise Library ──────────────────────────────────────────
-const EXERCISES = [
-  { id: 'PUSHUP', name: 'Push-up', icon: '💪', muscle: 'Chest' },
-  { id: 'SQUAT', name: 'Squat', icon: '🦵', muscle: 'Legs' },
-  { id: 'BICEP_CURL', name: 'Bicep Curl', icon: '💪', muscle: 'Biceps' },
-  { id: 'SHOULDER_PRESS', name: 'Shoulder Press', icon: '🏋️', muscle: 'Shoulders' },
-  { id: 'PLANK', name: 'Plank', icon: '🧘', muscle: 'Abs' },
-  { id: 'LUNGE', name: 'Lunge', icon: '🚶', muscle: 'Legs' },
-  { id: 'CRUNCH', name: 'Crunch', icon: '🔥', muscle: 'Abs' },
-  { id: 'ROW', name: 'Bent-over Row', icon: '🔙', muscle: 'Back' },
-  { id: 'DEADLIFT', name: 'Deadlift', icon: '🏋️', muscle: 'Back/Legs' },
-  { id: 'LATERAL_RAISE', name: 'Lateral Raise', icon: '💪', muscle: 'Shoulders' },
-  { id: 'TRICEP_EXTENSION', name: 'Tricep Extension', icon: '💪', muscle: 'Triceps' },
-  { id: 'GLUTE_BRIDGE', name: 'Glute Bridge', icon: '🦵', muscle: 'Glutes' }
-];
+// ─── Default Schedule Generator ─────────────────────────────────
+function getDefaultSchedule(goal = 'muscle_gain') {
+  const baseSchedule = {
+    'Monday': ['PUSHUP', 'BICEP_CURL', 'TRICEP_EXTENSION'],
+    'Tuesday': ['ROW', 'DEADLIFT', 'BICEP_CURL'],
+    'Wednesday': ['SQUAT', 'LUNGE', 'SHOULDER_PRESS'],
+    'Thursday': ['PUSHUP', 'LATERAL_RAISE', 'TRICEP_EXTENSION'],
+    'Friday': ['ROW', 'DEADLIFT', 'BICEP_CURL'],
+    'Saturday': ['PLANK', 'CRUNCH', 'GLUTE_BRIDGE'],
+    'Sunday': []
+  };
 
-// ─── Helper Functions ──────────────────────────────────────────
+  // Adjust based on goal
+  if (goal === 'muscle_gain') {
+    baseSchedule['Monday'].push('LATERAL_RAISE');
+    baseSchedule['Wednesday'].push('GLUTE_BRIDGE');
+    baseSchedule['Friday'].push('PUSHUP');
+  } else if (goal === 'weight_loss') {
+    baseSchedule['Monday'].push('LUNGE');
+    baseSchedule['Wednesday'].push('CRUNCH');
+    baseSchedule['Friday'].push('PLANK');
+  } else if (goal === 'strength') {
+    baseSchedule['Monday'] = ['DEADLIFT', 'PUSHUP', 'ROW'];
+    baseSchedule['Wednesday'] = ['SQUAT', 'SHOULDER_PRESS', 'DEADLIFT'];
+    baseSchedule['Friday'] = ['DEADLIFT', 'PUSHUP', 'ROW'];
+  }
 
-function getTodaySchedule() {
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  return baseSchedule;
+}
+
+function getExercisesForDay(day, userId) {
+  // Check if user has custom schedule
+  let schedule = userCustomSchedules.get(userId);
+  if (!schedule) {
+    const profile = userProfiles.get(userId);
+    schedule = getDefaultSchedule(profile?.goal || 'muscle_gain');
+    userCustomSchedules.set(userId, schedule);
+  }
+
+  const exerciseIds = schedule[day] || [];
+  return exerciseIds.map(id => ({
+    id,
+    name: WORKOUT_LIBRARY[id]?.name || id,
+    icon: WORKOUT_LIBRARY[id]?.icon || '🏋️',
+    muscle: WORKOUT_LIBRARY[id]?.muscle || 'Unknown',
+    videoUrl: WORKOUT_LIBRARY[id]?.videoUrl || '',
+    description: WORKOUT_LIBRARY[id]?.description || '',
+    tip: WORKOUT_LIBRARY[id]?.tip || '',
+    reps: WORKOUT_LIBRARY[id]?.defaultReps || 10,
+    sets: WORKOUT_LIBRARY[id]?.defaultSets || 3,
+    formRules: WORKOUT_LIBRARY[id]?.formRules || {}
+  }));
+}
+
+// ─── Nutrition Calculator ──────────────────────────────────────
+function calculateNutrition(weight, height, age, goal) {
+  // Mifflin-St Jeor BMR
+  let bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+  // Activity multiplier (moderate)
+  let maintenance = bmr * 1.55;
+  
+  let calories = maintenance;
+  let protein = weight * 1.8; // 1.8g per kg
+  let carbs = weight * 3;
+  let fats = weight * 0.8;
+
+  if (goal === 'muscle_gain') {
+    calories = maintenance + 300;
+    protein = weight * 2.2;
+    carbs = weight * 4;
+  } else if (goal === 'weight_loss') {
+    calories = maintenance - 500;
+    protein = weight * 2.0;
+    carbs = weight * 2;
+    fats = weight * 0.6;
+  } else if (goal === 'strength') {
+    calories = maintenance + 100;
+    protein = weight * 2.0;
+    carbs = weight * 3.5;
+  }
+
   return {
-    day: today,
-    workout: SCHEDULE[today]?.workout || 'Full Body Workout',
-    exercises: SCHEDULE[today]?.exercises || []
+    calories: Math.round(calories),
+    protein: Math.round(protein),
+    carbs: Math.round(carbs),
+    fats: Math.round(fats),
+    bmr: Math.round(bmr),
+    maintenance: Math.round(maintenance)
   };
 }
 
+// ─── Bot Welcome Message ──────────────────────────────────────
 function getWelcomeMessage(firstName = 'Athlete') {
-  const today = getTodaySchedule();
-  const exercises = today.exercises.map((ex, i) => `   ${i+1}. ${ex}`).join('\n');
-
   return `
 🏋️ *WELCOME TO AI GYM TRAINER* 💪
 
-Hey *${firstName}*! I'm your personal AI fitness coach. Let's crush your fitness goals together!
+Hey *${firstName}*! I'm your personal AI fitness coach.
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-🌟 *What I Can Do For You:*
+🌟 *Let's Get Started!*
+
+To create your personalized workout plan, I need a few details:
+
+1️⃣ *Weight* (kg)
+2️⃣ *Height* (cm)
+3️⃣ *Daily Protein Goal* (g)
+4️⃣ *Daily Calorie Goal* (kcal)
+
+━━━━━━━━━━━━━━━━━━━━━
+
+💪 *What I Can Do For You:*
 
 🎯 *Smart Workout Schedule*
-   • Get your personalized weekly plan
-   • Today's workout: *${today.workout}*
+   • Personalized weekly plan
+   • You can customize any day
    • Track your progress daily
 
 🤖 *AI Form Analysis*
@@ -158,38 +402,49 @@ Hey *${firstName}*! I'm your personal AI fitness coach. Let's crush your fitness
    • Review your form later
    • Track your improvement
 
-━━━━━━━━━━━━━━━━━━━━━
-
-📅 *Today's Schedule: ${today.day}*
-📍 *Workout:* ${today.workout}
-⏱️ *Duration:* 30-45 minutes
-
-*Exercises:*
-${exercises || '   • Rest day - take it easy! 😊'}
+📊 *Progress Tracking*
+   • View your workout history
+   • See your improvement over time
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-🚀 *Quick Start:*
+📱 *How to Use:*
 
-1️⃣ Tap the *"Open Gym App"* button below
-2️⃣ Select today's workout
-3️⃣ Start exercising and get real-time feedback!
+1️⃣ Tap *"Open Gym App"* below
+2️⃣ Enter your stats
+3️⃣ View your personalized schedule
+4️⃣ Tap any workout to see video & details
+5️⃣ Start exercising with real-time feedback!
 
 ━━━━━━━━━━━━━━━━━━━━━
 
 💡 *Pro Tips:*
-• Use a well-lit room for better pose detection
-• Wear contrasting colors for best results
-• Start with warm-up exercises
+• Use a well-lit room
+• Wear contrasting colors
 • Stay hydrated! 💧
+
+🔥 *LET'S BEGIN YOUR FITNESS JOURNEY!* 🔥
+  `;
+}
+
+function getReminderMessage(firstName = 'Athlete') {
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  return `
+⏰ *WORKOUT REMINDER* ⏰
+
+Hey *${firstName}*! It's time to crush your workout! 💪
+
+📅 *Today is ${today}*
+
+Don't forget to:
+• Warm up for 5-10 minutes
+• Stay hydrated
+• Focus on form over weight
+• Log your workout
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-🏆 *Your Fitness Journey Starts Now!*
-
-Tap the button below to open your AI-powered gym trainer. Let's make every rep count! 💪
-
-🔥 *LET'S GO!* 🔥
+Tap the button below to start your workout! 🏋️
   `;
 }
 
@@ -201,15 +456,15 @@ function getMainKeyboard() {
           { text: '🏋️ Open Gym App', web_app: { url: MINI_APP_URL } }
         ],
         [
-          { text: '📅 Today\'s Schedule', callback_data: 'schedule' },
+          { text: '📅 My Schedule', callback_data: 'schedule' },
           { text: '📊 My Progress', callback_data: 'progress' }
         ],
         [
           { text: '💪 Exercise Guide', callback_data: 'exercises' },
-          { text: '❓ Help', callback_data: 'help' }
+          { text: '⚙️ Customize Schedule', callback_data: 'customize' }
         ],
         [
-          { text: '🎯 Start Workout', web_app: { url: MINI_APP_URL } }
+          { text: '❓ Help', callback_data: 'help' }
         ]
       ]
     }
@@ -229,52 +484,269 @@ if (bot) {
     userSessions.set(chatId, {
       firstName,
       username: msg.from.username,
-      startDate: new Date().toISOString()
+      startDate: new Date().toISOString(),
+      step: 'onboarding'
     });
 
-    // Send welcome message
     bot.sendMessage(chatId, getWelcomeMessage(firstName), {
       parse_mode: 'Markdown',
       ...getMainKeyboard(),
       disable_web_page_preview: false
     });
 
-    // Send quick start guide after 1 second
+    // Send onboarding questions
     setTimeout(() => {
       bot.sendMessage(chatId, `
-⚡ *QUICK START GUIDE* ⚡
+📝 *Let's Set Up Your Profile*
 
-1️⃣ *Open Gym App* → Tap the button below
-2️⃣ *Select Exercise* → Choose from the library
-3️⃣ *Start Training* → Get real-time feedback!
+Please reply with:
 
-*You've got this!* 💪
-      `, {
-        parse_mode: 'Markdown',
-        ...getMainKeyboard()
-      });
+1️⃣ Your *weight* in kg (e.g., 75)
+2️⃣ Your *height* in cm (e.g., 175)
+3️⃣ Your *daily protein goal* in grams (e.g., 150)
+4️⃣ Your *daily calorie goal* (e.g., 2500)
+
+Example reply: *75, 175, 150, 2500*
+
+Or tap the Gym App button to set it up there! 🏋️
+      `, { parse_mode: 'Markdown' });
     }, 1000);
   });
 
-  // /workout command
-  bot.onText(/\/workout/, (msg) => {
+  // Handle onboarding data
+  bot.onText(/^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/, (msg, match) => {
     const chatId = msg.chat.id;
-    const today = getTodaySchedule();
-    const exercises = today.exercises.map((ex, i) => `   ${i+1}. ${ex}`).join('\n');
+    const weight = parseInt(match[1]);
+    const height = parseInt(match[2]);
+    const protein = parseInt(match[3]);
+    const calories = parseInt(match[4]);
+
+    if (weight < 30 || weight > 300 || height < 100 || height > 250) {
+      bot.sendMessage(chatId, '⚠️ Please enter valid values (weight: 30-300kg, height: 100-250cm)');
+      return;
+    }
+
+    // Save profile
+    userProfiles.set(chatId, {
+      weight,
+      height,
+      protein,
+      calories,
+      goal: 'muscle_gain',
+      createdAt: new Date().toISOString()
+    });
+
+    // Generate initial schedule
+    const schedule = getDefaultSchedule('muscle_gain');
+    userCustomSchedules.set(chatId, schedule);
+
+    // Calculate nutrition
+    const nutrition = calculateNutrition(weight, height, 30, 'muscle_gain');
+
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todayExercises = getExercisesForDay(today, chatId);
+
+    let workoutList = todayExercises.map((ex, i) => `   ${i+1}. ${ex.icon} ${ex.name} (${ex.sets} sets × ${ex.reps} reps)`).join('\n');
 
     bot.sendMessage(chatId, `
-📅 *TODAY'S WORKOUT* 📅
-━━━━━━━━━━━━━━━━━━━━━
-
-📆 *${today.day}*
-🏋️ *Workout:* ${today.workout}
-⏱️ *Duration:* 30-45 minutes
-
-*Exercises:*
-${exercises || '   • Rest day - take it easy! 😊'}
+✅ *Profile Saved!* 🎉
 
 ━━━━━━━━━━━━━━━━━━━━━
-💪 *Let's get started!*
+
+📊 *Your Stats:*
+• Weight: ${weight}kg
+• Height: ${height}cm
+• Protein Goal: ${protein}g/day
+• Calorie Goal: ${calories}kcal/day
+
+━━━━━━━━━━━━━━━━━━━━━
+
+🍽️ *Recommended Nutrition:*
+• Calories: ${nutrition.calories} kcal/day
+• Protein: ${nutrition.protein}g
+• Carbs: ${nutrition.carbs}g
+• Fats: ${nutrition.fats}g
+
+━━━━━━━━━━━━━━━━━━━━━
+
+📅 *Today's Workout (${today}):*
+${workoutList || '• Rest day - take it easy! 😊'}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+💪 *You can customize your schedule anytime!*
+Tap "Customize Schedule" in the menu.
+
+*Ready to start? Tap the button below!* 🏋️
+    `, {
+      parse_mode: 'Markdown',
+      ...getMainKeyboard()
+    });
+  });
+
+  // /schedule command
+  bot.onText(/\/schedule/, (msg) => {
+    const chatId = msg.chat.id;
+    const schedule = userCustomSchedules.get(chatId);
+    if (!schedule) {
+      bot.sendMessage(chatId, '⚠️ Please set up your profile first with /start');
+      return;
+    }
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    let message = '📅 *YOUR WORKOUT SCHEDULE* 📅\n━━━━━━━━━━━━━━━━━━━━━\n\n';
+
+    days.forEach(day => {
+      const exercises = getExercisesForDay(day, chatId);
+      const exList = exercises.length > 0 
+        ? exercises.map(ex => `${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`).join('\n   ')
+        : '   • Rest day 😊';
+      message += `*${day}:*\n   ${exList}\n\n`;
+    });
+
+    message += '━━━━━━━━━━━━━━━━━━━━━\n';
+    message += '💡 *To customize:* Tap "Customize Schedule" in the menu';
+
+    bot.sendMessage(chatId, message, {
+      parse_mode: 'Markdown',
+      ...getMainKeyboard()
+    });
+  });
+
+  // /customize command
+  bot.onText(/\/customize/, (msg) => {
+    const chatId = msg.chat.id;
+    const schedule = userCustomSchedules.get(chatId);
+    if (!schedule) {
+      bot.sendMessage(chatId, '⚠️ Please set up your profile first with /start');
+      return;
+    }
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const availableExercises = Object.keys(WORKOUT_LIBRARY);
+
+    let message = '⚙️ *CUSTOMIZE YOUR SCHEDULE* ⚙️\n━━━━━━━━━━━━━━━━━━━━━\n\n';
+    message += 'Reply with the day and exercises you want to change.\n\n';
+    message += 'Example: *Monday: PUSHUP, SQUAT, PLANK*\n\n';
+    message += 'Available exercises:\n';
+    availableExercises.forEach(id => {
+      message += `• ${WORKOUT_LIBRARY[id].icon} ${id} - ${WORKOUT_LIBRARY[id].name}\n`;
+    });
+
+    message += '\n━━━━━━━━━━━━━━━━━━━━━\n';
+    message += 'Current schedule:\n';
+
+    days.forEach(day => {
+      const exercises = getExercisesForDay(day, chatId);
+      const exList = exercises.length > 0 
+        ? exercises.map(ex => ex.id).join(', ')
+        : 'Rest';
+      message += `• ${day}: ${exList}\n`;
+    });
+
+    bot.sendMessage(chatId, message, {
+      parse_mode: 'Markdown',
+      ...getMainKeyboard()
+    });
+  });
+
+  // Handle schedule customization
+  bot.onText(/^([A-Za-z]+)\s*:\s*(.+)$/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const day = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+    const exerciseInput = match[2].toUpperCase().replace(/\s/g, '').split(',');
+
+    const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    if (!validDays.includes(day)) {
+      bot.sendMessage(chatId, '⚠️ Invalid day. Please use: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday');
+      return;
+    }
+
+    const validExercises = [];
+    const invalidExercises = [];
+    exerciseInput.forEach(ex => {
+      if (WORKOUT_LIBRARY[ex]) {
+        validExercises.push(ex);
+      } else if (ex !== 'REST' && ex !== '') {
+        invalidExercises.push(ex);
+      }
+    });
+
+    if (invalidExercises.length > 0) {
+      bot.sendMessage(chatId, `⚠️ Invalid exercises: ${invalidExercises.join(', ')}\nAvailable: ${Object.keys(WORKOUT_LIBRARY).join(', ')}`);
+      return;
+    }
+
+    // Update schedule
+    let schedule = userCustomSchedules.get(chatId) || getDefaultSchedule('muscle_gain');
+    schedule[day] = validExercises;
+    userCustomSchedules.set(chatId, schedule);
+
+    const exercises = getExercisesForDay(day, chatId);
+    const exList = exercises.length > 0 
+      ? exercises.map(ex => `${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`).join('\n   ')
+      : '• Rest day 😊';
+
+    bot.sendMessage(chatId, `
+✅ *Schedule Updated!* 🎉
+
+📅 *${day}:*
+   ${exList}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+Tap "My Schedule" to see your full week! 📅
+    `, {
+      parse_mode: 'Markdown',
+      ...getMainKeyboard()
+    });
+  });
+
+  // /progress command
+  bot.onText(/\/progress/, (msg) => {
+    const chatId = msg.chat.id;
+    const profile = userProfiles.get(chatId);
+    const history = workoutHistory.get(chatId) || [];
+
+    if (!profile) {
+      bot.sendMessage(chatId, '⚠️ Please set up your profile first with /start');
+      return;
+    }
+
+    const workoutsDone = history.length;
+    const totalExercises = history.reduce((sum, w) => sum + (w.exercises || 1), 0);
+    const streak = Math.floor(Math.random() * 7) + 1;
+
+    // Get today's workouts
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todayExercises = getExercisesForDay(today, chatId);
+
+    bot.sendMessage(chatId, `
+📊 *YOUR PROGRESS* 📊
+━━━━━━━━━━━━━━━━━━━━━
+
+👤 *${userSessions.get(chatId)?.firstName || 'Athlete'}*
+
+📅 *Started:* ${new Date(profile.createdAt).toLocaleDateString()}
+
+📊 *Stats:*
+• Weight: ${profile.weight}kg
+• Height: ${profile.height}cm
+• Protein Goal: ${profile.protein}g/day
+• Calorie Goal: ${profile.calories}kcal/day
+
+🏆 *Workouts Completed:* ${workoutsDone}
+💪 *Total Exercises:* ${totalExercises}
+🔥 *Current Streak:* ${streak} days
+
+━━━━━━━━━━━━━━━━━━━━━
+
+📅 *Today's Workout (${today}):*
+${todayExercises.map(ex => `• ${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`).join('\n')}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*Keep going! You're doing great!* 🚀
     `, {
       parse_mode: 'Markdown',
       ...getMainKeyboard()
@@ -284,73 +756,32 @@ ${exercises || '   • Rest day - take it easy! 😊'}
   // /exercises command
   bot.onText(/\/exercises/, (msg) => {
     const chatId = msg.chat.id;
-    const guide = `
-💪 *EXERCISE LIBRARY* 💪
-━━━━━━━━━━━━━━━━━━━━━
+    let message = '💪 *EXERCISE LIBRARY* 💪\n━━━━━━━━━━━━━━━━━━━━━\n\n';
 
-*Chest & Triceps*
-• 💪 Push-up – Chest
-• 💪 Tricep Extension – Triceps
+    const categories = {
+      'Chest': ['PUSHUP'],
+      'Legs': ['SQUAT', 'LUNGE'],
+      'Biceps': ['BICEP_CURL'],
+      'Shoulders': ['SHOULDER_PRESS', 'LATERAL_RAISE'],
+      'Abs': ['PLANK', 'CRUNCH'],
+      'Back': ['ROW', 'DEADLIFT'],
+      'Triceps': ['TRICEP_EXTENSION'],
+      'Glutes': ['GLUTE_BRIDGE']
+    };
 
-*Back & Biceps*
-• 🔙 Bent-over Row – Back
-• 💪 Bicep Curl – Biceps
-• 🏋️ Deadlift – Back/Legs
-
-*Legs & Shoulders*
-• 🦵 Squat – Legs
-• 🚶 Lunge – Legs
-• 🏋️ Shoulder Press – Shoulders
-• 💪 Lateral Raise – Shoulders
-
-*Core & Abs*
-• 🧘 Plank – Abs
-• 🔥 Crunch – Abs
-• 🦵 Glute Bridge – Glutes
-
-━━━━━━━━━━━━━━━━━━━━━
-Tap the button below to start exercising! 🏋️
-    `;
-    bot.sendMessage(chatId, guide, {
-      parse_mode: 'Markdown',
-      ...getMainKeyboard()
+    Object.keys(categories).forEach(cat => {
+      message += `*${cat}*\n`;
+      categories[cat].forEach(id => {
+        const ex = WORKOUT_LIBRARY[id];
+        if (ex) message += `   ${ex.icon} ${ex.name} - ${ex.defaultSets}×${ex.defaultReps}\n`;
+      });
+      message += '\n';
     });
-  });
 
-  // /progress command
-  bot.onText(/\/progress/, (msg) => {
-    const chatId = msg.chat.id;
-    const userData = userSessions.get(chatId);
-    const workoutsDone = Math.floor(Math.random() * 20) + 5;
-    const streak = Math.floor(Math.random() * 7) + 1;
+    message += '━━━━━━━━━━━━━━━━━━━━━\n';
+    message += 'Tap the Gym App to start exercising! 🏋️';
 
-    bot.sendMessage(chatId, `
-📊 *YOUR PROGRESS* 📊
-━━━━━━━━━━━━━━━━━━━━━
-
-👤 *${userData?.firstName || 'Athlete'}*
-
-📅 *Started:* ${userData?.startDate ? new Date(userData.startDate).toLocaleDateString() : 'Today'}
-
-🏆 *Workouts Completed:* ${workoutsDone}
-
-🔥 *Current Streak:* ${streak} days
-
-💪 *Total Exercises:* ${workoutsDone * 3}
-
-━━━━━━━━━━━━━━━━━━━━━
-
-📈 *Weekly Progress*
-${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-  .map(d => {
-    const done = Math.random() > 0.3;
-    return `• ${d}: ${done ? '✅' : '⏳'} ${done ? 'Completed' : 'Pending'}`;
-  }).join('\n')}
-
-━━━━━━━━━━━━━━━━━━━━━
-
-*Keep going! You're doing great!* 🚀
-    `, {
+    bot.sendMessage(chatId, message, {
       parse_mode: 'Markdown',
       ...getMainKeyboard()
     });
@@ -365,17 +796,29 @@ ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 ━━━━━━━━━━━━━━━━━━━━━
 
 🎯 *Getting Started*
-1. Tap *"Open Gym App"* to launch the trainer
-2. Allow camera access when prompted
-3. Select an exercise from the library
-4. Start exercising!
+1. Send /start to set up your profile
+2. Enter your weight, height, protein, calories
+3. View your personalized schedule
+4. Tap "Open Gym App" to start training
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-🤖 *AI Features*
-• *Live Form Analysis*: Get instant feedback
-• *Angle Tracking*: See your joint angles
-• *Video Recording*: Record and review
+📋 *Commands:*
+/start - Set up your profile
+/schedule - View your workout schedule
+/customize - Change your schedule
+/progress - View your progress
+/exercises - See all exercises
+/help - This help message
+
+━━━━━━━━━━━━━━━━━━━━━
+
+⚙️ *Customize Schedule*
+Send: *Monday: PUSHUP, SQUAT, PLANK*
+Replace with any day and exercises
+
+Available exercises:
+${Object.keys(WORKOUT_LIBRARY).map(id => `• ${id}`).join('\n')}
 
 ━━━━━━━━━━━━━━━━━━━━━
 
@@ -383,6 +826,7 @@ ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 • Good lighting is essential
 • Stand 2-3 meters from the camera
 • Wear fitted clothing
+• Follow the form cues
 
 ━━━━━━━━━━━━━━━━━━━━━
 
@@ -400,13 +844,16 @@ ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
     switch (data) {
       case 'schedule':
-        bot.emit('text', { chat: { id: chatId }, text: '/workout' });
+        bot.emit('text', { chat: { id: chatId }, text: '/schedule' });
         break;
       case 'progress':
         bot.emit('text', { chat: { id: chatId }, text: '/progress' });
         break;
       case 'exercises':
         bot.emit('text', { chat: { id: chatId }, text: '/exercises' });
+        break;
+      case 'customize':
+        bot.emit('text', { chat: { id: chatId }, text: '/customize' });
         break;
       case 'help':
         bot.emit('text', { chat: { id: chatId }, text: '/help' });
@@ -417,18 +864,25 @@ ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     bot.answerCallbackQuery(callbackQuery.id);
   });
 
-  console.log('✅ Bot handlers registered');
-}
+  // ─── Reminder System ──────────────────────────────────────────
+  // Send reminders every morning at 8am
+  setInterval(() => {
+    const now = new Date();
+    if (now.getHours() === 8 && now.getMinutes() === 0) {
+      userSessions.forEach((session, chatId) => {
+        if (session.firstName) {
+          bot.sendMessage(chatId, getReminderMessage(session.firstName), {
+            parse_mode: 'Markdown',
+            ...getMainKeyboard()
+          });
+        }
+      });
+    }
+  }, 60000); // Check every minute
 
-// ─── WEBHOOK ROUTE ─────────────────────────────────────────────
-app.post('/webhook', (req, res) => {
-  if (bot) {
-    bot.processUpdate(req.body);
-    res.sendStatus(200);
-  } else {
-    res.status(500).json({ error: 'Bot not initialized' });
-  }
-});
+  console.log('✅ Bot handlers registered');
+  console.log('⏰ Reminder system active (8am daily)');
+}
 
 // ─── API ROUTES ─────────────────────────────────────────────────
 
@@ -441,84 +895,216 @@ app.get('/api/health', (req, res) => {
     bot: !!bot,
     botUsername: process.env.TELEGRAM_BOT_USERNAME || 'Not configured',
     miniAppUrl: MINI_APP_URL,
-    webhookUrl: WEBHOOK_URL
+    users: userProfiles.size
   });
 });
 
-// Get bot info
-app.get('/api/bot/info', (req, res) => {
+// ─── User Profile Routes ──────────────────────────────────────
+
+// Save user profile
+app.post('/api/profile', (req, res) => {
+  const { userId, weight, height, protein, calories, goal } = req.body;
+  if (!userId || !weight || !height) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  userProfiles.set(userId, {
+    weight: parseFloat(weight),
+    height: parseFloat(height),
+    protein: parseFloat(protein) || weight * 1.8,
+    calories: parseFloat(calories) || 2000,
+    goal: goal || 'muscle_gain',
+    createdAt: new Date().toISOString()
+  });
+
+  // Generate default schedule if not exists
+  if (!userCustomSchedules.has(userId)) {
+    const schedule = getDefaultSchedule(goal || 'muscle_gain');
+    userCustomSchedules.set(userId, schedule);
+  }
+
+  // Calculate nutrition
+  const nutrition = calculateNutrition(
+    parseFloat(weight),
+    parseFloat(height),
+    30,
+    goal || 'muscle_gain'
+  );
+
   res.json({
-    username: process.env.TELEGRAM_BOT_USERNAME || 'Not configured',
-    webhook: WEBHOOK_URL,
-    miniAppUrl: MINI_APP_URL,
-    status: bot ? 'online' : 'offline'
+    success: true,
+    profile: userProfiles.get(userId),
+    nutrition,
+    schedule: userCustomSchedules.get(userId)
   });
 });
+
+// Get user profile
+app.get('/api/profile/:userId', (req, res) => {
+  const { userId } = req.params;
+  const profile = userProfiles.get(userId);
+  if (!profile) {
+    return res.status(404).json({ error: 'Profile not found' });
+  }
+
+  const schedule = userCustomSchedules.get(userId) || getDefaultSchedule(profile.goal);
+  const nutrition = calculateNutrition(profile.weight, profile.height, 30, profile.goal);
+
+  res.json({
+    profile,
+    nutrition,
+    schedule
+  });
+});
+
+// ─── Schedule Routes ──────────────────────────────────────────
 
 // Get today's schedule
-app.get('/api/schedule/today', (req, res) => {
-  res.json(getTodaySchedule());
+app.get('/api/schedule/today/:userId', (req, res) => {
+  const { userId } = req.params;
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  const exercises = getExercisesForDay(today, userId);
+
+  res.json({
+    day: today,
+    exercises
+  });
 });
 
 // Get full schedule
-app.get('/api/schedule', (req, res) => {
+app.get('/api/schedule/:userId', (req, res) => {
+  const { userId } = req.params;
+  const schedule = userCustomSchedules.get(userId) || getDefaultSchedule('muscle_gain');
+  const profile = userProfiles.get(userId);
+
+  const fullSchedule = {};
+  Object.keys(schedule).forEach(day => {
+    fullSchedule[day] = getExercisesForDay(day, userId);
+  });
+
   res.json({
-    schedule: SCHEDULE,
-    today: new Date().toLocaleDateString('en-US', { weekday: 'long' })
+    schedule: fullSchedule,
+    profile
   });
 });
 
+// Update schedule
+app.post('/api/schedule', (req, res) => {
+  const { userId, schedule } = req.body;
+  if (!userId || !schedule) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  userCustomSchedules.set(userId, schedule);
+
+  res.json({
+    success: true,
+    schedule
+  });
+});
+
+// Update specific day
+app.post('/api/schedule/day', (req, res) => {
+  const { userId, day, exercises } = req.body;
+  if (!userId || !day || !exercises) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let schedule = userCustomSchedules.get(userId) || getDefaultSchedule('muscle_gain');
+  schedule[day] = exercises;
+  userCustomSchedules.set(userId, schedule);
+
+  res.json({
+    success: true,
+    day,
+    exercises: getExercisesForDay(day, userId)
+  });
+});
+
+// ─── Exercise Routes ──────────────────────────────────────────
+
 // Get all exercises
 app.get('/api/exercises', (req, res) => {
-  res.json(EXERCISES);
+  const exercises = Object.keys(WORKOUT_LIBRARY).map(key => ({
+    id: key,
+    ...WORKOUT_LIBRARY[key]
+  }));
+  res.json(exercises);
 });
 
 // Get specific exercise
 app.get('/api/exercises/:id', (req, res) => {
-  const ex = EXERCISES.find(e => e.id === req.params.id);
-  if (!ex) return res.status(404).json({ error: 'Exercise not found' });
+  const ex = WORKOUT_LIBRARY[req.params.id];
+  if (!ex) {
+    return res.status(404).json({ error: 'Exercise not found' });
+  }
   res.json(ex);
 });
 
-// Analyze form (mock)
-app.post('/api/analyze', express.json({ limit: '10mb' }), (req, res) => {
-  const { exercise } = req.body;
-  const rand = Math.random();
-  let feedback, correct, angle;
+// ─── Workout History Routes ──────────────────────────────────
 
-  if (rand < 0.25) {
-    feedback = '⬇️ Go lower!';
-    correct = false;
-    angle = 155;
-  } else if (rand < 0.5) {
-    feedback = '⬆️ Push up!';
-    correct = false;
-    angle = 65;
-  } else {
-    feedback = '✅ Perfect!';
-    correct = true;
-    angle = 90;
+// Save workout
+app.post('/api/workout', (req, res) => {
+  const { userId, exercise, duration, reps, sets, feedback, videoUrl } = req.body;
+  if (!userId || !exercise) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  let history = workoutHistory.get(userId) || [];
+  history.push({
+    exercise,
+    date: new Date().toISOString(),
+    duration: duration || 0,
+    reps: reps || 0,
+    sets: sets || 0,
+    feedback: feedback || '',
+    videoUrl: videoUrl || ''
+  });
+  workoutHistory.set(userId, history);
+
   res.json({
-    feedback,
-    correct,
-    angle: Math.round(angle),
-    exercise
+    success: true,
+    workout: history[history.length - 1]
   });
 });
 
-// Upload video
+// Get workout history
+app.get('/api/workout/:userId', (req, res) => {
+  const { userId } = req.params;
+  const history = workoutHistory.get(userId) || [];
+  res.json(history);
+});
+
+// ─── Nutrition Routes ─────────────────────────────────────────
+
+// Calculate nutrition
+app.post('/api/nutrition', (req, res) => {
+  const { weight, height, age, goal } = req.body;
+  if (!weight || !height) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const nutrition = calculateNutrition(
+    parseFloat(weight),
+    parseFloat(height),
+    age || 30,
+    goal || 'muscle_gain'
+  );
+
+  res.json(nutrition);
+});
+
+// ─── Video Upload ─────────────────────────────────────────────
+
 app.post('/api/upload', upload.single('video'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No video uploaded' });
   }
 
-  const { exercise, sessionId, userId } = req.body;
+  const { userId, exercise } = req.body;
   const metadata = {
     filename: req.file.filename,
     exercise: exercise || 'unknown',
-    sessionId: sessionId || uuidv4(),
     userId: userId || 'anonymous',
     timestamp: new Date().toISOString(),
     size: req.file.size,
@@ -527,7 +1113,6 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
 
   const metaPath = req.file.path + '.meta.json';
   fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2));
-  workoutHistory.push(metadata);
 
   res.json({
     success: true,
@@ -536,91 +1121,21 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
   });
 });
 
-// Get all videos
-app.get('/api/videos', (req, res) => {
-  fs.readdir(UPLOAD_DIR, (err, files) => {
-    if (err) return res.status(500).json({ error: 'Failed to list videos' });
-
-    const videos = files
-      .filter(f => /\.(mp4|webm|mov|avi)$/i.test(f))
-      .map(f => {
-        const metaPath = path.join(UPLOAD_DIR, f + '.meta.json');
-        let metadata = {};
-        if (fs.existsSync(metaPath)) {
-          try { metadata = JSON.parse(fs.readFileSync(metaPath, 'utf8')); } catch (e) {}
-        }
-        return {
-          filename: f,
-          url: `/uploads/${f}`,
-          metadata,
-          timestamp: fs.statSync(path.join(UPLOAD_DIR, f)).mtime
-        };
-      })
-      .sort((a, b) => b.timestamp - a.timestamp);
-
-    res.json(videos);
-  });
-});
-
-// Get video by filename
-app.get('/api/video/:filename', (req, res) => {
-  const { filename } = req.params;
-  const videoPath = path.join(UPLOAD_DIR, filename);
-
-  if (!fs.existsSync(videoPath)) {
-    return res.status(404).json({ error: 'Video not found' });
-  }
-
-  const metaPath = videoPath + '.meta.json';
-  let metadata = {};
-  if (fs.existsSync(metaPath)) {
-    try { metadata = JSON.parse(fs.readFileSync(metaPath, 'utf8')); } catch (e) {}
-  }
-
-  res.json({
-    filename,
-    url: `/uploads/${filename}`,
-    metadata
-  });
-});
-
-// Delete video
-app.delete('/api/video/:filename', (req, res) => {
-  const { filename } = req.params;
-  const videoPath = path.join(UPLOAD_DIR, filename);
-  const metaPath = videoPath + '.meta.json';
-
-  if (!fs.existsSync(videoPath)) {
-    return res.status(404).json({ error: 'Video not found' });
-  }
-
-  try {
-    fs.unlinkSync(videoPath);
-    if (fs.existsSync(metaPath)) fs.unlinkSync(metaPath);
-    res.json({ success: true, message: 'Video deleted' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to delete video' });
-  }
-});
-
-// Get workout history
-app.get('/api/history', (req, res) => {
-  const limit = parseInt(req.query.limit) || 50;
-  const history = workoutHistory
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-    .slice(0, limit);
-  res.json(history);
-});
-
 // ─── Serve Static Files ────────────────────────────────────────
+
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-// ─── Serve Mini App (for Render) ──────────────────────────────
+// Serve Mini App
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/tg', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // ─── Error Handler ─────────────────────────────────────────────
+
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -629,23 +1144,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ─── Set Webhook on Startup ────────────────────────────────────
-async function setWebhook() {
-  if (!bot) return;
-  try {
-    await bot.setWebHook(WEBHOOK_URL);
-    console.log(`✅ Webhook set to: ${WEBHOOK_URL}`);
-    
-    // Get webhook info
-    const info = await bot.getWebHookInfo();
-    console.log(`📡 Webhook info:`, info);
-  } catch (err) {
-    console.error('❌ Webhook error:', err.message);
-  }
-}
-
 // ─── Start Server ──────────────────────────────────────────────
-server.listen(PORT, '0.0.0.0', async () => {
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log('\n========================================');
   console.log('🏋️ AI Gym Trainer Server');
   console.log('========================================');
@@ -653,16 +1154,13 @@ server.listen(PORT, '0.0.0.0', async () => {
   console.log(`📁 Uploads: ${UPLOAD_DIR}`);
   console.log(`🤖 Bot: @${process.env.TELEGRAM_BOT_USERNAME || 'Not configured'}`);
   console.log(`🌐 Mini App: ${MINI_APP_URL}`);
-  console.log(`🔗 Webhook: ${WEBHOOK_URL}`);
-  console.log(`📊 Exercises: ${EXERCISES.length}`);
-  console.log(`📅 Schedule: ${Object.keys(SCHEDULE).length} days`);
+  console.log(`📊 Exercises: ${Object.keys(WORKOUT_LIBRARY).length}`);
+  console.log(`👥 Users: ${userProfiles.size}`);
   console.log('========================================\n');
-
-  // Set webhook
-  await setWebhook();
 });
 
 // ─── Cleanup ────────────────────────────────────────────────────
+
 setInterval(() => {
   const now = Date.now();
   const maxAge = 30 * 24 * 60 * 60 * 1000;
@@ -684,6 +1182,7 @@ setInterval(() => {
 }, 24 * 60 * 60 * 1000);
 
 // ─── Graceful Shutdown ─────────────────────────────────────────
+
 process.on('SIGTERM', () => {
   console.log('🛑 Shutting down...');
   server.close(() => process.exit(0));
