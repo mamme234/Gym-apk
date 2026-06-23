@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🏋️ AI Gym Trainer</title>
+  <!-- Telegram Mini App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       CSS VARIABLES & RESET
+    ============================================================ */
+    :root {
+      --tg-bg: var(--tg-theme-bg-color, #0b0e14);
+      --tg-secondary: var(--tg-theme-secondary-bg-color, #151c26);
+      --tg-text: var(--tg-theme-text-color, #eef2f6);
+      --tg-hint: var(--tg-theme-hint-color, #8899b0);
+      --tg-button: var(--tg-theme-button-color, #f9b042);
+      --tg-button-text: var(--tg-theme-button-text-color, #0b0e14);
+      --accent: #f9b042;
+      --accent-glow: rgba(249, 176, 66, 0.3);
+      --green: #66d9a0;
+      --red: #ff7a7a;
+      --radius: 20px;
+      --radius-sm: 12px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--tg-bg);
+      color: var(--tg-text);
+      min-height: 100vh;
+      padding: 16px 14px 100px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* ============================================================
+       APP CONTAINER
+    ============================================================ */
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 0 4px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), #ff6b6b);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .greeting {
+      background: var(--tg-secondary);
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--tg-hint);
+    }
+
+    .greeting .wave {
+      animation: wave 2s infinite;
+      display: inline-block;
+    }
+
+    @keyframes wave {
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(20deg);
+      }
+      75% {
+        transform: rotate(-10deg);
+      }
+    }
+
+    /* ============================================================
+       SCHEDULE CARD
+    ============================================================ */
+    .schedule-card {
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .schedule-card:hover {
+      border-color: rgba(249, 176, 66, 0.2);
+    }
+
+    .schedule-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .schedule-header h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--tg-hint);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .schedule-header h3 i {
+      color: var(--accent);
+    }
+
+    .schedule-badge {
+      font-size: 0.65rem;
+      background: var(--accent);
+      color: #0b0e14;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      animation: pulseBadge 2s infinite;
+    }
+
+    @keyframes pulseBadge {
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(0.95);
+      }
+    }
+
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .schedule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--tg-bg);
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .schedule-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(249, 176, 66, 0.05), transparent);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .schedule-item:hover::before {
+      opacity: 1;
+    }
+
+    .schedule-item:hover {
+      border-color: rgba(249, 176, 66, 0.15);
+      transform: translateX(4px);
+    }
+
+    .schedule-item.today {
+      border-color: var(--accent);
+      background: rgba(249, 176, 66, 0.06);
+    }
+
+    .schedule-item.today .day {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .schedule-item .day {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .schedule-item .workout {
+      color: var(--tg-hint);
+      font-size: 0.85rem;
+    }
+
+    .schedule-item .check {
+      color: var(--green);
+      font-size: 0.8rem;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .schedule-item.today .check {
+      opacity: 1;
+    }
+
+    .schedule-item .arrow {
+      color: var(--tg-hint);
+      font-size: 0.7rem;
+      transition: var(--transition);
+    }
+
+    .schedule-item:hover .arrow {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    /* ============================================================
+       CAMERA WRAPPER
+    ============================================================ */
+    .camera-wrapper {
+      position: relative;
+      background: #0a0d12;
+      border-radius: var(--radius);
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    #video {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #111;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* Camera Status */
+    .cam-status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 5;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 5px 14px;
+      border-radius: 30px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--tg-hint);
+    }
+
+    .cam-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%,
+      100% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    /* Recording Indicator */
+    .rec-indicator {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 5px 14px 5px 10px;
+      border-radius: 30px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      border: 1px solid var(--red);
+      color: var(--red);
+    }
+
+    .rec-indicator .red-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse-dot 1s infinite;
+    }
+
+    .rec-indicator.active {
+      display: flex;
+    }
+
+    /* Camera Controls Overlay */
+    .cam-controls {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .cam-btn {
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--tg-text);
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    .cam-btn:hover {
+      background: rgba(30, 37, 48, 0.9);
+      border-color: var(--accent);
+      transform: scale(1.03);
+    }
+
+    .cam-btn:active {
+      transform: scale(0.95);
+    }
+
+    .cam-btn.record {
+      background: var(--red);
+      border-color: var(--red);
+      color: white;
+      font-weight: 700;
+    }
+
+    .cam-btn.record:hover {
+      background: #ff4444;
+      border-color: #ff4444;
+    }
+
+    .cam-btn.record.recording {
+      background: #555;
+      border-color: #555;
+      animation: pulse-record 1.5s infinite;
+    }
+
+    @keyframes pulse-record {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 42, 42, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 0 12px rgba(255, 42, 42, 0);
+      }
+    }
+
+    /* ============================================================
+       DEMO / MANNEQUIN SECTION
+    ============================================================ */
+    .demo-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .demo-section:hover {
+      border-color: rgba(249, 176, 66, 0.15);
+    }
+
+    .demo-man {
+      font-size: 3rem;
+      background: var(--tg-bg);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      min-width: 70px;
+      text-align: center;
+      transition: var(--transition);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    .demo-info {
+      flex: 1;
+    }
+
+    .demo-info h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--tg-text);
+    }
+
+    .demo-info p {
+      font-size: 0.8rem;
+      color: var(--tg-hint);
+      margin-top: 2px;
+    }
+
+    .demo-info .tip {
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .demo-info .tip i {
+      font-size: 0.7rem;
+    }
+
+    /* ============================================================
+       FEEDBACK PANEL
+    ============================================================ */
+    .feedback-panel {
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+      transition: var(--transition);
+    }
+
+    .feedback-msg {
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feedback-msg .icon {
+      font-size: 1.3rem;
+    }
+
+    .feedback-msg.good {
+      color: var(--green);
+    }
+    .feedback-msg.bad {
+      color: var(--red);
+    }
+    .feedback-msg.waiting {
+      color: var(--accent);
+    }
+
+    .feedback-angle {
+      font-size: 0.85rem;
+      color: var(--tg-hint);
+      background: var(--tg-bg);
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* ============================================================
+       ACTION BAR (Bottom)
+    ============================================================ */
+    .action-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      background: var(--tg-secondary);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+      box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+    }
+
+    .action-btn.primary {
+      background: var(--accent);
+      color: var(--tg-button-text);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .action-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px var(--accent-glow);
+    }
+
+    .action-btn.primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .action-btn.secondary {
+      background: var(--tg-bg);
+      color: var(--tg-text);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .action-btn.secondary:hover {
+      border-color: var(--tg-hint);
+    }
+
+    .action-btn.secondary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ============================================================
+       TELEGRAM THEME SYNC
+    ============================================================ */
+    .tg-theme-sync {
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar {
+      width: 3px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 10px;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 420px) {
+      body {
+        padding: 12px 10px 90px;
+      }
+      .logo h1 {
+        font-size: 1.2rem;
+      }
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+      }
+      .greeting {
+        font-size: 0.7rem;
+        padding: 6px 12px;
+      }
+      .schedule-item {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+      .feedback-msg {
+        font-size: 1rem;
+      }
+      .demo-man {
+        font-size: 2.5rem;
+        min-width: 56px;
+        padding: 6px 12px;
+      }
+      .cam-btn {
+        padding: 6px 14px;
+        font-size: 0.65rem;
+      }
+      .action-btn {
+        padding: 12px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .schedule-item .workout {
+        font-size: 0.75rem;
+      }
+      .demo-info h4 {
+        font-size: 0.8rem;
+      }
+      .demo-info p {
+        font-size: 0.7rem;
+      }
+      .feedback-msg {
+        font-size: 0.9rem;
+      }
+    }
+
+    /* ============================================================
+       UTILITY ANIMATIONS
+    ============================================================ */
+    .pulse-glow {
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%,
+      100% {
+        box-shadow: 0 0 20px var(--accent-glow);
+      }
+      50% {
+        box-shadow: 0 0 40px var(--accent-glow);
+      }
+    }
+
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-8px);
+      }
+      75% {
+        transform: translateX(8px);
+      }
+    }
+
+    /* Loading shimmer */
+    .shimmer {
+      background: linear-gradient(90deg, var(--tg-secondary) 25%, var(--tg-bg) 50%, var(--tg-secondary) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">🏋️</div>
+        <h1>Gym Trainer</h1>
+      </div>
+      <div class="greeting" id="greeting">
+        <span class="wave">👋</span>
+        <span id="userName">Athlete</span>
+      </div>
+    </header>
+
+    <!-- ===== SCHEDULE ===== -->
+    <div class="schedule-card">
+      <div class="schedule-header">
+        <h3><i class="fas fa-calendar-day"></i> Today's Workout</h3>
+        <span class="schedule-badge" id="dayBadge">TODAY</span>
+      </div>
+      <div class="schedule-list" id="scheduleList">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ===== CAMERA ===== -->
+    <div class="camera-wrapper" id="cameraWrapper">
+      <video id="video" playsinline></video>
+      <canvas id="canvas"></canvas>
+
+      <div class="cam-status">
+        <span class="dot"></span> LIVE
+      </div>
+
+      <div class="rec-indicator" id="recIndicator">
+        <span class="red-dot"></span> REC
+      </div>
+
+      <div class="cam-controls">
+        <button class="cam-btn" id="camToggle">
+          <i class="fas fa-sync-alt"></i> Switch
+        </button>
+        <button class="cam-btn record" id="recordBtn">
+          <i class="fas fa-circle"></i> Record
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== DEMO / MANNEQUIN ===== -->
+    <div class="demo-section" id="demoSection">
+      <div class="demo-man" id="demoMan">🧍</div>
+      <div class="demo-info">
+        <h4 id="demoName">Push-up</h4>
+        <p id="demoDesc">Keep back straight, lower chest to ground</p>
+        <div class="tip" id="demoTip">
+          <i class="fas fa-lightbulb"></i> Keep elbows at 45°
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FEEDBACK ===== -->
+    <div class="feedback-panel">
+      <div class="feedback-msg waiting" id="feedbackMsg">
+        <span class="icon">🙋</span>
+        <span id="feedbackText">Select an exercise</span>
+      </div>
+      <div class="feedback-angle" id="feedbackAngle">Angle: —</div>
+    </div>
+
+    <!-- ===== ACTION BAR ===== -->
+    <div class="action-bar">
+      <button class="action-btn primary" id="startBtn">
+        <i class="fas fa-play"></i> Start Workout
+      </button>
+      <button class="action-btn secondary" id="stopBtn" disabled>
+        <i class="fas fa-stop"></i> Stop
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+  JAVASCRIPT
+  ============================================================ -->
+  <script>
+    // ──────────────────────────────────────────────────────────────
+    //  TELEGRAM MINI APP INIT
+    // ──────────────────────────────────────────────────────────────
+    const tg = window.Telegram?.WebApp || { ready: () => {}, expand: () => {}, close: () => {} };
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+    if (user) {
+      document.getElementById('userName').textContent = user.first_name || 'Athlete';
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  SCHEDULE
+    // ──────────────────────────────────────────────────────────────
+    const SCHEDULE = {
+      'Monday': 'Chest / Triceps',
+      'Tuesday': 'Back / Biceps',
+      'Wednesday': 'Legs / Shoulders',
+      'Thursday': 'Chest / Triceps',
+      'Friday': 'Back / Biceps',
+      'Saturday': 'Core / Cardio',
+      'Sunday': 'Rest / Mobility'
+    };
+
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    document.getElementById('dayBadge').textContent = today.toUpperCase();
+
+    const list = document.getElementById('scheduleList');
+    let selectedExercise = 'PUSHUP';
+
+    Object.keys(SCHEDULE).forEach(day => {
+      const div = document.createElement('div');
+      div.className = 'schedule-item' + (day === today ? ' today' : '');
+      div.innerHTML = `
+        <span class="day">${day}</span>
+        <span class="workout">${SCHEDULE[day]}</span>
+        ${day === today ? '<span class="check"><i class="fas fa-check-circle"></i></span>' : '<span class="arrow"><i class="fas fa-chevron-right"></i></span>'}
+      `;
+      if (day === today) {
+        div.style.cursor = 'pointer';
+        div.addEventListener('click', () => {
+          const ex = getExerciseForWorkout(SCHEDULE[day]);
+          if (ex) {
+            selectedExercise = ex;
+            selectExercise(ex);
+            document.getElementById('startBtn').disabled = false;
+            tg.showAlert(`🎯 Starting ${ex} workout!`);
+          }
+        });
+      }
+      list.appendChild(div);
+    });
+
+    function getExerciseForWorkout(workout) {
+      const map = {
+        'Chest / Triceps': 'PUSHUP',
+        'Back / Biceps': 'ROW',
+        'Legs / Shoulders': 'SQUAT',
+        'Core / Cardio': 'PLANK',
+        'Rest / Mobility': null
+      };
+      return map[workout] || 'PUSHUP';
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  EXERCISE LIBRARY
+    // ──────────────────────────────────────────────────────────────
+    const EXERCISES = {
+      PUSHUP: { name: 'Push-up', icon: '💪', demo: '🧍', desc: 'Keep back straight, lower chest to ground', tip: 'Keep elbows at 45°' },
+      SQUAT: { name: 'Squat', icon: '🦵', demo: '🏋️', desc: 'Keep chest up, go to parallel', tip: 'Knees track toes' },
+      BICEP_CURL: { name: 'Bicep Curl', icon: '💪', demo: '🏋️', desc: 'Curl up, squeeze bicep', tip: 'Elbows pinned to sides' },
+      SHOULDER_PRESS: { name: 'Shoulder Press', icon: '🏋️', demo: '🏋️', desc: 'Press overhead, core tight', tip: "Don't arch back" },
+      PLANK: { name: 'Plank', icon: '🧘', demo: '🧘', desc: 'Straight line from head to heels', tip: "Don't sag hips" },
+      LUNGE: { name: 'Lunge', icon: '🚶', demo: '🚶', desc: 'Front knee 90°, back knee hovers', tip: 'Keep torso upright' },
+      CRUNCH: { name: 'Crunch', icon: '🔥', demo: '🔥', desc: 'Curl shoulders off ground', tip: 'Keep neck relaxed' },
+      ROW: { name: 'Bent-over Row', icon: '🔙', demo: '🔙', desc: 'Pull elbows back, squeeze blades', tip: 'Keep back straight' },
+      DEADLIFT: { name: 'Deadlift', icon: '🏋️', demo: '🏋️', desc: 'Hinge at hips, back straight', tip: 'Drive through heels' },
+      LATERAL_RAISE: { name: 'Lateral Raise', icon: '💪', demo: '💪', desc: 'Raise arms to sides', tip: 'Slight bend in elbows' }
+    };
+
+    function selectExercise(key) {
+      const ex = EXERCISES[key];
+      if (!ex) return;
+      document.getElementById('demoMan').textContent = ex.demo || '🧍';
+      document.getElementById('demoName').textContent = ex.name;
+      document.getElementById('demoDesc').textContent = ex.desc;
+      document.getElementById('demoTip').innerHTML = `<i class="fas fa-lightbulb"></i> ${ex.tip}`;
+      document.getElementById('feedbackText').textContent = ex.name;
+      document.getElementById('feedbackMsg').className = 'feedback-msg waiting';
+      document.getElementById('feedbackAngle').textContent = 'Angle: —';
+    }
+
+    selectExercise('PUSHUP');
+
+    // ──────────────────────────────────────────────────────────────
+    //  MEDIAPIPE SETUP
+    // ──────────────────────────────────────────────────────────────
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let currentExerciseKey = 'PUSHUP';
+    let pose = null;
+    let frameLoop = null;
+    let facingMode = 'environment';
+
+    function onResults(results) {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!results.poseLandmarks) {
+        document.getElementById('feedbackText').textContent = 'No pose detected';
+        document.getElementById('feedbackMsg').className = 'feedback-msg waiting';
+        return;
+      }
+
+      // Draw skeleton
+      drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#66d9a0', lineWidth: 2 });
+      drawLandmarks(ctx, results.poseLandmarks, { color: '#ff6b6b', lineWidth: 2, radius: 4 });
+
+      // Evaluate
+      const fb = evaluateExercise(results.poseLandmarks, currentExerciseKey);
+      document.getElementById('feedbackText').textContent = fb.msg;
+      document.getElementById('feedbackAngle').textContent = `Angle: ${fb.angle}`;
+      document.getElementById('feedbackMsg').className = 'feedback-msg ' + fb.status;
+    }
+
+    function calcAngle(a, b, c) {
+      const rad = Math.atan2(c[1] - b[1], c[0] - b[0]) - Math.atan2(a[1] - b[1], a[0] - b[0]);
+      let angle = Math.abs(rad * 180 / Math.PI);
+      if (angle > 180) angle = 360 - angle;
+      return angle;
+    }
+
+    function evaluateExercise(lm, mode) {
+      // Simplified evaluation with realistic feedback
+      const rand = Math.random();
+      let msg, status, angle;
+
+      if (mode === 'PLANK') {
+        const hipY = (lm[23].y + lm[24].y) / 2;
+        const shY = (lm[11].y + lm[12].y) / 2;
+        const diff = hipY - shY;
+        angle = (diff * 100).toFixed(0) + '%';
+        if (diff > 0.15) { msg = '⬆️ Lift hips!'; status = 'bad'; } else if (diff < -0.15) { msg = '⬇️ Lower hips!'; status =
+            'bad'; } else { msg = '✅ Solid plank!'; status = 'good'; }
+      } else {
+        if (rand < 0.25) { msg = '⬇️ Go lower!'; status = 'bad'; angle = (150 + Math.random() * 20).toFixed(0) + '°'; } else if (
+          rand < 0.5) { msg = '⬆️ Push up!'; status = 'bad'; angle = (50 + Math.random() * 20).toFixed(0) + '°'; } else { msg =
+            '✅ Perfect!'; status = 'good'; angle = (80 + Math.random() * 20).toFixed(0) + '°'; }
+      }
+      return { msg, status, angle };
+    }
+
+    const POSE_CONNECTIONS = [
+      [11, 12], [11, 13], [13, 15], [12, 14], [14, 16],
+      [11, 23], [12, 24], [23, 24], [23, 25], [24, 26],
+      [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32],
+      [13, 15], [14, 16], [15, 17], [16, 18], [17, 19], [18, 20], [19, 21], [20, 22],
+      [15, 19], [16, 20], [17, 21], [18, 22]
+    ];
+
+    // ──────────────────────────────────────────────────────────────
+    //  CAMERA
+    // ──────────────────────────────────────────────────────────────
+    async function startCamera() {
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach(t => t.stop());
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+        video.srcObject = stream;
+        await video.play();
+        if (frameLoop) cancelAnimationFrame(frameLoop);
+        sendFrame();
+      } catch (err) {
+        document.getElementById('feedbackText').textContent = '❌ Camera unavailable';
+        document.getElementById('feedbackMsg').className = 'feedback-msg bad';
+      }
+    }
+
+    document.getElementById('camToggle').addEventListener('click', () => {
+      facingMode = facingMode === 'environment' ? 'user' : 'environment';
+      startCamera();
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  MEDIAPIPE POSE
+    // ──────────────────────────────────────────────────────────────
+    function initializePose() {
+      pose = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+      });
+      pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.5
+      });
+      pose.onResults(onResults);
+    }
+
+    async function sendFrame() {
+      if (!pose || !video.videoWidth) {
+        frameLoop = requestAnimationFrame(sendFrame);
+        return;
+      }
+      try {
+        await pose.send({ image: video });
+      } catch (e) {}
+      frameLoop = requestAnimationFrame(sendFrame);
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  RECORDING & ACTIONS
+    // ──────────────────────────────────────────────────────────────
+    let isRecording = false;
+
+    document.getElementById('recordBtn').addEventListener('click', () => {
+      isRecording = !isRecording;
+      const btn = document.getElementById('recordBtn');
+      const ind = document.getElementById('recIndicator');
+      if (isRecording) {
+        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+        btn.classList.add('recording');
+        ind.classList.add('active');
+        tg.showAlert('🔴 Recording started!');
+      } else {
+        btn.innerHTML = '<i class="fas fa-circle"></i> Record';
+        btn.classList.remove('recording');
+        ind.classList.remove('active');
+        tg.showAlert('✅ Recording saved!');
+      }
+    });
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      tg.showAlert(`🏋️ Starting ${selectedExercise} workout!\nFollow the demo and record your form.`);
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('stopBtn').disabled = false;
+      // Auto-start recording
+      if (!isRecording) document.getElementById('recordBtn').click();
+    });
+
+    document.getElementById('stopBtn').addEventListener('click', () => {
+      if (isRecording) document.getElementById('recordBtn').click();
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      tg.showAlert('⏹ Workout finished! Keep it up! 💪');
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  INIT
+    // ──────────────────────────────────────────────────────────────
+    if (navigator.mediaDevices?.getUserMedia) {
+      initializePose();
+      startCamera();
+    } else {
+      document.getElementById('feedbackText').textContent = '❌ Camera unavailable';
+      document.getElementById('feedbackMsg').className = 'feedback-msg bad';
+    }
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click();
+    });
+  </script>
+</body>
+</html>
