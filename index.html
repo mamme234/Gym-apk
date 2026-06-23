@@ -656,21 +656,7 @@
     // ──────────────────────────────────────────────────────────────
     //  TELEGRAM INIT
     // ──────────────────────────────────────────────────────────────
-    const tg = window.Telegram?.WebApp || { 
-      ready: () => {}, 
-      expand: () => {}, 
-      showAlert: (msg, options, callback) => {
-        if (typeof msg === 'string') {
-          // Simple alert
-          alert(msg);
-          if (callback) callback('0');
-        } else {
-          // Alert with options - use confirm
-          const result = confirm(msg.text || msg);
-          if (callback) callback(result ? '0' : '1');
-        }
-      }
-    };
+    const tg = window.Telegram?.WebApp || { ready: () => {}, expand: () => {}, showAlert: (msg) => alert(msg) };
     tg.ready();
     tg.expand();
 
@@ -1208,7 +1194,7 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  OPEN DASHBOARD - WITH REPS & SETS
+    //  OPEN DASHBOARD
     // ──────────────────────────────────────────────────────────────
     function openDashboard(day, schedule, exerciseId = null) {
       selectedExerciseId = exerciseId;
@@ -1265,7 +1251,7 @@
         statsContainer.appendChild(statEl);
       });
 
-      // Details - SHOW REPS & SETS
+      // Details
       const detailsContainer = document.getElementById('dashDetails');
       detailsContainer.innerHTML = '';
 
@@ -1275,7 +1261,7 @@
           <div class="detail-row"><span class="detail-label">🎯 Target</span><span class="detail-value">${focusExercise.muscle}</span></div>
           <div class="detail-row"><span class="detail-label">📝 Description</span><span class="detail-value">${focusExercise.desc}</span></div>
           <div class="detail-row"><span class="detail-label">💡 Tip</span><span class="detail-value good">${focusExercise.tip}</span></div>
-          <div class="detail-row" style="background:rgba(249,176,66,0.08); padding:6px 0; border-radius:4px; margin:2px 0;"><span class="detail-label" style="font-weight:700;">📊 Sets & Reps</span><span class="detail-value" style="font-size:1rem; font-weight:800; color:var(--accent);">${focusExercise.sets} sets × ${focusExercise.reps} reps</span></div>
+          <div class="detail-row"><span class="detail-label">📊 Sets & Reps</span><span class="detail-value">${focusExercise.sets} sets × ${focusExercise.reps} reps</span></div>
           <div class="detail-row"><span class="detail-label">✅ Benefit</span><span class="detail-value good">${focusExercise.benefit || 'Builds strength & muscle'}</span></div>
           <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${focusExercise.reduce || 'Avoid using momentum'}</span></div>
           ${focusExercise.videoUrl ? `<div class="detail-row"><span class="detail-label">📹 Video</span><span class="detail-value" style="color:var(--accent);cursor:pointer;" onclick="openVideo('${focusExercise.videoUrl}')"><i class="fas fa-play-circle"></i> Watch Tutorial</span></div>` : ''}
@@ -1332,79 +1318,26 @@
       document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
       document.getElementById('stopWorkoutBtn').disabled = true;
       document.getElementById('dashFinishBtn').disabled = false;
-      document.getElementById('dashFinishBtn').innerHTML = '<i class="fas fa-check"></i> Finish';
 
       startCamera();
       showToast('📊 Dashboard ready!', 'info');
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  BACK TO SCHEDULE - WITH CONFIRMATION
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('dashboardBack').addEventListener('click', () => {
-      if (isWorkoutActive) {
-        const confirmLeave = confirm('⚠️ You have an active workout! Are you sure you want to leave?');
-        if (confirmLeave) {
-          // Stop workout and go back
-          isWorkoutActive = false;
-          clearInterval(timerInterval);
-          timerInterval = null;
-          if (isRecording) document.getElementById('recordBtn').click();
-          document.getElementById('startWorkoutBtn').disabled = false;
-          document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
-          document.getElementById('stopWorkoutBtn').disabled = true;
-          document.getElementById('formCorrection').textContent = '⏹️ Workout stopped';
-          document.getElementById('formCorrection').className = 'form-correction active waiting';
-          
-          document.getElementById('dashboardContainer').classList.remove('active');
-          document.getElementById('scheduleContainer').classList.add('active');
-          const schedule = generateSchedule(true);
-          if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
-          showToast('📅 Back to schedule!', 'info');
-        }
-      } else {
-        document.getElementById('dashboardContainer').classList.remove('active');
-        document.getElementById('scheduleContainer').classList.add('active');
-        const schedule = generateSchedule(true);
-        if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
-        showToast('📅 Back to schedule!', 'info');
-      }
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  BACK TO WORKOUT LIST - WITH CONFIRMATION
+    //  BACK TO WORKOUT LIST (Red Circle Button)
     // ──────────────────────────────────────────────────────────────
     document.getElementById('dashBackToList').addEventListener('click', () => {
       if (isWorkoutActive) {
-        const confirmLeave = confirm('⚠️ You have an active workout! Are you sure you want to leave?');
-        if (confirmLeave) {
-          isWorkoutActive = false;
-          clearInterval(timerInterval);
-          timerInterval = null;
-          if (isRecording) document.getElementById('recordBtn').click();
-          document.getElementById('startWorkoutBtn').disabled = false;
-          document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
-          document.getElementById('stopWorkoutBtn').disabled = true;
-          document.getElementById('formCorrection').textContent = '⏹️ Workout stopped';
-          document.getElementById('formCorrection').className = 'form-correction active waiting';
-          
-          document.getElementById('dashboardContainer').classList.remove('active');
-          if (selectedDayData) {
-            openWorkoutList(selectedDayData);
-          } else {
-            document.getElementById('scheduleContainer').classList.add('active');
-          }
-          showToast('📋 Back to workout list', 'info');
-        }
-      } else {
-        document.getElementById('dashboardContainer').classList.remove('active');
-        if (selectedDayData) {
-          openWorkoutList(selectedDayData);
-        } else {
-          document.getElementById('scheduleContainer').classList.add('active');
-        }
-        showToast('📋 Back to workout list', 'info');
+        tg.showAlert('⚠️ Please stop your workout first!');
+        return;
       }
+      document.getElementById('dashboardContainer').classList.remove('active');
+      if (selectedDayData) {
+        openWorkoutList(selectedDayData);
+      } else {
+        document.getElementById('scheduleContainer').classList.add('active');
+      }
+      showToast('📋 Back to workout list', 'info');
     });
 
     // ──────────────────────────────────────────────────────────────
@@ -1412,7 +1345,7 @@
     // ──────────────────────────────────────────────────────────────
     document.getElementById('dashFinishBtn').addEventListener('click', () => {
       if (isWorkoutActive) {
-        alert('⚠️ Please stop your workout first!');
+        tg.showAlert('⚠️ Please stop your workout first!');
         return;
       }
       if (selectedExerciseId && !completedExercises.includes(selectedExerciseId)) {
@@ -1421,9 +1354,10 @@
         document.getElementById('dashFinishBtn').disabled = true;
         document.getElementById('dashFinishBtn').innerHTML = '<i class="fas fa-check"></i> Done!';
         
+        // Check if all exercises are done
         if (selectedDayData && completedExercises.length === selectedDayData.exercises.length) {
           setTimeout(() => {
-            alert('🎉 All exercises completed! Showing results!');
+            tg.showAlert('🎉 All exercises completed! Showing results!');
             showResultsModal(seconds || 300);
           }, 800);
         }
@@ -1462,7 +1396,7 @@
     document.getElementById('startWorkoutBtn').addEventListener('click', () => {
       if (isWorkoutActive) return;
       const exName = selectedExerciseId ? EXERCISE_DB[selectedExerciseId]?.name : 'Workout';
-      alert(`🏋️ Starting ${exName || 'Workout'}!`);
+      tg.showAlert(`🏋️ Starting ${exName || 'Workout'}!`);
       document.getElementById('startWorkoutBtn').disabled = true;
       document.getElementById('stopWorkoutBtn').disabled = false;
       if (!isRecording) document.getElementById('recordBtn').click();
@@ -1567,7 +1501,7 @@
       setupUserProfile(userData.name);
       renderSchedule(schedule);
       showToast('📅 Schedule generated!', 'success');
-      alert('🎉 Your personalized workout schedule is ready!');
+      tg.showAlert('🎉 Your personalized workout schedule is ready!');
     });
 
     // ──────────────────────────────────────────────────────────────
