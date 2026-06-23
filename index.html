@@ -124,6 +124,17 @@
       font-size: 0.55rem; font-weight: 700;
     }
 
+    /* FOOTER */
+    .footer {
+      text-align: center; padding: 20px 0 10px;
+      color: var(--tg-hint); font-size: 0.65rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      margin-top: 10px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+    .footer span { color: var(--accent); font-weight: 700; }
+
     /* ONBOARDING */
     .onboarding-card {
       background: var(--tg-secondary); border-radius: var(--radius);
@@ -234,6 +245,9 @@
     .workout-list-item .wli-name { font-weight: 600; font-size: 0.85rem; }
     .workout-list-item .wli-muscle { font-size: 0.6rem; color: var(--tg-hint); }
     .workout-list-item .wli-premium { color: var(--gold); font-size: 0.7rem; margin-left: 4px; }
+    .workout-list-item .wli-status { font-size: 0.6rem; padding: 2px 8px; border-radius: 12px; }
+    .workout-list-item .wli-status.done { background: rgba(74,222,128,0.15); color: var(--green); }
+    .workout-list-item .wli-status.pending { background: rgba(249,176,66,0.1); color: var(--accent); }
     .workout-list-item .wli-arrow { color: var(--tg-hint); font-size: 0.8rem; }
     .close-workout-list {
       width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none;
@@ -247,14 +261,28 @@
     /* DASHBOARD */
     .dashboard-container { display: none; animation: slideUp 0.5s ease-out; }
     .dashboard-container.active { display: block; }
-    .dashboard-back {
+    
+    .dashboard-top-actions {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .dashboard-top-actions .dash-back-btn {
       background: var(--tg-secondary); border: 1px solid rgba(255,255,255,0.05);
       color: var(--tg-text); padding: 8px 16px; border-radius: var(--radius-sm);
-      cursor: pointer; font-family: inherit; font-size: 0.8rem;
-      margin-bottom: 12px; transition: var(--transition);
+      cursor: pointer; font-family: inherit; font-size: 0.75rem;
+      transition: var(--transition); display: flex; align-items: center; gap: 6px;
+      flex: 1;
+    }
+    .dashboard-top-actions .dash-back-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .dashboard-top-actions .dash-finish-btn {
+      background: linear-gradient(135deg, var(--green), #22c55e);
+      border: none; color: #0a0e17; padding: 8px 16px; border-radius: var(--radius-sm);
+      cursor: pointer; font-family: inherit; font-size: 0.75rem;
+      font-weight: 700; transition: var(--transition);
       display: flex; align-items: center; gap: 6px;
     }
-    .dashboard-back:hover { border-color: var(--accent); color: var(--accent); }
+    .dashboard-top-actions .dash-finish-btn:hover { transform: scale(1.03); box-shadow: 0 4px 20px var(--green-glow); }
+    .dashboard-top-actions .dash-finish-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    
     .dashboard-card {
       background: var(--tg-secondary); border-radius: var(--radius);
       padding: 20px; border: 1px solid rgba(255,255,255,0.05);
@@ -341,7 +369,7 @@
     .cam-btn.record.recording { background: #4b5563; border-color: #4b5563; animation: pulse-record 1.5s infinite; }
     @keyframes pulse-record { 0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.3); } 50% { box-shadow: 0 0 0 12px rgba(248,113,113,0); } }
 
-    /* FORM CORRECTION - FOR ALL EXERCISES */
+    /* FORM CORRECTION */
     .form-correction {
       position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
       z-index: 10; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
@@ -443,6 +471,7 @@
       .dash-nutrition-grid { grid-template-columns: 1fr 1fr; }
       .results-modal .result-stats { grid-template-columns: 1fr; }
       .user-profile .user-name { font-size: 0.8rem; }
+      .dashboard-top-actions { flex-direction: column; }
     }
     @media (max-width: 360px) {
       .dashboard-stats { grid-template-columns: 1fr; }
@@ -576,9 +605,14 @@
 
     <!-- DASHBOARD -->
     <div class="dashboard-container" id="dashboardContainer">
-      <button class="dashboard-back" id="dashboardBack">
-        <i class="fas fa-arrow-left"></i> Back to Schedule
-      </button>
+      <div class="dashboard-top-actions">
+        <button class="dash-back-btn" id="dashBackToList">
+          <i class="fas fa-arrow-left"></i> Back to Workout List
+        </button>
+        <button class="dash-finish-btn" id="dashFinishBtn">
+          <i class="fas fa-check"></i> Finish
+        </button>
+      </div>
 
       <div class="dashboard-card">
         <div class="dash-title" id="dashTitle"><i class="fas fa-dumbbell"></i> Workout</div>
@@ -611,6 +645,11 @@
           <i class="fas fa-stop"></i> Stop
         </button>
       </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      Developed by <span>Muhammad Ilyas</span> © 2026
     </div>
 
   </div>  <script>
@@ -651,7 +690,7 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  EXERCISE DATABASE - YOUR 140 EXERCISES
+    //  EXERCISE DATABASE - 140 EXERCISES (20 per muscle group)
     // ──────────────────────────────────────────────────────────────
     const EXERCISE_DB = {
       // CHEST (20 exercises)
@@ -810,106 +849,106 @@
     };
 
     // ──────────────────────────────────────────────────────────────
-    //  WORKOUT STYLES (Using your exercises)
+    //  WORKOUT STYLES - 10+ exercises per day, 30+ per week
     // ──────────────────────────────────────────────────────────────
     const WORKOUT_STYLES = {
       'Push/Pull/Legs': {
-        monday: ['CHEST_01', 'CHEST_02', 'CHEST_03', 'SHOULDER_01', 'SHOULDER_04', 'TRICEPS_01', 'TRICEPS_02'],
-        tuesday: ['BACK_01', 'BACK_02', 'BACK_03', 'BACK_09', 'BICEPS_01', 'BICEPS_02'],
-        wednesday: ['LEGS_01', 'LEGS_02', 'LEGS_03', 'CORE_01', 'CORE_02'],
-        thursday: ['CHEST_04', 'CHEST_05', 'SHOULDER_02', 'SHOULDER_05', 'TRICEPS_03', 'TRICEPS_04'],
-        friday: ['BACK_04', 'BACK_05', 'BACK_06', 'BICEPS_03', 'BICEPS_04'],
-        saturday: ['LEGS_04', 'LEGS_05', 'LEGS_06', 'CORE_03', 'CORE_04'],
+        monday: ['CHEST_01','CHEST_02','CHEST_03','CHEST_04','CHEST_05','SHOULDER_01','SHOULDER_02','SHOULDER_03','SHOULDER_04','TRICEPS_01','TRICEPS_02','TRICEPS_03'],
+        tuesday: ['BACK_01','BACK_02','BACK_03','BACK_04','BACK_05','BACK_06','BICEPS_01','BICEPS_02','BICEPS_03','BICEPS_04'],
+        wednesday: ['LEGS_01','LEGS_02','LEGS_03','LEGS_04','LEGS_05','LEGS_06','LEGS_07','CORE_01','CORE_02','CORE_03','CORE_04'],
+        thursday: ['CHEST_06','CHEST_07','CHEST_08','CHEST_09','CHEST_10','SHOULDER_05','SHOULDER_06','SHOULDER_07','TRICEPS_04','TRICEPS_05','TRICEPS_06'],
+        friday: ['BACK_07','BACK_08','BACK_09','BACK_10','BACK_11','BACK_12','BICEPS_05','BICEPS_06','BICEPS_07','BICEPS_08'],
+        saturday: ['LEGS_08','LEGS_09','LEGS_10','LEGS_11','LEGS_12','LEGS_13','CORE_05','CORE_06','CORE_07','CORE_08'],
         sunday: []
       },
       'Upper/Lower': {
-        monday: ['CHEST_01', 'CHEST_02', 'BACK_01', 'BACK_02', 'SHOULDER_01', 'BICEPS_01', 'TRICEPS_01'],
-        tuesday: ['LEGS_01', 'LEGS_02', 'LEGS_03', 'CORE_01', 'CORE_02'],
-        wednesday: ['CHEST_03', 'CHEST_04', 'BACK_03', 'BACK_04', 'SHOULDER_02', 'BICEPS_02', 'TRICEPS_02'],
-        thursday: ['LEGS_04', 'LEGS_05', 'LEGS_06', 'CORE_03', 'CORE_04'],
-        friday: ['CHEST_05', 'CHEST_06', 'BACK_05', 'BACK_06', 'SHOULDER_03', 'BICEPS_03', 'TRICEPS_03'],
-        saturday: ['LEGS_07', 'LEGS_08', 'LEGS_09', 'CORE_05', 'CORE_06'],
+        monday: ['CHEST_01','CHEST_02','CHEST_03','CHEST_04','BACK_01','BACK_02','BACK_03','BACK_04','SHOULDER_01','SHOULDER_02','BICEPS_01','BICEPS_02','TRICEPS_01','TRICEPS_02'],
+        tuesday: ['LEGS_01','LEGS_02','LEGS_03','LEGS_04','LEGS_05','LEGS_06','LEGS_07','LEGS_08','CORE_01','CORE_02','CORE_03'],
+        wednesday: ['CHEST_05','CHEST_06','CHEST_07','BACK_05','BACK_06','BACK_07','BACK_08','SHOULDER_03','SHOULDER_04','BICEPS_03','BICEPS_04','TRICEPS_03','TRICEPS_04'],
+        thursday: ['LEGS_09','LEGS_10','LEGS_11','LEGS_12','LEGS_13','LEGS_14','CORE_04','CORE_05','CORE_06','CORE_07'],
+        friday: ['CHEST_08','CHEST_09','CHEST_10','BACK_09','BACK_10','BACK_11','BACK_12','SHOULDER_05','SHOULDER_06','BICEPS_05','BICEPS_06','TRICEPS_05','TRICEPS_06'],
+        saturday: ['LEGS_15','LEGS_16','LEGS_17','LEGS_18','LEGS_19','LEGS_20','CORE_08','CORE_09','CORE_10','CORE_11'],
         sunday: []
       },
       'Full Body': {
-        monday: ['CHEST_01', 'BACK_01', 'LEGS_01', 'SHOULDER_01', 'BICEPS_01', 'TRICEPS_01', 'CORE_01'],
-        tuesday: ['CHEST_02', 'BACK_02', 'LEGS_02', 'SHOULDER_02', 'BICEPS_02', 'TRICEPS_02', 'CORE_02'],
-        wednesday: ['CHEST_03', 'BACK_03', 'LEGS_03', 'SHOULDER_03', 'BICEPS_03', 'TRICEPS_03', 'CORE_03'],
-        thursday: ['CHEST_04', 'BACK_04', 'LEGS_04', 'SHOULDER_04', 'BICEPS_04', 'TRICEPS_04', 'CORE_04'],
-        friday: ['CHEST_05', 'BACK_05', 'LEGS_05', 'SHOULDER_05', 'BICEPS_05', 'TRICEPS_05', 'CORE_05'],
-        saturday: ['CHEST_06', 'BACK_06', 'LEGS_06', 'SHOULDER_06', 'BICEPS_06', 'TRICEPS_06', 'CORE_06'],
+        monday: ['CHEST_01','BACK_01','LEGS_01','SHOULDER_01','BICEPS_01','TRICEPS_01','CORE_01','CHEST_02','BACK_02','LEGS_02'],
+        tuesday: ['CHEST_03','BACK_03','LEGS_03','SHOULDER_02','BICEPS_02','TRICEPS_02','CORE_02','CHEST_04','BACK_04','LEGS_04'],
+        wednesday: ['CHEST_05','BACK_05','LEGS_05','SHOULDER_03','BICEPS_03','TRICEPS_03','CORE_03','CHEST_06','BACK_06','LEGS_06'],
+        thursday: ['CHEST_07','BACK_07','LEGS_07','SHOULDER_04','BICEPS_04','TRICEPS_04','CORE_04','CHEST_08','BACK_08','LEGS_08'],
+        friday: ['CHEST_09','BACK_09','LEGS_09','SHOULDER_05','BICEPS_05','TRICEPS_05','CORE_05','CHEST_10','BACK_10','LEGS_10'],
+        saturday: ['CHEST_11','BACK_11','LEGS_11','SHOULDER_06','BICEPS_06','TRICEPS_06','CORE_06','CHEST_12','BACK_12','LEGS_12'],
         sunday: []
       },
       'Bro Split': {
-        monday: ['CHEST_01', 'CHEST_02', 'CHEST_03', 'CHEST_04', 'CHEST_05', 'CHEST_06'],
-        tuesday: ['BACK_01', 'BACK_02', 'BACK_03', 'BACK_04', 'BACK_05', 'BACK_06'],
-        wednesday: ['SHOULDER_01', 'SHOULDER_02', 'SHOULDER_03', 'SHOULDER_04', 'SHOULDER_05', 'SHOULDER_06'],
-        thursday: ['LEGS_01', 'LEGS_02', 'LEGS_03', 'LEGS_04', 'LEGS_05', 'LEGS_06'],
-        friday: ['BICEPS_01', 'BICEPS_02', 'BICEPS_03', 'TRICEPS_01', 'TRICEPS_02', 'TRICEPS_03'],
-        saturday: ['CORE_01', 'CORE_02', 'CORE_03', 'CORE_04', 'CORE_05', 'CORE_06'],
+        monday: ['CHEST_01','CHEST_02','CHEST_03','CHEST_04','CHEST_05','CHEST_06','CHEST_07','CHEST_08','CHEST_09','CHEST_10','CHEST_11'],
+        tuesday: ['BACK_01','BACK_02','BACK_03','BACK_04','BACK_05','BACK_06','BACK_07','BACK_08','BACK_09','BACK_10','BACK_11'],
+        wednesday: ['SHOULDER_01','SHOULDER_02','SHOULDER_03','SHOULDER_04','SHOULDER_05','SHOULDER_06','SHOULDER_07','SHOULDER_08','SHOULDER_09','SHOULDER_10'],
+        thursday: ['LEGS_01','LEGS_02','LEGS_03','LEGS_04','LEGS_05','LEGS_06','LEGS_07','LEGS_08','LEGS_09','LEGS_10','LEGS_11'],
+        friday: ['BICEPS_01','BICEPS_02','BICEPS_03','BICEPS_04','BICEPS_05','BICEPS_06','TRICEPS_01','TRICEPS_02','TRICEPS_03','TRICEPS_04'],
+        saturday: ['CORE_01','CORE_02','CORE_03','CORE_04','CORE_05','CORE_06','CORE_07','CORE_08','CORE_09','CORE_10'],
         sunday: []
       },
       'Antagonistic Supersets': {
-        monday: ['CHEST_01', 'BACK_01', 'CHEST_02', 'BACK_02', 'BICEPS_01', 'TRICEPS_01'],
-        tuesday: ['LEGS_01', 'SHOULDER_01', 'LEGS_02', 'SHOULDER_02', 'CORE_01', 'CORE_02'],
-        wednesday: ['CHEST_03', 'BACK_03', 'CHEST_04', 'BACK_04', 'BICEPS_02', 'TRICEPS_02'],
-        thursday: ['LEGS_03', 'SHOULDER_03', 'LEGS_04', 'SHOULDER_04', 'CORE_03', 'CORE_04'],
-        friday: ['CHEST_05', 'BACK_05', 'CHEST_06', 'BACK_06', 'BICEPS_03', 'TRICEPS_03'],
-        saturday: ['LEGS_05', 'SHOULDER_05', 'LEGS_06', 'SHOULDER_06', 'CORE_05', 'CORE_06'],
+        monday: ['CHEST_01','BACK_01','CHEST_02','BACK_02','BICEPS_01','TRICEPS_01','CHEST_03','BACK_03','BICEPS_02','TRICEPS_02'],
+        tuesday: ['LEGS_01','SHOULDER_01','LEGS_02','SHOULDER_02','CORE_01','CORE_02','LEGS_03','SHOULDER_03','CORE_03','CORE_04'],
+        wednesday: ['CHEST_04','BACK_04','CHEST_05','BACK_05','BICEPS_03','TRICEPS_03','CHEST_06','BACK_06','BICEPS_04','TRICEPS_04'],
+        thursday: ['LEGS_04','SHOULDER_04','LEGS_05','SHOULDER_05','CORE_05','CORE_06','LEGS_06','SHOULDER_06','CORE_07','CORE_08'],
+        friday: ['CHEST_07','BACK_07','CHEST_08','BACK_08','BICEPS_05','TRICEPS_05','CHEST_09','BACK_09','BICEPS_06','TRICEPS_06'],
+        saturday: ['LEGS_07','SHOULDER_07','LEGS_08','SHOULDER_08','CORE_09','CORE_10','LEGS_09','SHOULDER_09','CORE_11','CORE_12'],
         sunday: []
       },
       'German Volume (GVT)': {
-        monday: ['CHEST_01', 'BACK_01', 'LEGS_01', 'CHEST_02', 'BACK_02'],
-        tuesday: ['SHOULDER_01', 'BICEPS_01', 'TRICEPS_01', 'CORE_01', 'SHOULDER_02'],
-        wednesday: ['CHEST_03', 'BACK_03', 'LEGS_02', 'CHEST_04', 'BACK_04'],
-        thursday: ['SHOULDER_03', 'BICEPS_02', 'TRICEPS_02', 'CORE_02', 'SHOULDER_04'],
-        friday: ['CHEST_05', 'BACK_05', 'LEGS_03', 'CHEST_06', 'BACK_06'],
-        saturday: ['SHOULDER_05', 'BICEPS_03', 'TRICEPS_03', 'CORE_03', 'SHOULDER_06'],
+        monday: ['CHEST_01','BACK_01','LEGS_01','CHEST_02','BACK_02','LEGS_02','CHEST_03','BACK_03','LEGS_03','CHEST_04'],
+        tuesday: ['SHOULDER_01','BICEPS_01','TRICEPS_01','CORE_01','SHOULDER_02','BICEPS_02','TRICEPS_02','CORE_02','SHOULDER_03','BICEPS_03'],
+        wednesday: ['CHEST_05','BACK_04','LEGS_04','CHEST_06','BACK_05','LEGS_05','CHEST_07','BACK_06','LEGS_06','CHEST_08'],
+        thursday: ['SHOULDER_04','BICEPS_04','TRICEPS_03','CORE_03','SHOULDER_05','BICEPS_05','TRICEPS_04','CORE_04','SHOULDER_06','BICEPS_06'],
+        friday: ['CHEST_09','BACK_07','LEGS_07','CHEST_10','BACK_08','LEGS_08','CHEST_11','BACK_09','LEGS_09','CHEST_12'],
+        saturday: ['SHOULDER_07','BICEPS_07','TRICEPS_05','CORE_05','SHOULDER_08','BICEPS_08','TRICEPS_06','CORE_06','SHOULDER_09','BICEPS_09'],
         sunday: []
       },
       'HIIT': {
-        monday: ['LEGS_01', 'LEGS_02', 'CORE_01', 'CORE_02'],
-        tuesday: ['SHOULDER_01', 'BICEPS_01', 'TRICEPS_01', 'CORE_03'],
-        wednesday: ['LEGS_03', 'LEGS_04', 'CORE_04', 'CORE_05'],
-        thursday: ['SHOULDER_02', 'BICEPS_02', 'TRICEPS_02', 'CORE_06'],
-        friday: ['LEGS_05', 'LEGS_06', 'CORE_07', 'CORE_08'],
-        saturday: ['SHOULDER_03', 'BICEPS_03', 'TRICEPS_03', 'CORE_09'],
+        monday: ['LEGS_01','LEGS_02','CORE_01','CORE_02','LEGS_03','LEGS_04','CORE_03','CORE_04','LEGS_05','LEGS_06'],
+        tuesday: ['SHOULDER_01','BICEPS_01','TRICEPS_01','CORE_05','SHOULDER_02','BICEPS_02','TRICEPS_02','CORE_06','SHOULDER_03','BICEPS_03'],
+        wednesday: ['LEGS_07','LEGS_08','CORE_07','CORE_08','LEGS_09','LEGS_10','CORE_09','CORE_10','LEGS_11','LEGS_12'],
+        thursday: ['SHOULDER_04','BICEPS_04','TRICEPS_03','CORE_11','SHOULDER_05','BICEPS_05','TRICEPS_04','CORE_12','SHOULDER_06','BICEPS_06'],
+        friday: ['LEGS_13','LEGS_14','CORE_13','CORE_14','LEGS_15','LEGS_16','CORE_15','CORE_16','LEGS_17','LEGS_18'],
+        saturday: ['SHOULDER_07','BICEPS_07','TRICEPS_05','CORE_17','SHOULDER_08','BICEPS_08','TRICEPS_06','CORE_18','SHOULDER_09','BICEPS_09'],
         sunday: []
       },
       'CrossFit-Style': {
-        monday: ['CHEST_01', 'BACK_01', 'LEGS_01', 'SHOULDER_01', 'CORE_01'],
-        tuesday: ['CHEST_02', 'BACK_02', 'LEGS_02', 'SHOULDER_02', 'CORE_02'],
-        wednesday: ['CHEST_03', 'BACK_03', 'LEGS_03', 'SHOULDER_03', 'CORE_03'],
-        thursday: ['CHEST_04', 'BACK_04', 'LEGS_04', 'SHOULDER_04', 'CORE_04'],
-        friday: ['CHEST_05', 'BACK_05', 'LEGS_05', 'SHOULDER_05', 'CORE_05'],
-        saturday: ['CHEST_06', 'BACK_06', 'LEGS_06', 'SHOULDER_06', 'CORE_06'],
+        monday: ['CHEST_01','BACK_01','LEGS_01','SHOULDER_01','CORE_01','CHEST_02','BACK_02','LEGS_02','SHOULDER_02','CORE_02'],
+        tuesday: ['CHEST_03','BACK_03','LEGS_03','SHOULDER_03','CORE_03','CHEST_04','BACK_04','LEGS_04','SHOULDER_04','CORE_04'],
+        wednesday: ['CHEST_05','BACK_05','LEGS_05','SHOULDER_05','CORE_05','CHEST_06','BACK_06','LEGS_06','SHOULDER_06','CORE_06'],
+        thursday: ['CHEST_07','BACK_07','LEGS_07','SHOULDER_07','CORE_07','CHEST_08','BACK_08','LEGS_08','SHOULDER_08','CORE_08'],
+        friday: ['CHEST_09','BACK_09','LEGS_09','SHOULDER_09','CORE_09','CHEST_10','BACK_10','LEGS_10','SHOULDER_10','CORE_10'],
+        saturday: ['CHEST_11','BACK_11','LEGS_11','SHOULDER_11','CORE_11','CHEST_12','BACK_12','LEGS_12','SHOULDER_12','CORE_12'],
         sunday: []
       },
       'Calisthenics': {
-        monday: ['CHEST_03', 'BACK_01', 'BACK_02', 'CORE_01', 'CORE_02'],
-        tuesday: ['CHEST_09', 'BACK_03', 'BACK_04', 'CORE_03', 'CORE_04'],
-        wednesday: ['CHEST_12', 'BACK_05', 'BACK_06', 'CORE_05', 'CORE_06'],
-        thursday: ['CHEST_18', 'BACK_07', 'BACK_08', 'CORE_07', 'CORE_08'],
-        friday: ['CHEST_19', 'BACK_09', 'BACK_10', 'CORE_09', 'CORE_10'],
-        saturday: ['CHEST_20', 'BACK_11', 'BACK_12', 'CORE_11', 'CORE_12'],
+        monday: ['CHEST_03','BACK_01','BACK_02','CORE_01','CORE_02','CHEST_09','BACK_07','BACK_08','CORE_03','CORE_04'],
+        tuesday: ['CHEST_12','BACK_03','BACK_04','CORE_05','CORE_06','CHEST_18','BACK_05','BACK_06','CORE_07','CORE_08'],
+        wednesday: ['CHEST_19','BACK_09','BACK_10','CORE_09','CORE_10','CHEST_20','BACK_11','BACK_12','CORE_11','CORE_12'],
+        thursday: ['CHEST_03','BACK_01','BACK_02','CORE_13','CORE_14','CHEST_09','BACK_07','BACK_08','CORE_15','CORE_16'],
+        friday: ['CHEST_12','BACK_03','BACK_04','CORE_17','CORE_18','CHEST_18','BACK_05','BACK_06','CORE_19','CORE_20'],
+        saturday: ['CHEST_19','BACK_09','BACK_10','CORE_01','CORE_02','CHEST_20','BACK_11','BACK_12','CORE_03','CORE_04'],
         sunday: []
       },
       'Powerlifting': {
-        monday: ['LEGS_01', 'LEGS_02', 'BACK_01', 'BACK_02', 'CHEST_01'],
-        tuesday: ['LEGS_03', 'LEGS_04', 'BACK_03', 'BACK_04', 'CHEST_02'],
-        wednesday: ['LEGS_05', 'LEGS_06', 'BACK_05', 'BACK_06', 'CHEST_03'],
-        thursday: ['LEGS_07', 'LEGS_08', 'BACK_07', 'BACK_08', 'CHEST_04'],
-        friday: ['LEGS_09', 'LEGS_10', 'BACK_09', 'BACK_10', 'CHEST_05'],
-        saturday: ['LEGS_11', 'LEGS_12', 'BACK_11', 'BACK_12', 'CHEST_06'],
+        monday: ['LEGS_01','LEGS_02','BACK_01','BACK_02','CHEST_01','LEGS_03','BACK_03','CHEST_02','LEGS_04','BACK_04'],
+        tuesday: ['LEGS_05','LEGS_06','BACK_05','BACK_06','CHEST_03','LEGS_07','BACK_07','CHEST_04','LEGS_08','BACK_08'],
+        wednesday: ['LEGS_09','LEGS_10','BACK_09','BACK_10','CHEST_05','LEGS_11','BACK_11','CHEST_06','LEGS_12','BACK_12'],
+        thursday: ['LEGS_13','LEGS_14','BACK_13','BACK_14','CHEST_07','LEGS_15','BACK_15','CHEST_08','LEGS_16','BACK_16'],
+        friday: ['LEGS_17','LEGS_18','BACK_17','BACK_18','CHEST_09','LEGS_19','BACK_19','CHEST_10','LEGS_20','BACK_20'],
+        saturday: ['LEGS_01','LEGS_02','BACK_01','BACK_02','CHEST_01','LEGS_03','BACK_03','CHEST_02','LEGS_04','BACK_04'],
         sunday: []
       },
       'Hypertrophy-Specific': {
-        monday: ['CHEST_01', 'CHEST_02', 'SHOULDER_01', 'SHOULDER_02', 'BICEPS_01', 'TRICEPS_01'],
-        tuesday: ['BACK_01', 'BACK_02', 'BACK_03', 'BACK_04', 'BICEPS_02', 'TRICEPS_02'],
-        wednesday: ['LEGS_01', 'LEGS_02', 'LEGS_03', 'LEGS_04', 'CORE_01', 'CORE_02'],
-        thursday: ['CHEST_03', 'CHEST_04', 'SHOULDER_03', 'SHOULDER_04', 'BICEPS_03', 'TRICEPS_03'],
-        friday: ['BACK_05', 'BACK_06', 'BACK_07', 'BACK_08', 'BICEPS_04', 'TRICEPS_04'],
-        saturday: ['LEGS_05', 'LEGS_06', 'LEGS_07', 'LEGS_08', 'CORE_03', 'CORE_04'],
+        monday: ['CHEST_01','CHEST_02','SHOULDER_01','SHOULDER_02','BICEPS_01','TRICEPS_01','CHEST_03','CHEST_04','SHOULDER_03','BICEPS_02'],
+        tuesday: ['BACK_01','BACK_02','BACK_03','BACK_04','BICEPS_03','TRICEPS_02','BACK_05','BACK_06','BACK_07','BICEPS_04'],
+        wednesday: ['LEGS_01','LEGS_02','LEGS_03','LEGS_04','CORE_01','CORE_02','LEGS_05','LEGS_06','LEGS_07','CORE_03'],
+        thursday: ['CHEST_05','CHEST_06','SHOULDER_04','SHOULDER_05','BICEPS_05','TRICEPS_03','CHEST_07','CHEST_08','SHOULDER_06','BICEPS_06'],
+        friday: ['BACK_08','BACK_09','BACK_10','BACK_11','BICEPS_07','TRICEPS_04','BACK_12','BACK_13','BACK_14','BICEPS_08'],
+        saturday: ['LEGS_08','LEGS_09','LEGS_10','LEGS_11','CORE_04','CORE_05','LEGS_12','LEGS_13','LEGS_14','CORE_06'],
         sunday: []
       }
     };
@@ -919,7 +958,6 @@
     // ──────────────────────────────────────────────────────────────
     let userData = {};
     let currentSchedule = [];
-    let currentWorkout = null;
     let isWorkoutActive = false;
     let isRecording = false;
     let timerInterval = null;
@@ -928,6 +966,7 @@
     let selectedExerciseId = null;
     let selectedDay = null;
     let selectedDayData = null;
+    let completedExercises = [];
 
     // ──────────────────────────────────────────────────────────────
     //  LOCAL STORAGE
@@ -935,9 +974,7 @@
     const STORAGE_KEY = 'ai_gym_trainer_data';
 
     function saveUserData(data) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch (e) { console.log('Save error:', e); }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
     }
 
     function loadUserData() {
@@ -945,9 +982,7 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const data = JSON.parse(raw);
-          if (data.timestamp && (Date.now() - data.timestamp < 30 * 24 * 60 * 60 * 1000)) {
-            return data;
-          }
+          if (data.timestamp && (Date.now() - data.timestamp < 30 * 24 * 60 * 60 * 1000)) return data;
         }
         return null;
       } catch (e) { return null; }
@@ -985,13 +1020,11 @@
       const userStatus = document.getElementById('userStatus');
 
       profile.style.display = 'flex';
-      
       if (USER_PHOTO) {
         avatar.innerHTML = `<img src="${USER_PHOTO}" alt="Profile" />`;
       } else {
         avatar.textContent = name.charAt(0).toUpperCase() || '👤';
       }
-      
       userName.textContent = name || USER_FULL_NAME || 'Athlete';
       userStatus.textContent = `💪 ${userData.style || 'Full Body'} • ${userData.weight || 75}kg`;
     }
@@ -1082,7 +1115,6 @@
       schedule.forEach((day) => {
         const dayEl = document.createElement('div');
         dayEl.className = 'schedule-day';
-        
         dayEl.innerHTML = `
           <div class="day-header">
             <span class="day-name">${day.day}</span>
@@ -1097,11 +1129,7 @@
             </span>
           </div>
         `;
-
-        dayEl.addEventListener('click', () => {
-          openWorkoutList(day);
-        });
-
+        dayEl.addEventListener('click', () => { openWorkoutList(day); });
         grid.appendChild(dayEl);
       });
 
@@ -1113,9 +1141,10 @@
     // ──────────────────────────────────────────────────────────────
     function openWorkoutList(day) {
       selectedDayData = day;
+      completedExercises = [];
       const modal = document.getElementById('workoutListModal');
       document.getElementById('workoutListDay').textContent = `${day.day}'s Workouts`;
-      document.getElementById('workoutListSub').textContent = `${day.exercises.length} exercises • Tap any to open`;
+      document.getElementById('workoutListSub').textContent = `${day.exercises.length} exercises • Tap to start`;
 
       const container = document.getElementById('workoutListItems');
       container.innerHTML = '';
@@ -1129,15 +1158,17 @@
           </div>
         `;
       } else {
-        day.exercises.forEach(ex => {
+        day.exercises.forEach((ex, index) => {
           const item = document.createElement('div');
           item.className = 'workout-list-item';
+          const isDone = completedExercises.includes(ex.id);
           item.innerHTML = `
             <div class="wli-icon">${ex.icon}</div>
             <div class="wli-info">
               <div class="wli-name">${ex.name} ${ex.premium ? '<span class="wli-premium">⭐</span>' : ''}</div>
               <div class="wli-muscle">${ex.muscle} • ${ex.sets}×${ex.reps} reps</div>
             </div>
+            <span class="wli-status ${isDone ? 'done' : 'pending'}">${isDone ? '✅ Done' : `${index + 1}`}</span>
             <div class="wli-arrow"><i class="fas fa-chevron-right"></i></div>
           `;
           item.addEventListener('click', () => {
@@ -1166,7 +1197,6 @@
     //  OPEN DASHBOARD
     // ──────────────────────────────────────────────────────────────
     function openDashboard(day, schedule, exerciseId = null) {
-      currentWorkout = day;
       selectedExerciseId = exerciseId;
       selectedDay = day;
 
@@ -1174,27 +1204,9 @@
       document.getElementById('scheduleContainer').classList.remove('active');
       document.getElementById('dashboardContainer').classList.add('active');
 
-      let exercises = day.exercises;
       let focusExercise = null;
-
       if (exerciseId) {
         focusExercise = EXERCISE_DB[exerciseId];
-        if (focusExercise) {
-          exercises = [{
-            id: focusExercise.id,
-            name: focusExercise.name,
-            icon: focusExercise.icon,
-            muscle: focusExercise.muscle,
-            videoUrl: focusExercise.videoUrl,
-            desc: focusExercise.desc,
-            tip: focusExercise.tip,
-            reps: focusExercise.defaultReps,
-            sets: focusExercise.defaultSets,
-            premium: focusExercise.premium || false,
-            benefit: focusExercise.benefit,
-            reduce: focusExercise.reduce
-          }];
-        }
       }
 
       const title = focusExercise ? focusExercise.name : `${day.day}'s Workout`;
@@ -1206,13 +1218,11 @@
       // Stats
       const statsContainer = document.getElementById('dashStats');
       statsContainer.innerHTML = '';
-
       const weight = userData.weight || 75;
       const calories = userData.calories || 2500;
       const protein = userData.protein || 150;
 
       let stats = [];
-      
       if (focusExercise) {
         stats = [
           { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: focusExercise.benefit || 'Builds strength' },
@@ -1225,7 +1235,7 @@
           { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: 'Progress tracking' },
           { icon: '🔥', value: `${calories}`, label: 'Calories', benefit: 'Daily target' },
           { icon: '🥩', value: `${protein}g`, label: 'Protein', benefit: 'Muscle recovery' },
-          { icon: '💪', value: `${exercises.length}`, label: 'Exercises', benefit: 'Today\'s workout' }
+          { icon: '💪', value: `${day.exercises.length}`, label: 'Exercises', benefit: 'Today\'s workout' }
         ];
       }
 
@@ -1247,71 +1257,28 @@
 
       if (focusExercise) {
         detailsContainer.innerHTML = `
-          <div class="detail-row">
-            <span class="detail-label">🏋️ Exercise</span>
-            <span class="detail-value">${focusExercise.icon} ${focusExercise.name} ${focusExercise.premium ? '⭐' : ''}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">🎯 Target</span>
-            <span class="detail-value">${focusExercise.muscle}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">📝 Description</span>
-            <span class="detail-value">${focusExercise.desc}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">💡 Tip</span>
-            <span class="detail-value good">${focusExercise.tip}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">📊 Sets & Reps</span>
-            <span class="detail-value">${focusExercise.sets} sets × ${focusExercise.reps} reps</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">✅ Benefit</span>
-            <span class="detail-value good">${focusExercise.benefit || 'Builds strength & muscle'}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">⚠️ What to Reduce</span>
-            <span class="detail-value danger">${focusExercise.reduce || 'Avoid using momentum'}</span>
-          </div>
-          ${focusExercise.videoUrl ? `
-          <div class="detail-row">
-            <span class="detail-label">📹 Video</span>
-            <span class="detail-value" style="color:var(--accent);cursor:pointer;" onclick="openVideo('${focusExercise.videoUrl}')">
-              <i class="fas fa-play-circle"></i> Watch Tutorial
-            </span>
-          </div>` : ''}
+          <div class="detail-row"><span class="detail-label">🏋️ Exercise</span><span class="detail-value">${focusExercise.icon} ${focusExercise.name} ${focusExercise.premium ? '⭐' : ''}</span></div>
+          <div class="detail-row"><span class="detail-label">🎯 Target</span><span class="detail-value">${focusExercise.muscle}</span></div>
+          <div class="detail-row"><span class="detail-label">📝 Description</span><span class="detail-value">${focusExercise.desc}</span></div>
+          <div class="detail-row"><span class="detail-label">💡 Tip</span><span class="detail-value good">${focusExercise.tip}</span></div>
+          <div class="detail-row"><span class="detail-label">📊 Sets & Reps</span><span class="detail-value">${focusExercise.sets} sets × ${focusExercise.reps} reps</span></div>
+          <div class="detail-row"><span class="detail-label">✅ Benefit</span><span class="detail-value good">${focusExercise.benefit || 'Builds strength & muscle'}</span></div>
+          <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${focusExercise.reduce || 'Avoid using momentum'}</span></div>
+          ${focusExercise.videoUrl ? `<div class="detail-row"><span class="detail-label">📹 Video</span><span class="detail-value" style="color:var(--accent);cursor:pointer;" onclick="openVideo('${focusExercise.videoUrl}')"><i class="fas fa-play-circle"></i> Watch Tutorial</span></div>` : ''}
         `;
       } else {
         detailsContainer.innerHTML = `
-          <div class="detail-row">
-            <span class="detail-label">📅 Day</span>
-            <span class="detail-value">${day.day}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">⏱️ Duration</span>
-            <span class="detail-value">${userData.duration || 45} minutes</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">🏋️ Exercises</span>
-            <span class="detail-value">${day.exercises.length}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">🎯 Focus</span>
-            <span class="detail-value">${day.exercises.map(e => e.muscle).filter((v,i,a) => a.indexOf(v) === i).join(', ')}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">💪 Total Volume</span>
-            <span class="detail-value good">${day.exercises.reduce((sum, e) => sum + (e.sets * e.reps), 0)} reps</span>
-          </div>
+          <div class="detail-row"><span class="detail-label">📅 Day</span><span class="detail-value">${day.day}</span></div>
+          <div class="detail-row"><span class="detail-label">⏱️ Duration</span><span class="detail-value">${userData.duration || 45} minutes</span></div>
+          <div class="detail-row"><span class="detail-label">🏋️ Exercises</span><span class="detail-value">${day.exercises.length}</span></div>
+          <div class="detail-row"><span class="detail-label">🎯 Focus</span><span class="detail-value">${day.exercises.map(e => e.muscle).filter((v,i,a) => a.indexOf(v) === i).join(', ')}</span></div>
+          <div class="detail-row"><span class="detail-label">💪 Total Volume</span><span class="detail-value good">${day.exercises.reduce((sum, e) => sum + (e.sets * e.reps), 0)} reps</span></div>
         `;
       }
 
       // Nutrition
       const nutritionContainer = document.getElementById('dashNutritionGrid');
       nutritionContainer.innerHTML = '';
-
       const duration = userData.duration || 45;
       const caloriesNeeded = Math.round((userData.calories || 2500) / 3);
       const proteinNeeded = Math.round((userData.protein || 150) / 3);
@@ -1321,22 +1288,13 @@
 
       let muscleGroup = focusExercise ? focusExercise.muscle : 'Full Body';
       let specificFoods = [];
-      
-      if (muscleGroup === 'Chest') {
-        specificFoods = ['🥩 Chicken Breast', '🍚 Brown Rice', '🥦 Broccoli'];
-      } else if (muscleGroup === 'Back') {
-        specificFoods = ['🐟 Salmon', '🍠 Sweet Potato', '🥗 Spinach'];
-      } else if (muscleGroup === 'Legs') {
-        specificFoods = ['🥩 Lean Beef', '🍝 Quinoa', '🥬 Kale'];
-      } else if (muscleGroup === 'Shoulders') {
-        specificFoods = ['🍗 Turkey', '🍚 Oats', '🥑 Avocado'];
-      } else if (muscleGroup === 'Biceps' || muscleGroup === 'Triceps') {
-        specificFoods = ['🥚 Eggs', '🍌 Banana', '🥜 Almonds'];
-      } else if (muscleGroup === 'Core') {
-        specificFoods = ['🐟 Tuna', '🍞 Whole Grain', '🥒 Cucumber'];
-      } else {
-        specificFoods = ['🥩 Protein Source', '🍚 Complex Carbs', '🥗 Vegetables'];
-      }
+      if (muscleGroup === 'Chest') specificFoods = ['🥩 Chicken Breast', '🍚 Brown Rice', '🥦 Broccoli'];
+      else if (muscleGroup === 'Back') specificFoods = ['🐟 Salmon', '🍠 Sweet Potato', '🥗 Spinach'];
+      else if (muscleGroup === 'Legs') specificFoods = ['🥩 Lean Beef', '🍝 Quinoa', '🥬 Kale'];
+      else if (muscleGroup === 'Shoulders') specificFoods = ['🍗 Turkey', '🍚 Oats', '🥑 Avocado'];
+      else if (muscleGroup === 'Biceps' || muscleGroup === 'Triceps') specificFoods = ['🥚 Eggs', '🍌 Banana', '🥜 Almonds'];
+      else if (muscleGroup === 'Core') specificFoods = ['🐟 Tuna', '🍞 Whole Grain', '🥒 Cucumber'];
+      else specificFoods = ['🥩 Protein Source', '🍚 Complex Carbs', '🥗 Vegetables'];
 
       const nutritionItems = [
         { label: '🔥 Calories', value: caloriesNeeded, unit: 'kcal', primary: true },
@@ -1350,23 +1308,65 @@
       nutritionItems.forEach(item => {
         const el = document.createElement('div');
         el.className = `dash-nutrition-item${item.primary ? ' primary' : ''}`;
-        el.innerHTML = `
-          <span class="nut-label">${item.label}</span>
-          <span class="nut-value">${item.value} ${item.unit}</span>
-        `;
+        el.innerHTML = `<span class="nut-label">${item.label}</span><span class="nut-value">${item.value} ${item.unit}</span>`;
         nutritionContainer.appendChild(el);
       });
 
       document.getElementById('formCorrection').textContent = '🎯 Ready to start!';
       document.getElementById('formCorrection').className = 'form-correction active waiting';
-
       document.getElementById('startWorkoutBtn').disabled = false;
       document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
       document.getElementById('stopWorkoutBtn').disabled = true;
+      document.getElementById('dashFinishBtn').disabled = false;
 
       startCamera();
       showToast('📊 Dashboard ready!', 'info');
     }
+
+    // ──────────────────────────────────────────────────────────────
+    //  BACK TO WORKOUT LIST (Red Circle Button)
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('dashBackToList').addEventListener('click', () => {
+      if (isWorkoutActive) {
+        tg.showAlert('⚠️ Please stop your workout first!');
+        return;
+      }
+      document.getElementById('dashboardContainer').classList.remove('active');
+      if (selectedDayData) {
+        openWorkoutList(selectedDayData);
+      } else {
+        document.getElementById('scheduleContainer').classList.add('active');
+      }
+      showToast('📋 Back to workout list', 'info');
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  FINISH BUTTON - Mark exercise as done
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('dashFinishBtn').addEventListener('click', () => {
+      if (isWorkoutActive) {
+        tg.showAlert('⚠️ Please stop your workout first!');
+        return;
+      }
+      if (selectedExerciseId && !completedExercises.includes(selectedExerciseId)) {
+        completedExercises.push(selectedExerciseId);
+        showToast(`✅ ${EXERCISE_DB[selectedExerciseId]?.name || 'Exercise'} completed!`, 'success');
+        document.getElementById('dashFinishBtn').disabled = true;
+        document.getElementById('dashFinishBtn').innerHTML = '<i class="fas fa-check"></i> Done!';
+        
+        // Check if all exercises are done
+        if (selectedDayData && completedExercises.length === selectedDayData.exercises.length) {
+          setTimeout(() => {
+            tg.showAlert('🎉 All exercises completed! Showing results!');
+            showResultsModal(seconds || 300);
+          }, 800);
+        }
+      } else if (completedExercises.includes(selectedExerciseId)) {
+        showToast('⚠️ Already completed!', 'info');
+      } else {
+        showToast('⚠️ No exercise selected', 'error');
+      }
+    });
 
     // ──────────────────────────────────────────────────────────────
     //  VIDEO MODAL
@@ -1386,9 +1386,7 @@
           <button onclick="this.closest('.video-modal').remove()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
         </div>
       `;
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-      });
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
       document.body.appendChild(modal);
     }
 
@@ -1397,25 +1395,19 @@
     // ──────────────────────────────────────────────────────────────
     document.getElementById('startWorkoutBtn').addEventListener('click', () => {
       if (isWorkoutActive) return;
-
       const exName = selectedExerciseId ? EXERCISE_DB[selectedExerciseId]?.name : 'Workout';
       tg.showAlert(`🏋️ Starting ${exName || 'Workout'}!`);
-
       document.getElementById('startWorkoutBtn').disabled = true;
       document.getElementById('stopWorkoutBtn').disabled = false;
-
       if (!isRecording) document.getElementById('recordBtn').click();
-
       seconds = 0;
       isWorkoutActive = true;
       timerInterval = setInterval(() => {
         seconds++;
         document.getElementById('startWorkoutBtn').innerHTML = `<i class="fas fa-clock"></i> ${formatTime(seconds)}`;
       }, 1000);
-
       document.getElementById('formCorrection').textContent = '⏱️ Workout in progress...';
       document.getElementById('formCorrection').className = 'form-correction active waiting';
-
       showToast('🎯 Workout started!', 'info');
     });
 
@@ -1424,21 +1416,15 @@
     // ──────────────────────────────────────────────────────────────
     document.getElementById('stopWorkoutBtn').addEventListener('click', () => {
       if (!isWorkoutActive) return;
-
       isWorkoutActive = false;
       clearInterval(timerInterval);
       timerInterval = null;
-
       if (isRecording) document.getElementById('recordBtn').click();
-
       document.getElementById('startWorkoutBtn').disabled = false;
       document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
       document.getElementById('stopWorkoutBtn').disabled = true;
-
       document.getElementById('formCorrection').textContent = '✅ Workout complete! Great job! 💪';
       document.getElementById('formCorrection').className = 'form-correction active good';
-
-      showResultsModal(seconds);
       showToast(`🎉 Workout complete! Duration: ${formatTime(seconds)}`, 'success');
     });
 
@@ -1459,57 +1445,20 @@
       const caloriesBurned = Math.round(weight * 0.053 * (durationSeconds / 60));
       const proteinNeeded = Math.round((userData.protein || 150) / 3);
 
-      const bodyEmojis = {
-        'Chest': '💪',
-        'Back': '🏋️',
-        'Legs': '🦵',
-        'Shoulders': '💪',
-        'Biceps': '💪',
-        'Triceps': '💪',
-        'Core': '🔥',
-        'Full Body': '💪'
-      };
+      const bodyEmojis = { 'Chest': '💪', 'Back': '🏋️', 'Legs': '🦵', 'Shoulders': '💪', 'Biceps': '💪', 'Triceps': '💪', 'Core': '🔥', 'Full Body': '💪' };
       const bodyEmoji = bodyEmojis[muscleGroup] || '💪';
 
-      const motivationalMessages = [
-        '🔥 You\'re on fire! Keep pushing!',
-        '💪 Amazing work! You\'re getting stronger!',
-        '🌟 Great job! Consistency is key!',
-        '⚡ You crushed it! Keep going!',
-        '🏆 Incredible performance! You\'re a champion!',
-        '🎯 Perfect form! You\'re a pro!',
-        '🚀 Sky\'s the limit! Keep climbing!',
-        '💯 Excellence! You\'re unstoppable!'
-      ];
+      const motivationalMessages = ['🔥 You\'re on fire! Keep pushing!', '💪 Amazing work! You\'re getting stronger!', '🌟 Great job! Consistency is key!', '⚡ You crushed it! Keep going!', '🏆 Incredible performance! You\'re a champion!', '🎯 Perfect form! You\'re a pro!', '🚀 Sky\'s the limit! Keep climbing!', '💯 Excellence! You\'re unstoppable!'];
       const randomMsg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-
-      const subMessages = [
-        'Your dedication is inspiring!',
-        'Every rep counts towards your goal!',
-        'Keep showing up! Results are coming!',
-        'You\'re building something great!',
-        'Stay consistent, stay strong!'
-      ];
+      const subMessages = ['Your dedication is inspiring!', 'Every rep counts towards your goal!', 'Keep showing up! Results are coming!', 'You\'re building something great!', 'Stay consistent, stay strong!'];
       const randomSub = subMessages[Math.floor(Math.random() * subMessages.length)];
 
       const statsContainer = document.getElementById('resultStats');
       statsContainer.innerHTML = `
-        <div class="result-stat">
-          <div class="rs-value">${timeStr}</div>
-          <div class="rs-label">⏱️ Duration</div>
-        </div>
-        <div class="result-stat">
-          <div class="rs-value">${caloriesBurned} kcal</div>
-          <div class="rs-label">🔥 Calories Burned</div>
-        </div>
-        <div class="result-stat">
-          <div class="rs-value">${proteinNeeded}g</div>
-          <div class="rs-label">🥩 Protein Needed</div>
-        </div>
-        <div class="result-stat">
-          <div class="rs-value">${exName}</div>
-          <div class="rs-label">🏋️ Exercise</div>
-        </div>
+        <div class="result-stat"><div class="rs-value">${timeStr}</div><div class="rs-label">⏱️ Duration</div></div>
+        <div class="result-stat"><div class="rs-value">${caloriesBurned} kcal</div><div class="rs-label">🔥 Calories Burned</div></div>
+        <div class="result-stat"><div class="rs-value">${proteinNeeded}g</div><div class="rs-label">🥩 Protein Needed</div></div>
+        <div class="result-stat"><div class="rs-value">${exName}</div><div class="rs-label">🏋️ Exercise</div></div>
       `;
 
       document.getElementById('resultBodyImg').textContent = bodyEmoji;
@@ -1522,8 +1471,7 @@
 
       if (ex && ex.premium) {
         showRewardedPopup().then(() => {
-          const msg = document.getElementById('resultMsg');
-          msg.textContent = '⭐ Premium Workout Complete! +50 Bonus Points! ⭐';
+          document.getElementById('resultMsg').textContent = '⭐ Premium Workout Complete! +50 Bonus Points! ⭐';
           showToast('🎁 Bonus points awarded!', 'premium');
         });
       }
@@ -1536,31 +1484,8 @@
       document.getElementById('resultsModal').classList.remove('active');
       document.getElementById('dashboardContainer').classList.remove('active');
       document.getElementById('scheduleContainer').classList.add('active');
-
       const schedule = generateSchedule(true);
-      if (schedule) {
-        currentSchedule = schedule;
-        renderSchedule(schedule);
-      }
-      showToast('📅 Back to schedule!', 'info');
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  BACK TO SCHEDULE
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('dashboardBack').addEventListener('click', () => {
-      if (isWorkoutActive) {
-        tg.showAlert('⚠️ Please stop your workout first!');
-        return;
-      }
-      document.getElementById('dashboardContainer').classList.remove('active');
-      document.getElementById('scheduleContainer').classList.add('active');
-
-      const schedule = generateSchedule(true);
-      if (schedule) {
-        currentSchedule = schedule;
-        renderSchedule(schedule);
-      }
+      if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
       showToast('📅 Back to schedule!', 'info');
     });
 
@@ -1570,13 +1495,11 @@
     document.getElementById('generateScheduleBtn').addEventListener('click', () => {
       const schedule = generateSchedule(false);
       if (!schedule) return;
-
       currentSchedule = schedule;
       document.getElementById('onboardingCard').style.display = 'none';
       document.getElementById('scheduleContainer').classList.add('active');
       setupUserProfile(userData.name);
       renderSchedule(schedule);
-
       showToast('📅 Schedule generated!', 'success');
       tg.showAlert('🎉 Your personalized workout schedule is ready!');
     });
@@ -1599,13 +1522,9 @@
     const ctx = canvas.getContext('2d');
 
     async function startCamera() {
-      if (video.srcObject) {
-        video.srcObject.getTracks().forEach(t => t.stop());
-      }
+      if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } }
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } } });
         video.srcObject = stream;
         await video.play();
         drawFrame();
@@ -1617,39 +1536,18 @@
     }
 
     function drawFrame() {
-      if (!video.videoWidth) {
-        requestAnimationFrame(drawFrame);
-        return;
-      }
-
+      if (!video.videoWidth) { requestAnimationFrame(drawFrame); return; }
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       if (isWorkoutActive) {
-        // Exercise-specific corrections
-        const corrections = [
-          '✅ Perfect form! Keep it up! 💪',
-          '⬇️ Go a bit lower for better range',
-          '⬆️ Push up more! Full extension',
-          '🔄 Keep your core tight!',
-          '📐 Great angle! Almost there!',
-          '💪 Squeeze at the top!',
-          '🎯 Control the movement, don\'t rush',
-          '✅ Excellent form! You\'re killing it!',
-          '⚠️ Slow down the descent',
-          '💪 Breathe! Exhale on exertion',
-          '🎯 Focus on the muscle contraction',
-          '✅ Great tempo! Keep it controlled'
-        ];
-        
+        const corrections = ['✅ Perfect form! Keep it up! 💪', '⬇️ Go a bit lower for better range', '⬆️ Push up more! Full extension', '🔄 Keep your core tight!', '📐 Great angle! Almost there!', '💪 Squeeze at the top!', '🎯 Control the movement, don\'t rush', '✅ Excellent form! You\'re killing it!', '⚠️ Slow down the descent', '💪 Breathe! Exhale on exertion', '🎯 Focus on the muscle contraction', '✅ Great tempo! Keep it controlled'];
         const randomCorrection = corrections[Math.floor(Math.random() * corrections.length)];
         const isGood = randomCorrection.includes('✅') || randomCorrection.includes('💪') || randomCorrection.includes('🎯');
-        
         document.getElementById('formCorrection').textContent = randomCorrection;
         document.getElementById('formCorrection').className = `form-correction active ${isGood ? 'good' : 'bad'}`;
       }
-
       requestAnimationFrame(drawFrame);
     }
 
@@ -1676,14 +1574,12 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  INIT - WITH LOCAL STORAGE CHECK
+    //  INIT
     // ──────────────────────────────────────────────────────────────
     async function init() {
       const savedData = loadUserData();
-      
       if (savedData && savedData.userId === USER_ID) {
         userData = savedData;
-        
         document.getElementById('userNameInput').value = userData.name || '';
         document.getElementById('styleInput').value = userData.style || 'Full Body';
         document.getElementById('weightInput').value = userData.weight || 75;
@@ -1692,38 +1588,24 @@
         document.getElementById('caloriesInput').value = userData.calories || 2500;
         document.getElementById('startTimeInput').value = userData.startTime || '06:00';
         document.getElementById('durationInput').value = userData.duration || 45;
-        
         document.getElementById('onboardingCard').style.display = 'none';
         document.getElementById('scheduleContainer').classList.add('active');
         setupUserProfile(userData.name);
-        
         const schedule = generateSchedule(true);
-        if (schedule) {
-          currentSchedule = schedule;
-          renderSchedule(schedule);
-          showToast('👋 Welcome back, ' + userData.name + '!', 'info');
-        }
+        if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
+        showToast('👋 Welcome back, ' + userData.name + '!', 'info');
       } else {
         document.getElementById('onboardingCard').style.display = 'block';
-        if (USER_FULL_NAME) {
-          document.getElementById('userNameInput').value = USER_FULL_NAME;
-        }
+        if (USER_FULL_NAME) { document.getElementById('userNameInput').value = USER_FULL_NAME; }
         showToast('👋 Welcome! Set up your profile.', 'info');
       }
 
-      if (navigator.mediaDevices?.getUserMedia) {
-        setTimeout(startCamera, 1000);
-      }
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click();
-      });
+      if (navigator.mediaDevices?.getUserMedia) { setTimeout(startCamera, 1000); }
+      document.addEventListener('keydown', (e) => { if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click(); });
 
       console.log('🏋️ AI Gym Trainer Pro Max 100 loaded!');
       console.log(`💪 Exercises loaded: ${Object.keys(EXERCISE_DB).length}`);
-      console.log(`👤 User: ${USER_FULL_NAME || 'Guest'}`);
-      console.log('⭐ Premium workouts available with ad support');
-      console.log('💾 Data saved in localStorage');
+      console.log('👤 Developed by Muhammad Ilyas');
 
       setTimeout(hideLoading, 1000);
     }
@@ -1731,4 +1613,4 @@
     init();
   </script>
 </body>
-            </html>
+  </html>
