@@ -42,7 +42,7 @@
       --radius: 20px;
       --radius-sm: 12px;
       --radius-xs: 8px;
-      --shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      --shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
       --shadow-glow: 0 8px 40px rgba(249, 176, 66, 0.15);
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -55,45 +55,65 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--tg-bg);
       color: var(--tg-text);
       min-height: 100vh;
       padding: 14px 12px 100px;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
       position: relative;
+      background: var(--tg-bg);
     }
 
+    /* ===== BACKGROUND IMAGE ===== */
     body::before {
       content: '';
       position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(ellipse at 30% 20%, rgba(249, 176, 66, 0.05) 0%, transparent 60%),
-        radial-gradient(ellipse at 70% 80%, rgba(96, 165, 250, 0.03) 0%, transparent 60%);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       z-index: -1;
-      animation: bgFloat 20s ease-in-out infinite;
+      background-image: url('background.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.15;
+      pointer-events: none;
     }
 
-    @keyframes bgFloat {
-      0%,
-      100% {
-        transform: translate(0, 0) rotate(0deg);
-      }
-      33% {
-        transform: translate(2%, -2%) rotate(2deg);
-      }
-      66% {
-        transform: translate(-1%, 1%) rotate(-1deg);
-      }
+    /* Overlay gradient for readability */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, 
+        rgba(10, 14, 23, 0.85) 0%,
+        rgba(10, 14, 23, 0.70) 50%,
+        rgba(10, 14, 23, 0.85) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* Background float animation (subtle) */
+    @keyframes bgPulse {
+      0%, 100% { opacity: 0.12; }
+      50% { opacity: 0.18; }
+    }
+
+    body::before {
+      animation: bgPulse 8s ease-in-out infinite;
     }
 
     .app {
       max-width: 480px;
       margin: 0 auto;
       animation: fadeUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 1;
     }
 
     @keyframes fadeUp {
@@ -105,6 +125,29 @@
         opacity: 1;
         transform: translateY(0) scale(1);
       }
+    }
+
+    /* ============================================================
+       GLASSMORPHISM CARDS (enhanced with background)
+    ============================================================ */
+    .glass-card {
+      background: rgba(19, 27, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
+    }
+
+    .onboarding-card,
+    .today-card,
+    .style-selector,
+    .premium-status,
+    .bodypart-selector {
+      background: rgba(19, 27, 38, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
     }
 
     /* ============================================================
@@ -158,7 +201,8 @@
     }
 
     .greeting {
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.7);
+      backdrop-filter: blur(8px);
       padding: 6px 14px 6px 12px;
       border-radius: 40px;
       font-size: 0.7rem;
@@ -177,29 +221,13 @@
     }
 
     @keyframes wave {
-      0%,
-      100% {
-        transform: rotate(0deg);
-      }
-      10% {
-        transform: rotate(14deg);
-      }
-      20% {
-        transform: rotate(-8deg);
-      }
-      30% {
-        transform: rotate(14deg);
-      }
-      40% {
-        transform: rotate(-4deg);
-      }
-      50% {
-        transform: rotate(10deg);
-      }
-      60%,
-      100% {
-        transform: rotate(0deg);
-      }
+      0%, 100% { transform: rotate(0deg); }
+      10% { transform: rotate(14deg); }
+      20% { transform: rotate(-8deg); }
+      30% { transform: rotate(14deg); }
+      40% { transform: rotate(-4deg); }
+      50% { transform: rotate(10deg); }
+      60%, 100% { transform: rotate(0deg); }
     }
 
     /* ============================================================
@@ -211,7 +239,8 @@
       gap: 8px;
       font-size: 0.65rem;
       color: var(--tg-hint);
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.7);
+      backdrop-filter: blur(8px);
       padding: 5px 14px 5px 10px;
       border-radius: 30px;
       border: 1px solid rgba(255, 255, 255, 0.04);
@@ -242,22 +271,16 @@
     }
 
     @keyframes pulse-dot {
-      0%,
-      100% {
-        opacity: 0.5;
-        transform: scale(0.8);
-      }
-      50% {
-        opacity: 1;
-        transform: scale(1.2);
-      }
+      0%, 100% { opacity: 0.5; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
     }
 
     /* ============================================================
        PREMIUM ADS STATUS
     ============================================================ */
     .premium-status {
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.78);
+      backdrop-filter: blur(14px);
       border-radius: var(--radius-sm);
       padding: 10px 14px;
       margin-bottom: 14px;
@@ -296,7 +319,7 @@
       width: 20px;
       height: 6px;
       border-radius: 10px;
-      background: var(--tg-bg);
+      background: rgba(255, 255, 255, 0.08);
       transition: var(--transition);
     }
 
@@ -317,7 +340,8 @@
        BODY PART SELECTOR
     ============================================================ */
     .bodypart-selector {
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.78);
+      backdrop-filter: blur(14px);
       border-radius: var(--radius);
       padding: 14px 16px;
       margin-bottom: 14px;
@@ -351,7 +375,7 @@
       padding: 8px 4px;
       border-radius: var(--radius-sm);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.6);
       color: var(--tg-hint);
       font-size: 0.55rem;
       font-weight: 600;
@@ -373,7 +397,7 @@
 
     .bodypart-btn.active {
       border-color: var(--accent);
-      background: rgba(249, 176, 66, 0.08);
+      background: rgba(249, 176, 66, 0.12);
       color: var(--accent);
       box-shadow: 0 0 20px var(--accent-glow);
     }
@@ -382,7 +406,8 @@
        ONBOARDING CARD
     ============================================================ */
     .onboarding-card {
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.82);
+      backdrop-filter: blur(16px);
       border-radius: var(--radius);
       padding: 20px 18px;
       margin-bottom: 14px;
@@ -416,7 +441,7 @@
     }
 
     .onboarding-field {
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.6);
       border-radius: var(--radius-sm);
       padding: 10px 12px;
       border: 1px solid rgba(255, 255, 255, 0.04);
@@ -510,7 +535,8 @@
        TODAY'S WORKOUT CARD
     ============================================================ */
     .today-card {
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.82);
+      backdrop-filter: blur(16px);
       border-radius: var(--radius);
       padding: 16px 18px;
       margin-bottom: 14px;
@@ -553,15 +579,8 @@
     }
 
     @keyframes pulseBadge {
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      50% {
-        opacity: 0.7;
-        transform: scale(0.95);
-      }
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.95); }
     }
 
     .today-bodyparts {
@@ -616,7 +635,7 @@
       gap: 10px;
       padding: 8px 12px;
       border-radius: var(--radius-xs);
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.5);
       cursor: pointer;
       transition: var(--transition);
       border: 1px solid transparent;
@@ -684,7 +703,8 @@
     ============================================================ */
     .camera-wrapper {
       position: relative;
-      background: #080b12;
+      background: rgba(8, 11, 18, 0.9);
+      backdrop-filter: blur(8px);
       border-radius: var(--radius);
       overflow: hidden;
       aspect-ratio: 4/3;
@@ -699,7 +719,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      background: #0a0e17;
+      background: rgba(10, 14, 23, 0.9);
     }
 
     #canvas {
@@ -830,13 +850,8 @@
     }
 
     @keyframes pulse-record {
-      0%,
-      100% {
-        box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.3);
-      }
-      50% {
-        box-shadow: 0 0 0 12px rgba(248, 113, 113, 0);
-      }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.3); }
+      50% { box-shadow: 0 0 0 12px rgba(248, 113, 113, 0); }
     }
 
     /* ============================================================
@@ -846,7 +861,8 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.78);
+      backdrop-filter: blur(14px);
       border-radius: var(--radius);
       padding: 12px 16px;
       margin-bottom: 12px;
@@ -861,7 +877,7 @@
 
     .demo-man {
       font-size: 2.8rem;
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.6);
       padding: 6px 14px;
       border-radius: var(--radius-sm);
       border: 1px solid rgba(255, 255, 255, 0.06);
@@ -872,13 +888,8 @@
     }
 
     @keyframes float {
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-6px);
-      }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
     }
 
     .demo-info {
@@ -947,7 +958,7 @@
 
     .demo-info .reps-sets span {
       font-size: 0.65rem;
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.6);
       padding: 2px 10px;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.04);
@@ -959,7 +970,7 @@
     }
 
     .video-btn {
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.06);
       color: var(--tg-text);
       padding: 4px 12px;
@@ -1005,7 +1016,8 @@
        FEEDBACK PANEL
     ============================================================ */
     .feedback-panel {
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.78);
+      backdrop-filter: blur(14px);
       border-radius: var(--radius);
       padding: 12px 16px;
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -1044,7 +1056,7 @@
     .feedback-angle {
       font-size: 0.75rem;
       color: var(--tg-hint);
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.6);
       padding: 3px 12px;
       border-radius: 30px;
       font-weight: 500;
@@ -1077,11 +1089,13 @@
     .video-modal-content {
       max-width: 560px;
       width: 100%;
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.95);
+      backdrop-filter: blur(20px);
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
       position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .video-modal-content iframe {
@@ -1141,7 +1155,8 @@
     .ad-modal-content {
       max-width: 400px;
       width: 100%;
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.95);
+      backdrop-filter: blur(20px);
       border-radius: var(--radius);
       padding: 30px 24px;
       text-align: center;
@@ -1177,7 +1192,7 @@
       width: 40px;
       height: 6px;
       border-radius: 10px;
-      background: var(--tg-bg);
+      background: rgba(255, 255, 255, 0.06);
       transition: var(--transition);
     }
 
@@ -1246,9 +1261,9 @@
       right: 0;
       padding: 10px 14px;
       padding-bottom: max(10px, env(safe-area-inset-bottom));
-      background: var(--tg-secondary);
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(19, 27, 38, 0.9);
       backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
       gap: 8px;
       z-index: 100;
@@ -1294,7 +1309,7 @@
     }
 
     .action-btn.secondary {
-      background: var(--tg-bg);
+      background: rgba(10, 14, 23, 0.6);
       color: var(--tg-text);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -1316,7 +1331,8 @@
       bottom: 85px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--tg-secondary);
+      background: rgba(19, 27, 38, 0.95);
+      backdrop-filter: blur(20px);
       color: var(--tg-text);
       padding: 10px 20px;
       border-radius: 40px;
@@ -1324,7 +1340,6 @@
       font-weight: 500;
       border: 1px solid rgba(255, 255, 255, 0.06);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(20px);
       z-index: 200;
       animation: fadeUp 0.3s ease-out;
       display: none;
@@ -1353,85 +1368,31 @@
        RESPONSIVE
     ============================================================ */
     @media (max-width: 420px) {
-      body {
-        padding: 10px 8px 85px;
-      }
-      .logo h1 {
-        font-size: 1.1rem;
-      }
-      .logo-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 1rem;
-      }
-      .greeting {
-        font-size: 0.6rem;
-        padding: 4px 10px 4px 8px;
-      }
-      .onboarding-grid {
-        grid-template-columns: 1fr;
-      }
-      .bodypart-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .bodypart-btn {
-        font-size: 0.5rem;
-        padding: 6px 2px;
-      }
-      .bodypart-btn .icon {
-        font-size: 1rem;
-      }
-      .feedback-msg {
-        font-size: 0.85rem;
-      }
-      .demo-man {
-        font-size: 2rem;
-        min-width: 48px;
-        padding: 4px 10px;
-      }
-      .cam-btn {
-        padding: 5px 12px;
-        font-size: 0.55rem;
-      }
-      .action-btn {
-        padding: 10px;
-        font-size: 0.7rem;
-      }
-      .demo-info .reps-sets span {
-        font-size: 0.55rem;
-        padding: 1px 8px;
-      }
-      .today-ex-item .ex-name {
-        font-size: 0.7rem;
-      }
-      .premium-status .progress .dot {
-        width: 14px;
-        height: 5px;
-      }
-      .ad-modal-content .ad-progress .dot {
-        width: 30px;
-      }
+      body { padding: 10px 8px 85px; }
+      .logo h1 { font-size: 1.1rem; }
+      .logo-icon { width: 36px; height: 36px; font-size: 1rem; }
+      .greeting { font-size: 0.6rem; padding: 4px 10px 4px 8px; }
+      .onboarding-grid { grid-template-columns: 1fr; }
+      .bodypart-grid { grid-template-columns: repeat(3, 1fr); }
+      .bodypart-btn { font-size: 0.5rem; padding: 6px 2px; }
+      .bodypart-btn .icon { font-size: 1rem; }
+      .feedback-msg { font-size: 0.85rem; }
+      .demo-man { font-size: 2rem; min-width: 48px; padding: 4px 10px; }
+      .cam-btn { padding: 5px 12px; font-size: 0.55rem; }
+      .action-btn { padding: 10px; font-size: 0.7rem; }
+      .demo-info .reps-sets span { font-size: 0.55rem; padding: 1px 8px; }
+      .today-ex-item .ex-name { font-size: 0.7rem; }
+      .premium-status .progress .dot { width: 14px; height: 5px; }
+      .ad-modal-content .ad-progress .dot { width: 30px; }
     }
 
     @media (max-width: 360px) {
-      .bodypart-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .demo-info h4 {
-        font-size: 0.8rem;
-      }
-      .demo-info p {
-        font-size: 0.65rem;
-      }
-      .feedback-msg {
-        font-size: 0.75rem;
-      }
-      .premium-status .progress .dot {
-        width: 12px;
-      }
-      .ad-modal-content .ad-progress .dot {
-        width: 25px;
-      }
+      .bodypart-grid { grid-template-columns: repeat(2, 1fr); }
+      .demo-info h4 { font-size: 0.8rem; }
+      .demo-info p { font-size: 0.65rem; }
+      .feedback-msg { font-size: 0.75rem; }
+      .premium-status .progress .dot { width: 12px; }
+      .ad-modal-content .ad-progress .dot { width: 25px; }
     }
 
     /* ============================================================
@@ -1676,158 +1637,158 @@
     // ──────────────────────────────────────────────────────────────
     const EXERCISE_DB = {
       // ===== CHEST (20 exercises) =====
-      CHEST_01: { id: 'CHEST_01', name: 'Barbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y', premium: true },
-      CHEST_02: { id: 'CHEST_02', name: 'Dumbbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/VmB1G1K7v94', premium: false },
-      CHEST_03: { id: 'CHEST_03', name: 'Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', premium: false },
-      CHEST_04: { id: 'CHEST_04', name: 'Incline Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/Srqn4F5BvFY', premium: true },
-      CHEST_05: { id: 'CHEST_05', name: 'Decline Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/LvL0kLJxYFw', premium: true },
-      CHEST_06: { id: 'CHEST_06', name: 'Chest Dips', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true },
-      CHEST_07: { id: 'CHEST_07', name: 'Floor Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_08: { id: 'CHEST_08', name: 'Dumbbell Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/QENPH9RqQk0', premium: false },
-      CHEST_09: { id: 'CHEST_09', name: 'Close-Grip Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_10: { id: 'CHEST_10', name: 'Machine Chest Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_11: { id: 'CHEST_11', name: 'Incline Dumbbell Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CHEST_12: { id: 'CHEST_12', name: 'Decline Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_13: { id: 'CHEST_13', name: 'Cable Crossovers', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CHEST_14: { id: 'CHEST_14', name: 'Pec Deck Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_15: { id: 'CHEST_15', name: 'Dumbbell Pullover', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CHEST_16: { id: 'CHEST_16', name: 'Svend Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_17: { id: 'CHEST_17', name: 'Single-Arm Cable Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CHEST_18: { id: 'CHEST_18', name: 'Clap Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_19: { id: 'CHEST_19', name: 'Wide Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CHEST_20: { id: 'CHEST_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CHEST_01: { id: 'CHEST_01', name: 'Barbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Lower bar to chest, press up', tip: 'Keep shoulders packed' },
+      CHEST_02: { id: 'CHEST_02', name: 'Dumbbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/VmB1G1K7v94', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Press dumbbells up together', tip: 'Keep wrists straight' },
+      CHEST_03: { id: 'CHEST_03', name: 'Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Lower chest to ground, push up', tip: 'Keep elbows at 45°' },
+      CHEST_04: { id: 'CHEST_04', name: 'Incline Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/Srqn4F5BvFY', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Press up from incline', tip: 'Focus on upper chest' },
+      CHEST_05: { id: 'CHEST_05', name: 'Decline Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/LvL0kLJxYFw', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Press up from decline', tip: 'Focus on lower chest' },
+      CHEST_06: { id: 'CHEST_06', name: 'Chest Dips', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Lower body until shoulders below elbows', tip: 'Lean forward for chest focus' },
+      CHEST_07: { id: 'CHEST_07', name: 'Floor Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Press from floor', tip: 'Keep elbows tucked' },
+      CHEST_08: { id: 'CHEST_08', name: 'Dumbbell Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/QENPH9RqQk0', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Open arms wide, squeeze together', tip: 'Keep slight bend in elbows' },
+      CHEST_09: { id: 'CHEST_09', name: 'Close-Grip Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Hands close together', tip: 'Targets triceps and inner chest' },
+      CHEST_10: { id: 'CHEST_10', name: 'Machine Chest Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Press machine handles forward', tip: 'Control the movement' },
+      CHEST_11: { id: 'CHEST_11', name: 'Incline Dumbbell Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Press dumbbells from incline', tip: 'Focus on upper chest' },
+      CHEST_12: { id: 'CHEST_12', name: 'Decline Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Feet elevated', tip: 'Targets upper chest' },
+      CHEST_13: { id: 'CHEST_13', name: 'Cable Crossovers', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 15, defaultSets: 3, desc: 'Cross cables in front', tip: 'Squeeze at the top' },
+      CHEST_14: { id: 'CHEST_14', name: 'Pec Deck Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Squeeze pads together', tip: 'Focus on chest squeeze' },
+      CHEST_15: { id: 'CHEST_15', name: 'Dumbbell Pullover', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Lower dumbbell behind head', tip: 'Keep arms slightly bent' },
+      CHEST_16: { id: 'CHEST_16', name: 'Svend Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Press plates together', tip: 'Isometric chest squeeze' },
+      CHEST_17: { id: 'CHEST_17', name: 'Single-Arm Cable Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Single arm cable fly', tip: 'Focus on mind-muscle connection' },
+      CHEST_18: { id: 'CHEST_18', name: 'Clap Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 8, defaultSets: 3, desc: 'Explosive push-up with clap', tip: 'Land softly' },
+      CHEST_19: { id: 'CHEST_19', name: 'Wide Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Hands wide apart', tip: 'Targets outer chest' },
+      CHEST_20: { id: 'CHEST_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Press landmine bar', tip: 'Keep core tight' },
 
       // ===== BACK (20 exercises) =====
-      BACK_01: { id: 'BACK_01', name: 'Pull-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', premium: true },
-      BACK_02: { id: 'BACK_02', name: 'Chin-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BACK_03: { id: 'BACK_03', name: 'Bent-Over Barbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw', premium: false },
-      BACK_04: { id: 'BACK_04', name: 'Seated Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_05: { id: 'BACK_05', name: 'Lat Pulldowns', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_06: { id: 'BACK_06', name: 'Single-Arm Dumbbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_07: { id: 'BACK_07', name: 'Face Pulls', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU', premium: true },
-      BACK_08: { id: 'BACK_08', name: 'Inverted Rows', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_09: { id: 'BACK_09', name: 'Deadlifts', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false },
-      BACK_10: { id: 'BACK_10', name: 'Pendlay Rows', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BACK_11: { id: 'BACK_11', name: 'T-Bar Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BACK_12: { id: 'BACK_12', name: 'Dumbbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_13: { id: 'BACK_13', name: 'Machine Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_14: { id: 'BACK_14', name: 'Reverse Fly', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_15: { id: 'BACK_15', name: 'Rack Pulls', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BACK_16: { id: 'BACK_16', name: 'Good Mornings', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_17: { id: 'BACK_17', name: 'Straight-Arm Pulldown', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_18: { id: 'BACK_18', name: 'Shrugs (Traps)', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BACK_19: { id: 'BACK_19', name: 'Farmers Walk', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BACK_20: { id: 'BACK_20', name: 'Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_01: { id: 'BACK_01', name: 'Pull-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', premium: true, defaultReps: 8, defaultSets: 3, desc: 'Pull chin above bar', tip: 'Engage lats, don\'t swing' },
+      BACK_02: { id: 'BACK_02', name: 'Chin-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 8, defaultSets: 3, desc: 'Underhand grip pull-up', tip: 'Focus on biceps and lats' },
+      BACK_03: { id: 'BACK_03', name: 'Bent-Over Barbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Row bar to chest', tip: 'Keep back straight' },
+      BACK_04: { id: 'BACK_04', name: 'Seated Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Pull cable to torso', tip: 'Squeeze shoulder blades' },
+      BACK_05: { id: 'BACK_05', name: 'Lat Pulldowns', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Pull bar to chest', tip: 'Lean back slightly' },
+      BACK_06: { id: 'BACK_06', name: 'Single-Arm Dumbbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Row dumbbell with one arm', tip: 'Keep back flat' },
+      BACK_07: { id: 'BACK_07', name: 'Face Pulls', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU', premium: true, defaultReps: 15, defaultSets: 3, desc: 'Pull rope to face', tip: 'Keep elbows high' },
+      BACK_08: { id: 'BACK_08', name: 'Inverted Rows', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Pull chest to bar', tip: 'Keep body straight' },
+      BACK_09: { id: 'BACK_09', name: 'Deadlifts', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false, defaultReps: 8, defaultSets: 3, desc: 'Hinge at hips, back straight', tip: 'Drive through heels' },
+      BACK_10: { id: 'BACK_10', name: 'Pendlay Rows', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Row from floor', tip: 'Explosive movement' },
+      BACK_11: { id: 'BACK_11', name: 'T-Bar Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Row T-bar to chest', tip: 'Keep back straight' },
+      BACK_12: { id: 'BACK_12', name: 'Dumbbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Row dumbbell to torso', tip: 'Squeeze at top' },
+      BACK_13: { id: 'BACK_13', name: 'Machine Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Row machine handles', tip: 'Control the movement' },
+      BACK_14: { id: 'BACK_14', name: 'Reverse Fly', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Open arms back', tip: 'Squeeze shoulder blades' },
+      BACK_15: { id: 'BACK_15', name: 'Rack Pulls', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 8, defaultSets: 4, desc: 'Pull from rack pins', tip: 'Focus on back engagement' },
+      BACK_16: { id: 'BACK_16', name: 'Good Mornings', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Hinge forward with bar', tip: 'Keep back straight' },
+      BACK_17: { id: 'BACK_17', name: 'Straight-Arm Pulldown', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Pull bar down with straight arms', tip: 'Focus on lats' },
+      BACK_18: { id: 'BACK_18', name: 'Shrugs (Traps)', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Shrug shoulders up', tip: 'Hold at top' },
+      BACK_19: { id: 'BACK_19', name: 'Farmers Walk', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 30, defaultSets: 3, desc: 'Walk with heavy weights', tip: 'Keep shoulders back' },
+      BACK_20: { id: 'BACK_20', name: 'Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Row cable to torso', tip: 'Squeeze at the back' },
 
       // ===== SHOULDERS (20 exercises) =====
-      SHOULDER_01: { id: 'SHOULDER_01', name: 'Overhead Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog', premium: false },
-      SHOULDER_02: { id: 'SHOULDER_02', name: 'Dumbbell Shoulder Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_03: { id: 'SHOULDER_03', name: 'Arnold Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_04: { id: 'SHOULDER_04', name: 'Lateral Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw', premium: false },
-      SHOULDER_05: { id: 'SHOULDER_05', name: 'Front Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_06: { id: 'SHOULDER_06', name: 'Reverse Fly', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_07: { id: 'SHOULDER_07', name: 'Upright Rows', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_08: { id: 'SHOULDER_08', name: 'Shrugs', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_09: { id: 'SHOULDER_09', name: 'Clean & Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_10: { id: 'SHOULDER_10', name: 'Dumbbell Snatch', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_11: { id: 'SHOULDER_11', name: 'Front Raises (Plate)', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_12: { id: 'SHOULDER_12', name: 'Cable Lateral Raise', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_13: { id: 'SHOULDER_13', name: 'Single-Arm Cable Raise', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_14: { id: 'SHOULDER_14', name: 'Face Pulls', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU', premium: true },
-      SHOULDER_15: { id: 'SHOULDER_15', name: 'Push Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_16: { id: 'SHOULDER_16', name: 'Pike Push-ups', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_17: { id: 'SHOULDER_17', name: 'Cuban Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_18: { id: 'SHOULDER_18', name: 'Arnold Press (Variation)', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      SHOULDER_19: { id: 'SHOULDER_19', name: 'YTW Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      SHOULDER_20: { id: 'SHOULDER_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_01: { id: 'SHOULDER_01', name: 'Overhead Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Press bar overhead', tip: 'Keep core tight' },
+      SHOULDER_02: { id: 'SHOULDER_02', name: 'Dumbbell Shoulder Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Press dumbbells overhead', tip: 'Don\'t arch back' },
+      SHOULDER_03: { id: 'SHOULDER_03', name: 'Arnold Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Rotate dumbbells while pressing', tip: 'Control the rotation' },
+      SHOULDER_04: { id: 'SHOULDER_04', name: 'Lateral Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Raise arms to sides', tip: 'Slight bend in elbows' },
+      SHOULDER_05: { id: 'SHOULDER_05', name: 'Front Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Raise arms forward', tip: 'Control the movement' },
+      SHOULDER_06: { id: 'SHOULDER_06', name: 'Reverse Fly', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Open arms back', tip: 'Squeeze rear delts' },
+      SHOULDER_07: { id: 'SHOULDER_07', name: 'Upright Rows', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Row bar to chin', tip: 'Keep bar close to body' },
+      SHOULDER_08: { id: 'SHOULDER_08', name: 'Shrugs', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Shrug shoulders up', tip: 'Hold at top' },
+      SHOULDER_09: { id: 'SHOULDER_09', name: 'Clean & Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 8, defaultSets: 4, desc: 'Clean bar then press overhead', tip: 'Explosive movement' },
+      SHOULDER_10: { id: 'SHOULDER_10', name: 'Dumbbell Snatch', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 8, defaultSets: 4, desc: 'Snatch dumbbell overhead', tip: 'Explosive hip drive' },
+      SHOULDER_11: { id: 'SHOULDER_11', name: 'Front Raises (Plate)', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Raise plate forward', tip: 'Keep arms straight' },
+      SHOULDER_12: { id: 'SHOULDER_12', name: 'Cable Lateral Raise', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Raise cable to side', tip: 'Constant tension' },
+      SHOULDER_13: { id: 'SHOULDER_13', name: 'Single-Arm Cable Raise', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Single arm cable raise', tip: 'Focus on mind-muscle' },
+      SHOULDER_14: { id: 'SHOULDER_14', name: 'Face Pulls', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU', premium: true, defaultReps: 15, defaultSets: 3, desc: 'Pull rope to face', tip: 'Keep elbows high' },
+      SHOULDER_15: { id: 'SHOULDER_15', name: 'Push Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 8, defaultSets: 4, desc: 'Press with leg drive', tip: 'Use momentum wisely' },
+      SHOULDER_16: { id: 'SHOULDER_16', name: 'Pike Push-ups', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Pike position push-up', tip: 'Focus on shoulders' },
+      SHOULDER_17: { id: 'SHOULDER_17', name: 'Cuban Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Rotate and press', tip: 'Focus on external rotation' },
+      SHOULDER_18: { id: 'SHOULDER_18', name: 'Arnold Press (Variation)', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Rotate dumbbells while pressing', tip: 'Control the rotation' },
+      SHOULDER_19: { id: 'SHOULDER_19', name: 'YTW Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Y, T, W arm positions', tip: 'Focus on scapular control' },
+      SHOULDER_20: { id: 'SHOULDER_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 4, desc: 'Press landmine bar', tip: 'Keep core tight' },
 
       // ===== BICEPS (20 exercises) =====
-      BICEPS_01: { id: 'BICEPS_01', name: 'Barbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo', premium: false },
-      BICEPS_02: { id: 'BICEPS_02', name: 'Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_03: { id: 'BICEPS_03', name: 'Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_04: { id: 'BICEPS_04', name: 'Preacher Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BICEPS_05: { id: 'BICEPS_05', name: 'Concentration Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_06: { id: 'BICEPS_06', name: 'Cable Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_07: { id: 'BICEPS_07', name: 'Chin-ups (Underhand)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BICEPS_08: { id: 'BICEPS_08', name: 'Resistance Band Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_09: { id: 'BICEPS_09', name: 'EZ Bar Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_10: { id: 'BICEPS_10', name: 'Wide-Grip Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_11: { id: 'BICEPS_11', name: 'Zottman Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BICEPS_12: { id: 'BICEPS_12', name: 'Reverse Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_13: { id: 'BICEPS_13', name: 'Spider Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BICEPS_14: { id: 'BICEPS_14', name: 'Incline Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BICEPS_15: { id: 'BICEPS_15', name: '21s (7-7-7)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_16: { id: 'BICEPS_16', name: 'Isometric Hold Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_17: { id: 'BICEPS_17', name: 'Bayesian Cable Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      BICEPS_18: { id: 'BICEPS_18', name: 'Cross-Body Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_19: { id: 'BICEPS_19', name: 'Towel Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      BICEPS_20: { id: 'BICEPS_20', name: 'Cable Curl (Variation)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_01: { id: 'BICEPS_01', name: 'Barbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Curl barbell up', tip: 'Keep elbows pinned' },
+      BICEPS_02: { id: 'BICEPS_02', name: 'Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Curl dumbbell up', tip: 'Supinate at the top' },
+      BICEPS_03: { id: 'BICEPS_03', name: 'Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Curl with neutral grip', tip: 'Targets brachialis' },
+      BICEPS_04: { id: 'BICEPS_04', name: 'Preacher Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Curl on preacher bench', tip: 'Strict form' },
+      BICEPS_05: { id: 'BICEPS_05', name: 'Concentration Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Curl with arm on thigh', tip: 'Focus on squeeze' },
+      BICEPS_06: { id: 'BICEPS_06', name: 'Cable Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Curl cable from low pulley', tip: 'Constant tension' },
+      BICEPS_07: { id: 'BICEPS_07', name: 'Chin-ups (Underhand)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 8, defaultSets: 3, desc: 'Underhand grip pull-up', tip: 'Focus on biceps' },
+      BICEPS_08: { id: 'BICEPS_08', name: 'Resistance Band Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Curl band', tip: 'Constant tension' },
+      BICEPS_09: { id: 'BICEPS_09', name: 'EZ Bar Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Curl EZ bar', tip: 'Wrist-friendly' },
+      BICEPS_10: { id: 'BICEPS_10', name: 'Wide-Grip Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Curl with wide grip', tip: 'Targets inner biceps' },
+      BICEPS_11: { id: 'BICEPS_11', name: 'Zottman Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Supinate up, pronate down', tip: 'Works biceps and forearms' },
+      BICEPS_12: { id: 'BICEPS_12', name: 'Reverse Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Curl with overhand grip', tip: 'Targets forearms' },
+      BICEPS_13: { id: 'BICEPS_13', name: 'Spider Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Curl leaning over bench', tip: 'Isolation movement' },
+      BICEPS_14: { id: 'BICEPS_14', name: 'Incline Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Curl on incline bench', tip: 'Stretch at bottom' },
+      BICEPS_15: { id: 'BICEPS_15', name: '21s (7-7-7)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 21, defaultSets: 3, desc: '7 half lower, 7 half upper, 7 full', tip: 'Burnout set' },
+      BICEPS_16: { id: 'BICEPS_16', name: 'Isometric Hold Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 30, defaultSets: 3, desc: 'Hold curl at 90°', tip: 'Squeeze hard' },
+      BICEPS_17: { id: 'BICEPS_17', name: 'Bayesian Cable Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Curl cable at high angle', tip: 'Maximum stretch' },
+      BICEPS_18: { id: 'BICEPS_18', name: 'Cross-Body Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Curl across body', tip: 'Targets brachialis' },
+      BICEPS_19: { id: 'BICEPS_19', name: 'Towel Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Curl towel with fists', tip: 'Grip strength' },
+      BICEPS_20: { id: 'BICEPS_20', name: 'Cable Curl (Variation)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Various cable curl', tip: 'Squeeze at peak' },
 
       // ===== TRICEPS (20 exercises) =====
-      TRICEPS_01: { id: 'TRICEPS_01', name: 'Tricep Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_02: { id: 'TRICEPS_02', name: 'Close-Grip Bench Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_03: { id: 'TRICEPS_03', name: 'Tricep Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true },
-      TRICEPS_04: { id: 'TRICEPS_04', name: 'Overhead Tricep Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME', premium: false },
-      TRICEPS_05: { id: 'TRICEPS_05', name: 'Diamond Push-ups', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_06: { id: 'TRICEPS_06', name: 'Rope Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_07: { id: 'TRICEPS_07', name: 'Reverse Grip Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_08: { id: 'TRICEPS_08', name: 'Lying Tricep Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_09: { id: 'TRICEPS_09', name: 'Tricep Press Machine', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_10: { id: 'TRICEPS_10', name: 'Neutral-Grip Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      TRICEPS_11: { id: 'TRICEPS_11', name: 'Skull Crushers', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_12: { id: 'TRICEPS_12', name: 'Dumbbell Kickbacks', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_13: { id: 'TRICEPS_13', name: 'Cable Kickbacks', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      TRICEPS_14: { id: 'TRICEPS_14', name: 'Bench Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_15: { id: 'TRICEPS_15', name: 'Tate Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      TRICEPS_16: { id: 'TRICEPS_16', name: 'Single-Arm Overhead Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_17: { id: 'TRICEPS_17', name: 'JM Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      TRICEPS_18: { id: 'TRICEPS_18', name: 'Floor Press (Close Grip)', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_19: { id: 'TRICEPS_19', name: 'Band Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      TRICEPS_20: { id: 'TRICEPS_20', name: 'Tricep Hold Extensions', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_01: { id: 'TRICEPS_01', name: 'Tricep Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Push bar down', tip: 'Keep elbows tucked' },
+      TRICEPS_02: { id: 'TRICEPS_02', name: 'Close-Grip Bench Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Press with close grip', tip: 'Elbows close to body' },
+      TRICEPS_03: { id: 'TRICEPS_03', name: 'Tricep Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Lower body between bars', tip: 'Keep body upright' },
+      TRICEPS_04: { id: 'TRICEPS_04', name: 'Overhead Tricep Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Extend overhead', tip: 'Keep elbows pointing forward' },
+      TRICEPS_05: { id: 'TRICEPS_05', name: 'Diamond Push-ups', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Hands in diamond shape', tip: 'Targets triceps' },
+      TRICEPS_06: { id: 'TRICEPS_06', name: 'Rope Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Push rope down', tip: 'Spread at bottom' },
+      TRICEPS_07: { id: 'TRICEPS_07', name: 'Reverse Grip Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Push with underhand grip', tip: 'Focus on triceps' },
+      TRICEPS_08: { id: 'TRICEPS_08', name: 'Lying Tricep Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Extend while lying', tip: 'Keep elbows fixed' },
+      TRICEPS_09: { id: 'TRICEPS_09', name: 'Tricep Press Machine', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Press machine handles', tip: 'Control the movement' },
+      TRICEPS_10: { id: 'TRICEPS_10', name: 'Neutral-Grip Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Dips with parallel bars', tip: 'Keep body upright' },
+      TRICEPS_11: { id: 'TRICEPS_11', name: 'Skull Crushers', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Lower bar to forehead', tip: 'Keep elbows fixed' },
+      TRICEPS_12: { id: 'TRICEPS_12', name: 'Dumbbell Kickbacks', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Extend arm back', tip: 'Squeeze at top' },
+      TRICEPS_13: { id: 'TRICEPS_13', name: 'Cable Kickbacks', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Cable extension back', tip: 'Constant tension' },
+      TRICEPS_14: { id: 'TRICEPS_14', name: 'Bench Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Dips on bench', tip: 'Keep feet on floor' },
+      TRICEPS_15: { id: 'TRICEPS_15', name: 'Tate Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Press dumbbell with palms up', tip: 'Focus on triceps' },
+      TRICEPS_16: { id: 'TRICEPS_16', name: 'Single-Arm Overhead Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'One-arm overhead extension', tip: 'Keep elbow stable' },
+      TRICEPS_17: { id: 'TRICEPS_17', name: 'JM Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Press with JM grip', tip: 'Elbows tucked' },
+      TRICEPS_18: { id: 'TRICEPS_18', name: 'Floor Press (Close Grip)', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Close-grip press from floor', tip: 'Focus on triceps' },
+      TRICEPS_19: { id: 'TRICEPS_19', name: 'Band Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Push band down', tip: 'Resistance throughout' },
+      TRICEPS_20: { id: 'TRICEPS_20', name: 'Tricep Hold Extensions', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Hold extension at 90°', tip: 'Isometric hold' },
 
       // ===== LEGS (20 exercises) =====
-      LEGS_01: { id: 'LEGS_01', name: 'Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', premium: false },
-      LEGS_02: { id: 'LEGS_02', name: 'Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false },
-      LEGS_03: { id: 'LEGS_03', name: 'Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', premium: false },
-      LEGS_04: { id: 'LEGS_04', name: 'Bulgarian Split Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      LEGS_05: { id: 'LEGS_05', name: 'Glute Bridges', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE', premium: false },
-      LEGS_06: { id: 'LEGS_06', name: 'Romanian Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_07: { id: 'LEGS_07', name: 'Hip Thrusts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      LEGS_08: { id: 'LEGS_08', name: 'Reverse Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_09: { id: 'LEGS_09', name: 'Single-Leg Glute Bridge', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_10: { id: 'LEGS_10', name: 'Hamstring Curls', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_11: { id: 'LEGS_11', name: 'Step-ups', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_12: { id: 'LEGS_12', name: 'Leg Press', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_13: { id: 'LEGS_13', name: 'Leg Extensions', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_14: { id: 'LEGS_14', name: 'Leg Curls', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_15: { id: 'LEGS_15', name: 'Calf Raises', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/-M4-G8p8fmc', premium: false },
-      LEGS_16: { id: 'LEGS_16', name: 'Seated Calf Raises', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_17: { id: 'LEGS_17', name: 'Sumo Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_18: { id: 'LEGS_18', name: 'Lateral Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_19: { id: 'LEGS_19', name: 'Side-Lying Leg Lifts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      LEGS_20: { id: 'LEGS_20', name: 'Resistance Band Walks', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      LEGS_01: { id: 'LEGS_01', name: 'Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Squat down, stand up', tip: 'Knees track over toes' },
+      LEGS_02: { id: 'LEGS_02', name: 'Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false, defaultReps: 8, defaultSets: 3, desc: 'Hinge at hips', tip: 'Drive through heels' },
+      LEGS_03: { id: 'LEGS_03', name: 'Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Step forward, lunge down', tip: 'Keep torso upright' },
+      LEGS_04: { id: 'LEGS_04', name: 'Bulgarian Split Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Lunge with back foot elevated', tip: 'Keep front knee tracking' },
+      LEGS_05: { id: 'LEGS_05', name: 'Glute Bridges', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Lift hips up', tip: 'Squeeze glutes at top' },
+      LEGS_06: { id: 'LEGS_06', name: 'Romanian Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Hinge at hips, knees slightly bent', tip: 'Keep back straight' },
+      LEGS_07: { id: 'LEGS_07', name: 'Hip Thrusts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Thrust hips up', tip: 'Squeeze glutes hard' },
+      LEGS_08: { id: 'LEGS_08', name: 'Reverse Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Step back, lunge down', tip: 'Keep torso upright' },
+      LEGS_09: { id: 'LEGS_09', name: 'Single-Leg Glute Bridge', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Glute bridge on one leg', tip: 'Squeeze glute' },
+      LEGS_10: { id: 'LEGS_10', name: 'Hamstring Curls', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Curl weight to glutes', tip: 'Control the negative' },
+      LEGS_11: { id: 'LEGS_11', name: 'Step-ups', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Step up onto platform', tip: 'Drive through front foot' },
+      LEGS_12: { id: 'LEGS_12', name: 'Leg Press', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Press weight with legs', tip: 'Don\'t lock knees' },
+      LEGS_13: { id: 'LEGS_13', name: 'Leg Extensions', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Extend legs on machine', tip: 'Squeeze quads' },
+      LEGS_14: { id: 'LEGS_14', name: 'Leg Curls', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Curl leg pad down', tip: 'Control the movement' },
+      LEGS_15: { id: 'LEGS_15', name: 'Calf Raises', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/-M4-G8p8fmc', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Rise onto toes', tip: 'Full range of motion' },
+      LEGS_16: { id: 'LEGS_16', name: 'Seated Calf Raises', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Seated calf raise', tip: 'Full stretch at bottom' },
+      LEGS_17: { id: 'LEGS_17', name: 'Sumo Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 12, defaultSets: 3, desc: 'Wide stance squat', tip: 'Targets inner thighs' },
+      LEGS_18: { id: 'LEGS_18', name: 'Lateral Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Step to side, lunge', tip: 'Keep chest up' },
+      LEGS_19: { id: 'LEGS_19', name: 'Side-Lying Leg Lifts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Lift leg while lying', tip: 'Keep hips stable' },
+      LEGS_20: { id: 'LEGS_20', name: 'Resistance Band Walks', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 20, defaultSets: 3, desc: 'Walk with band around legs', tip: 'Keep tension' },
 
       // ===== CORE (20 exercises) =====
-      CORE_01: { id: 'CORE_01', name: 'Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU', premium: false },
-      CORE_02: { id: 'CORE_02', name: 'Leg Raises', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_03: { id: 'CORE_03', name: 'Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', premium: false },
-      CORE_04: { id: 'CORE_04', name: 'Side Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_05: { id: 'CORE_05', name: 'Mountain Climbers', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_06: { id: 'CORE_06', name: 'Sit-ups', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_07: { id: 'CORE_07', name: 'Hollow Body Holds', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CORE_08: { id: 'CORE_08', name: 'Deadbugs', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_09: { id: 'CORE_09', name: 'Reverse Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_10: { id: 'CORE_10', name: 'Cable Woodchoppers', icon: '💪', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CORE_11: { id: 'CORE_11', name: 'Russian Twists', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_12: { id: 'CORE_12', name: 'Flutter Kicks', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_13: { id: 'CORE_13', name: 'V-Ups', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CORE_14: { id: 'CORE_14', name: 'Bicycle Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_15: { id: 'CORE_15', name: 'Toe Touches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_16: { id: 'CORE_16', name: 'Heel Touches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
-      CORE_17: { id: 'CORE_17', name: 'L-Sits', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CORE_18: { id: 'CORE_18', name: 'Windshield Wipers', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CORE_19: { id: 'CORE_19', name: 'Dragon Flags', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
-      CORE_20: { id: 'CORE_20', name: 'Barbell Rollouts', icon: '🏋️', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true }
+      CORE_01: { id: 'CORE_01', name: 'Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Curl shoulders off ground', tip: 'Keep neck relaxed' },
+      CORE_02: { id: 'CORE_02', name: 'Leg Raises', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Raise legs to 90°', tip: 'Keep lower back pressed' },
+      CORE_03: { id: 'CORE_03', name: 'Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', premium: false, defaultReps: 30, defaultSets: 3, desc: 'Hold plank position', tip: 'Keep body straight' },
+      CORE_04: { id: 'CORE_04', name: 'Side Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 30, defaultSets: 3, desc: 'Hold side plank', tip: 'Keep hips lifted' },
+      CORE_05: { id: 'CORE_05', name: 'Mountain Climbers', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Alternate knee to chest', tip: 'Keep core tight' },
+      CORE_06: { id: 'CORE_06', name: 'Sit-ups', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Full sit-up', tip: 'Keep feet anchored' },
+      CORE_07: { id: 'CORE_07', name: 'Hollow Body Holds', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 30, defaultSets: 3, desc: 'Hold hollow position', tip: 'Keep lower back on floor' },
+      CORE_08: { id: 'CORE_08', name: 'Deadbugs', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 10, defaultSets: 3, desc: 'Alternate arm and leg extension', tip: 'Keep core braced' },
+      CORE_09: { id: 'CORE_09', name: 'Reverse Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Lift hips off ground', tip: 'Use lower abs' },
+      CORE_10: { id: 'CORE_10', name: 'Cable Woodchoppers', icon: '💪', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Chop cable across body', tip: 'Rotate from core' },
+      CORE_11: { id: 'CORE_11', name: 'Russian Twists', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Rotate torso side to side', tip: 'Keep core engaged' },
+      CORE_12: { id: 'CORE_12', name: 'Flutter Kicks', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Flutter legs up and down', tip: 'Keep lower back pressed' },
+      CORE_13: { id: 'CORE_13', name: 'V-Ups', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'V shape sit-up', tip: 'Keep legs straight' },
+      CORE_14: { id: 'CORE_14', name: 'Bicycle Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Alternate knee to elbow', tip: 'Twist from core' },
+      CORE_15: { id: 'CORE_15', name: 'Toe Touches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 15, defaultSets: 3, desc: 'Reach hands to toes', tip: 'Keep legs straight' },
+      CORE_16: { id: 'CORE_16', name: 'Heel Touches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, defaultReps: 20, defaultSets: 3, desc: 'Alternate heel touches', tip: 'Twist from core' },
+      CORE_17: { id: 'CORE_17', name: 'L-Sits', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 20, defaultSets: 3, desc: 'Hold L-sit position', tip: 'Keep legs straight' },
+      CORE_18: { id: 'CORE_18', name: 'Windshield Wipers', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 12, defaultSets: 3, desc: 'Rotate legs side to side', tip: 'Keep shoulders on ground' },
+      CORE_19: { id: 'CORE_19', name: 'Dragon Flags', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 8, defaultSets: 3, desc: 'Dragon flag hold', tip: 'Keep body straight' },
+      CORE_20: { id: 'CORE_20', name: 'Barbell Rollouts', icon: '🏋️', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, defaultReps: 10, defaultSets: 3, desc: 'Roll barbell forward', tip: 'Keep core braced' }
     };
 
     // ──────────────────────────────────────────────────────────────
@@ -1856,7 +1817,7 @@
     // ──────────────────────────────────────────────────────────────
     //  STATE
     // ──────────────────────────────────────────────────────────────
-    let selectedExercise = 'CHEST_03'; // Default: Push-ups
+    let selectedExercise = 'CHEST_03';
     let currentBodyPart = 'Chest';
     let premiumUnlocked = false;
     let adWatchedToday = 0;
