@@ -4,12 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>🏋️ AI Gym Trainer</title>
+
   <!-- Telegram Mini App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
   <style>
     /* ============================================================
        CSS VARIABLES & RESET
@@ -45,12 +49,6 @@
       padding: 16px 14px 100px;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* Smooth scroll */
-    html {
-      scroll-behavior: smooth;
     }
 
     /* ============================================================
@@ -142,6 +140,49 @@
       }
       75% {
         transform: rotate(-10deg);
+      }
+    }
+
+    /* ============================================================
+       BACKEND CONNECTION STATUS
+    ============================================================ */
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      color: var(--tg-hint);
+      background: var(--tg-secondary);
+      padding: 6px 14px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 16px;
+    }
+
+    .connection-status .dot-online {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    .connection-status .dot-offline {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    @keyframes pulse-dot {
+      0%,
+      100% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
       }
     }
 
@@ -320,7 +361,6 @@
       pointer-events: none;
     }
 
-    /* Camera Status */
     .cam-status {
       position: absolute;
       top: 12px;
@@ -347,19 +387,6 @@
       animation: pulse-dot 1.5s infinite;
     }
 
-    @keyframes pulse-dot {
-      0%,
-      100% {
-        opacity: 0.5;
-        transform: scale(0.8);
-      }
-      50% {
-        opacity: 1;
-        transform: scale(1.2);
-      }
-    }
-
-    /* Recording Indicator */
     .rec-indicator {
       position: absolute;
       top: 12px;
@@ -390,7 +417,6 @@
       display: flex;
     }
 
-    /* Camera Controls Overlay */
     .cam-controls {
       position: absolute;
       bottom: 14px;
@@ -580,7 +606,7 @@
     }
 
     /* ============================================================
-       ACTION BAR (Bottom)
+       ACTION BAR
     ============================================================ */
     .action-bar {
       position: fixed;
@@ -652,13 +678,6 @@
     }
 
     /* ============================================================
-       TELEGRAM THEME SYNC
-    ============================================================ */
-    .tg-theme-sync {
-      transition: background 0.3s, color 0.3s, border-color 0.3s;
-    }
-
-    /* ============================================================
        SCROLLBAR
     ============================================================ */
     ::-webkit-scrollbar {
@@ -713,21 +732,6 @@
       }
     }
 
-    @media (max-width: 360px) {
-      .schedule-item .workout {
-        font-size: 0.75rem;
-      }
-      .demo-info h4 {
-        font-size: 0.8rem;
-      }
-      .demo-info p {
-        font-size: 0.7rem;
-      }
-      .feedback-msg {
-        font-size: 0.9rem;
-      }
-    }
-
     /* ============================================================
        UTILITY ANIMATIONS
     ============================================================ */
@@ -742,39 +746,6 @@
       }
       50% {
         box-shadow: 0 0 40px var(--accent-glow);
-      }
-    }
-
-    .shake {
-      animation: shake 0.5s ease-in-out;
-    }
-
-    @keyframes shake {
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-      25% {
-        transform: translateX(-8px);
-      }
-      75% {
-        transform: translateX(8px);
-      }
-    }
-
-    /* Loading shimmer */
-    .shimmer {
-      background: linear-gradient(90deg, var(--tg-secondary) 25%, var(--tg-bg) 50%, var(--tg-secondary) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-      0% {
-        background-position: -200% 0;
-      }
-      100% {
-        background-position: 200% 0;
       }
     }
   </style>
@@ -793,6 +764,12 @@
         <span id="userName">Athlete</span>
       </div>
     </header>
+
+    <!-- ===== CONNECTION STATUS ===== -->
+    <div class="connection-status" id="connectionStatus">
+      <span class="dot-online" id="statusDot"></span>
+      <span id="statusText">Connecting to server...</span>
+    </div>
 
     <!-- ===== SCHEDULE ===== -->
     <div class="schedule-card">
@@ -866,9 +843,15 @@
   ============================================================ -->
   <script>
     // ──────────────────────────────────────────────────────────────
+    //  CONFIGURATION
+    // ──────────────────────────────────────────────────────────────
+    const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
+
+    // ──────────────────────────────────────────────────────────────
     //  TELEGRAM MINI APP INIT
     // ──────────────────────────────────────────────────────────────
-    const tg = window.Telegram?.WebApp || { ready: () => {}, expand: () => {}, close: () => {} };
+    const tg = window.Telegram?.WebApp || { ready: () => {}, expand: () => {}, close: () => {}, showAlert: (msg) =>
+        alert(msg) };
     tg.ready();
     tg.expand();
 
@@ -876,6 +859,33 @@
     if (user) {
       document.getElementById('userName').textContent = user.first_name || 'Athlete';
     }
+
+    // ──────────────────────────────────────────────────────────────
+    //  CHECK BACKEND CONNECTION
+    // ──────────────────────────────────────────────────────────────
+    async function checkBackend() {
+      const statusText = document.getElementById('statusText');
+      const statusDot = document.getElementById('statusDot');
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/health`);
+        if (response.ok) {
+          const data = await response.json();
+          statusText.textContent = `🟢 Connected to server (${data.bot ? 'Bot online' : 'Bot offline'})`;
+          statusDot.className = 'dot-online';
+        } else {
+          statusText.textContent = '🟡 Server responding but unhealthy';
+          statusDot.className = 'dot-offline';
+        }
+      } catch (err) {
+        statusText.textContent = '🔴 Cannot connect to server';
+        statusDot.className = 'dot-offline';
+        console.error('Backend connection error:', err);
+      }
+    }
+
+    checkBackend();
+    setInterval(checkBackend, 30000); // Check every 30 seconds
 
     // ──────────────────────────────────────────────────────────────
     //  SCHEDULE
@@ -934,14 +944,18 @@
     //  EXERCISE LIBRARY
     // ──────────────────────────────────────────────────────────────
     const EXERCISES = {
-      PUSHUP: { name: 'Push-up', icon: '💪', demo: '🧍', desc: 'Keep back straight, lower chest to ground', tip: 'Keep elbows at 45°' },
+      PUSHUP: { name: 'Push-up', icon: '💪', demo: '🧍', desc: 'Keep back straight, lower chest to ground',
+      tip: 'Keep elbows at 45°' },
       SQUAT: { name: 'Squat', icon: '🦵', demo: '🏋️', desc: 'Keep chest up, go to parallel', tip: 'Knees track toes' },
-      BICEP_CURL: { name: 'Bicep Curl', icon: '💪', demo: '🏋️', desc: 'Curl up, squeeze bicep', tip: 'Elbows pinned to sides' },
-      SHOULDER_PRESS: { name: 'Shoulder Press', icon: '🏋️', demo: '🏋️', desc: 'Press overhead, core tight', tip: "Don't arch back" },
+      BICEP_CURL: { name: 'Bicep Curl', icon: '💪', demo: '🏋️', desc: 'Curl up, squeeze bicep',
+      tip: 'Elbows pinned to sides' },
+      SHOULDER_PRESS: { name: 'Shoulder Press', icon: '🏋️', demo: '🏋️', desc: 'Press overhead, core tight',
+        tip: "Don't arch back" },
       PLANK: { name: 'Plank', icon: '🧘', demo: '🧘', desc: 'Straight line from head to heels', tip: "Don't sag hips" },
       LUNGE: { name: 'Lunge', icon: '🚶', demo: '🚶', desc: 'Front knee 90°, back knee hovers', tip: 'Keep torso upright' },
       CRUNCH: { name: 'Crunch', icon: '🔥', demo: '🔥', desc: 'Curl shoulders off ground', tip: 'Keep neck relaxed' },
-      ROW: { name: 'Bent-over Row', icon: '🔙', demo: '🔙', desc: 'Pull elbows back, squeeze blades', tip: 'Keep back straight' },
+      ROW: { name: 'Bent-over Row', icon: '🔙', demo: '🔙', desc: 'Pull elbows back, squeeze blades',
+        tip: 'Keep back straight' },
       DEADLIFT: { name: 'Deadlift', icon: '🏋️', demo: '🏋️', desc: 'Hinge at hips, back straight', tip: 'Drive through heels' },
       LATERAL_RAISE: { name: 'Lateral Raise', icon: '💪', demo: '💪', desc: 'Raise arms to sides', tip: 'Slight bend in elbows' }
     };
@@ -1047,6 +1061,7 @@
       } catch (err) {
         document.getElementById('feedbackText').textContent = '❌ Camera unavailable';
         document.getElementById('feedbackMsg').className = 'feedback-msg bad';
+        tg.showAlert('⚠️ Please allow camera access to use the trainer!');
       }
     }
 
@@ -1108,7 +1123,6 @@
       tg.showAlert(`🏋️ Starting ${selectedExercise} workout!\nFollow the demo and record your form.`);
       document.getElementById('startBtn').disabled = true;
       document.getElementById('stopBtn').disabled = false;
-      // Auto-start recording
       if (!isRecording) document.getElementById('recordBtn').click();
     });
 
@@ -1123,10 +1137,24 @@
     //  INIT
     // ──────────────────────────────────────────────────────────────
     if (navigator.mediaDevices?.getUserMedia) {
-      initializePose();
-      startCamera();
+      // Load MediaPipe scripts dynamically
+      const script1 = document.createElement('script');
+      script1.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+      document.head.appendChild(script1);
+
+      const script2 = document.createElement('script');
+      script2.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js';
+      document.head.appendChild(script2);
+
+      const script3 = document.createElement('script');
+      script3.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js';
+      script3.onload = () => {
+        initializePose();
+        startCamera();
+      };
+      document.head.appendChild(script3);
     } else {
-      document.getElementById('feedbackText').textContent = '❌ Camera unavailable';
+      document.getElementById('feedbackText').textContent = '❌ Camera not supported';
       document.getElementById('feedbackMsg').className = 'feedback-msg bad';
     }
 
@@ -1134,6 +1162,27 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click();
     });
+
+    // ──────────────────────────────────────────────────────────────
+    //  FETCH EXERCISES FROM BACKEND
+    // ──────────────────────────────────────────────────────────────
+    async function loadExercisesFromBackend() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/exercises`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📋 Exercises from backend:', data);
+        }
+      } catch (err) {
+        console.log('ℹ️ Using local exercise library');
+      }
+    }
+
+    loadExercisesFromBackend();
+
+    console.log('🏋️ AI Gym Trainer Mini App loaded!');
+    console.log(`🔗 Backend: ${BACKEND_URL}`);
+    console.log(`📱 User: ${user?.first_name || 'Guest'}`);
   </script>
 </body>
-</html>
+  </html>
