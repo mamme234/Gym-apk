@@ -2,11 +2,13 @@
 //  SERVER.JS – Complete AI Gym Trainer
 //  Features:
 //  - Onboarding: weight, height, protein, calories
-//  - Personalized schedule & nutrition (users can customize)
-//  - Workout videos with reps/sets
-//  - Recording with form correction
+//  - Workout style selection (Push/Pull/Legs, Full Body, etc.)
+//  - Personalized schedule with multiple exercises per day
+//  - YouTube videos for each exercise
+//  - Premium workouts unlocked by watching ads
+//  - Motivational messages with user's photo
+//  - Time preference: asks user what time they work out
 //  - Telegram bot with welcome & reminder messages
-//  - Schedule customization (users can change their workouts)
 //  Deployed on Render: https://gym-apk-wicj.onrender.com
 //  Mini App on Vercel: https://gym-apk-krk7.vercel.app
 // ================================================================
@@ -94,249 +96,130 @@ if (TOKEN && TOKEN !== 'your-bot-token-here' && TOKEN !== '7609348168:AAHcFz8LxK
 }
 
 // ─── In-memory Database ─────────────────────────────────────────
-const userProfiles = new Map(); // userId -> { weight, height, protein, calories, goal, schedule, nutrition }
-const workoutHistory = new Map(); // userId -> [{ exercise, date, duration, reps, sets, feedback }]
+const userProfiles = new Map(); // userId -> { weight, height, protein, calories, goal, style, workTime, createdAt }
 const userSessions = new Map();
-const userCustomSchedules = new Map(); // userId -> { monday: [...], tuesday: [...], ... }
+const userWorkTimes = new Map(); // userId -> { time: '10:00 PM', timezone: 'UTC+3' }
 
-// ─── Workout Library with Videos, Reps, Sets ──────────────────
-const WORKOUT_LIBRARY = {
-  PUSHUP: {
-    id: 'PUSHUP',
-    name: 'Push-up',
-    icon: '💪',
-    muscle: 'Chest',
-    videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4',
-    description: 'Keep back straight, lower chest to ground',
-    tip: 'Keep elbows at 45°',
-    defaultReps: 12,
-    defaultSets: 3,
-    formRules: {
-      elbowAngle: { min: 70, max: 150 },
-      bodyLine: 'Keep body straight'
+// ─── Workout Styles & Schedules ────────────────────────────────
+const WORKOUT_STYLES = {
+  push_pull_legs: {
+    name: 'Push/Pull/Legs',
+    schedule: {
+      'Monday': { name: 'Push Day', exercises: ['BENCH_PRESS', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'LATERAL_RAISE'] },
+      'Tuesday': { name: 'Pull Day', exercises: ['DEADLIFT', 'ROW', 'BICEP_CURL', 'FACE_PULL'] },
+      'Wednesday': { name: 'Legs Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+      'Thursday': { name: 'Push Day', exercises: ['PUSHUP', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'LATERAL_RAISE'] },
+      'Friday': { name: 'Pull Day', exercises: ['DEADLIFT', 'ROW', 'BICEP_CURL', 'FACE_PULL'] },
+      'Saturday': { name: 'Legs Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+      'Sunday': { name: 'Rest Day', exercises: [] }
     }
   },
-  SQUAT: {
-    id: 'SQUAT',
-    name: 'Squat',
-    icon: '🦵',
-    muscle: 'Legs',
-    videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U',
-    description: 'Keep chest up, go to parallel',
-    tip: 'Knees track over toes',
-    defaultReps: 15,
-    defaultSets: 3,
-    formRules: {
-      kneeAngle: { min: 85, max: 160 },
-      hipAngle: { min: 80 }
+  full_body: {
+    name: 'Full Body',
+    schedule: {
+      'Monday': { name: 'Full Body A', exercises: ['SQUAT', 'BENCH_PRESS', 'ROW', 'SHOULDER_PRESS', 'PLANK'] },
+      'Tuesday': { name: 'Rest', exercises: [] },
+      'Wednesday': { name: 'Full Body B', exercises: ['DEADLIFT', 'PUSHUP', 'LUNGE', 'BICEP_CURL', 'CRUNCH'] },
+      'Thursday': { name: 'Rest', exercises: [] },
+      'Friday': { name: 'Full Body C', exercises: ['SQUAT', 'ROW', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'PLANK'] },
+      'Saturday': { name: 'Rest', exercises: [] },
+      'Sunday': { name: 'Rest', exercises: [] }
     }
   },
-  BICEP_CURL: {
-    id: 'BICEP_CURL',
-    name: 'Bicep Curl',
-    icon: '💪',
-    muscle: 'Biceps',
-    videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo',
-    description: 'Curl weight up, squeeze bicep',
-    tip: 'Keep elbows pinned to sides',
-    defaultReps: 10,
-    defaultSets: 3,
-    formRules: {
-      elbowAngle: { min: 60, max: 160 }
+  upper_lower: {
+    name: 'Upper/Lower',
+    schedule: {
+      'Monday': { name: 'Upper A', exercises: ['BENCH_PRESS', 'ROW', 'SHOULDER_PRESS', 'BICEP_CURL', 'TRICEP_EXTENSION'] },
+      'Tuesday': { name: 'Lower A', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+      'Wednesday': { name: 'Rest', exercises: [] },
+      'Thursday': { name: 'Upper B', exercises: ['PUSHUP', 'DEADLIFT', 'LATERAL_RAISE', 'BICEP_CURL', 'TRICEP_EXTENSION'] },
+      'Friday': { name: 'Lower B', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+      'Saturday': { name: 'Rest', exercises: [] },
+      'Sunday': { name: 'Rest', exercises: [] }
     }
   },
-  SHOULDER_PRESS: {
-    id: 'SHOULDER_PRESS',
-    name: 'Shoulder Press',
-    icon: '🏋️',
-    muscle: 'Shoulders',
-    videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog',
-    description: 'Press overhead, keep core tight',
-    tip: "Don't arch your back",
-    defaultReps: 10,
-    defaultSets: 3,
-    formRules: {
-      elbowAngle: { min: 80, max: 160 }
+  bro_split: {
+    name: 'Bro Split',
+    schedule: {
+      'Monday': { name: 'Chest Day', exercises: ['BENCH_PRESS', 'PUSHUP', 'CHEST_FLY', 'DIPS'] },
+      'Tuesday': { name: 'Back Day', exercises: ['DEADLIFT', 'ROW', 'PULLUP', 'FACE_PULL'] },
+      'Wednesday': { name: 'Shoulder Day', exercises: ['SHOULDER_PRESS', 'LATERAL_RAISE', 'FRONT_RAISE', 'REAR_FLY'] },
+      'Thursday': { name: 'Leg Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+      'Friday': { name: 'Arm Day', exercises: ['BICEP_CURL', 'TRICEP_EXTENSION', 'HAMMER_CURL', 'SKULL_CRUSHER'] },
+      'Saturday': { name: 'Core Day', exercises: ['PLANK', 'CRUNCH', 'RUSSIAN_TWIST', 'LEG_RAISE'] },
+      'Sunday': { name: 'Rest Day', exercises: [] }
     }
   },
-  PLANK: {
-    id: 'PLANK',
-    name: 'Plank',
-    icon: '🧘',
-    muscle: 'Abs',
-    videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw',
-    description: 'Keep body in a straight line',
-    tip: "Don't let hips sag or rise",
-    defaultReps: 3,
-    defaultSets: 3,
-    formRules: {
-      hipShoulderDiff: { min: -0.15, max: 0.15 }
-    }
-  },
-  LUNGE: {
-    id: 'LUNGE',
-    name: 'Lunge',
-    icon: '🚶',
-    muscle: 'Legs',
-    videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U',
-    description: 'Front knee at 90°, back knee hovers',
-    tip: 'Keep torso upright',
-    defaultReps: 12,
-    defaultSets: 3,
-    formRules: {
-      kneeAngle: { min: 70, max: 150 }
-    }
-  },
-  CRUNCH: {
-    id: 'CRUNCH',
-    name: 'Crunch',
-    icon: '🔥',
-    muscle: 'Abs',
-    videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU',
-    description: 'Curl shoulders off ground',
-    tip: 'Keep neck relaxed',
-    defaultReps: 20,
-    defaultSets: 3,
-    formRules: {
-      hipAngle: { min: 70, max: 120 }
-    }
-  },
-  ROW: {
-    id: 'ROW',
-    name: 'Bent-over Row',
-    icon: '🔙',
-    muscle: 'Back',
-    videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw',
-    description: 'Pull elbows back, squeeze shoulder blades',
-    tip: 'Keep back straight, hinge at hips',
-    defaultReps: 10,
-    defaultSets: 3,
-    formRules: {
-      elbowAngle: { min: 60, max: 160 }
-    }
-  },
-  DEADLIFT: {
-    id: 'DEADLIFT',
-    name: 'Deadlift',
-    icon: '🏋️',
-    muscle: 'Back/Legs',
-    videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE',
-    description: 'Hinge at hips, keep back straight',
-    tip: 'Drive through heels',
-    defaultReps: 8,
-    defaultSets: 3,
-    formRules: {
-      kneeAngle: { min: 100, max: 160 },
-      hipAngle: { min: 120 }
-    }
-  },
-  LATERAL_RAISE: {
-    id: 'LATERAL_RAISE',
-    name: 'Lateral Raise',
-    icon: '💪',
-    muscle: 'Shoulders',
-    videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw',
-    description: 'Raise arms to sides, slight bend in elbows',
-    tip: "Don't use momentum",
-    defaultReps: 12,
-    defaultSets: 3,
-    formRules: {
-      elbowAngle: { min: 70, max: 150 }
-    }
-  },
-  TRICEP_EXTENSION: {
-    id: 'TRICEP_EXTENSION',
-    name: 'Tricep Extension',
-    icon: '💪',
-    muscle: 'Triceps',
-    videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME',
-    description: 'Extend arms overhead, lower behind head',
-    tip: 'Keep elbows pointing forward',
-    defaultReps: 12,
-    defaultSets: 3,
-    formRules: {
-      elbowAngle: { min: 60, max: 150 }
-    }
-  },
-  GLUTE_BRIDGE: {
-    id: 'GLUTE_BRIDGE',
-    name: 'Glute Bridge',
-    icon: '🦵',
-    muscle: 'Glutes',
-    videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE',
-    description: 'Lift hips up, squeeze glutes',
-    tip: "Don't overextend lower back",
-    defaultReps: 15,
-    defaultSets: 3,
-    formRules: {
-      hipAngle: { min: 160, max: 180 }
+  custom: {
+    name: 'Custom',
+    schedule: {
+      'Monday': { name: 'Custom Day 1', exercises: ['PUSHUP', 'SQUAT', 'ROW'] },
+      'Tuesday': { name: 'Custom Day 2', exercises: ['PLANK', 'LUNGE', 'BICEP_CURL'] },
+      'Wednesday': { name: 'Custom Day 3', exercises: ['DEADLIFT', 'SHOULDER_PRESS', 'CRUNCH'] },
+      'Thursday': { name: 'Custom Day 4', exercises: ['PUSHUP', 'SQUAT', 'ROW'] },
+      'Friday': { name: 'Custom Day 5', exercises: ['PLANK', 'LUNGE', 'BICEP_CURL'] },
+      'Saturday': { name: 'Custom Day 6', exercises: ['DEADLIFT', 'SHOULDER_PRESS', 'CRUNCH'] },
+      'Sunday': { name: 'Rest Day', exercises: [] }
     }
   }
 };
 
-// ─── Default Schedule Generator ─────────────────────────────────
-function getDefaultSchedule(goal = 'muscle_gain') {
-  const baseSchedule = {
-    'Monday': ['PUSHUP', 'BICEP_CURL', 'TRICEP_EXTENSION'],
-    'Tuesday': ['ROW', 'DEADLIFT', 'BICEP_CURL'],
-    'Wednesday': ['SQUAT', 'LUNGE', 'SHOULDER_PRESS'],
-    'Thursday': ['PUSHUP', 'LATERAL_RAISE', 'TRICEP_EXTENSION'],
-    'Friday': ['ROW', 'DEADLIFT', 'BICEP_CURL'],
-    'Saturday': ['PLANK', 'CRUNCH', 'GLUTE_BRIDGE'],
-    'Sunday': []
-  };
+// ─── Exercise Database ──────────────────────────────────────────
+const EXERCISE_DB = {
+  PUSHUP: { id: 'PUSHUP', name: 'Push-up', icon: '💪', demo: '🧍', muscle: 'Chest', desc: 'Keep back straight, lower chest to ground', tip: 'Keep elbows at 45°', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', premium: false },
+  SQUAT: { id: 'SQUAT', name: 'Squat', icon: '🦵', demo: '🏋️', muscle: 'Legs', desc: 'Keep chest up, go to parallel', tip: 'Knees track over toes', defaultReps: 15, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', premium: false },
+  BICEP_CURL: { id: 'BICEP_CURL', name: 'Bicep Curl', icon: '💪', demo: '🏋️', muscle: 'Biceps', desc: 'Curl up, squeeze bicep', tip: 'Elbows pinned to sides', defaultReps: 10, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo', premium: false },
+  SHOULDER_PRESS: { id: 'SHOULDER_PRESS', name: 'Shoulder Press', icon: '🏋️', demo: '🏋️', muscle: 'Shoulders', desc: 'Press overhead, core tight', tip: "Don't arch back", defaultReps: 10, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog', premium: false },
+  PLANK: { id: 'PLANK', name: 'Plank', icon: '🧘', demo: '🧘', muscle: 'Abs', desc: 'Straight line from head to heels', tip: "Don't sag hips", defaultReps: 3, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', premium: false },
+  LUNGE: { id: 'LUNGE', name: 'Lunge', icon: '🚶', demo: '🚶', muscle: 'Legs', desc: 'Front knee 90°, back knee hovers', tip: 'Keep torso upright', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', premium: false },
+  CRUNCH: { id: 'CRUNCH', name: 'Crunch', icon: '🔥', demo: '🔥', muscle: 'Abs', desc: 'Curl shoulders off ground', tip: 'Keep neck relaxed', defaultReps: 20, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU', premium: false },
+  ROW: { id: 'ROW', name: 'Bent-over Row', icon: '🔙', demo: '🔙', muscle: 'Back', desc: 'Pull elbows back, squeeze blades', tip: 'Keep back straight', defaultReps: 10, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw', premium: false },
+  DEADLIFT: { id: 'DEADLIFT', name: 'Deadlift', icon: '🏋️', demo: '🏋️', muscle: 'Back/Legs', desc: 'Hinge at hips, back straight', tip: 'Drive through heels', defaultReps: 8, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false },
+  LATERAL_RAISE: { id: 'LATERAL_RAISE', name: 'Lateral Raise', icon: '💪', demo: '💪', muscle: 'Shoulders', desc: 'Raise arms to sides', tip: 'Slight bend in elbows', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw', premium: false },
+  TRICEP_EXTENSION: { id: 'TRICEP_EXTENSION', name: 'Tricep Extension', icon: '💪', demo: '💪', muscle: 'Triceps', desc: 'Extend overhead, lower behind head', tip: 'Keep elbows pointing forward', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME', premium: false },
+  GLUTE_BRIDGE: { id: 'GLUTE_BRIDGE', name: 'Glute Bridge', icon: '🦵', demo: '🦵', muscle: 'Glutes', desc: 'Lift hips up, squeeze glutes', tip: "Don't overextend lower back", defaultReps: 15, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE', premium: false },
+  // Premium exercises
+  BENCH_PRESS: { id: 'BENCH_PRESS', name: 'Bench Press', icon: '🏋️', demo: '🏋️', muscle: 'Chest', desc: 'Lower bar to chest, press up', tip: 'Keep shoulders packed', defaultReps: 10, defaultSets: 4, videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y', premium: true },
+  PULLUP: { id: 'PULLUP', name: 'Pull-up', icon: '💪', demo: '🧍', muscle: 'Back', desc: 'Pull chin above bar, controlled descent', tip: 'Engage lats, don\'t swing', defaultReps: 8, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', premium: true },
+  DIPS: { id: 'DIPS', name: 'Dips', icon: '💪', demo: '💪', muscle: 'Chest/Triceps', desc: 'Lower body until shoulders below elbows', tip: 'Lean forward for chest focus', defaultReps: 10, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true },
+  FACE_PULL: { id: 'FACE_PULL', name: 'Face Pull', icon: '🔙', demo: '🔙', muscle: 'Rear Delts', desc: 'Pull rope to face, squeeze shoulder blades', tip: 'Keep elbows high', defaultReps: 15, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU', premium: true },
+  LEG_CURL: { id: 'LEG_CURL', name: 'Leg Curl', icon: '🦵', demo: '🦵', muscle: 'Hamstrings', desc: 'Curl weight towards glutes', tip: 'Control the negative', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/1Tq3Qd2u4t8', premium: true },
+  CALF_RAISE: { id: 'CALF_RAISE', name: 'Calf Raise', icon: '🦵', demo: '🦵', muscle: 'Calves', desc: 'Rise onto toes, squeeze calves', tip: 'Full range of motion', defaultReps: 20, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/-M4-G8p8fmc', premium: true },
+  CHEST_FLY: { id: 'CHEST_FLY', name: 'Chest Fly', icon: '💪', demo: '💪', muscle: 'Chest', desc: 'Open arms wide, squeeze together', tip: 'Keep a slight bend in elbows', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+  FRONT_RAISE: { id: 'FRONT_RAISE', name: 'Front Raise', icon: '💪', demo: '💪', muscle: 'Shoulders', desc: 'Raise arms to shoulder height', tip: 'Control the movement', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+  REAR_FLY: { id: 'REAR_FLY', name: 'Rear Delt Fly', icon: '💪', demo: '💪', muscle: 'Rear Delts', desc: 'Open arms back, squeeze shoulder blades', tip: 'Keep back straight', defaultReps: 15, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+  HAMMER_CURL: { id: 'HAMMER_CURL', name: 'Hammer Curl', icon: '💪', demo: '💪', muscle: 'Biceps/Brachialis', desc: 'Curl with neutral grip', tip: 'Keep elbows stable', defaultReps: 10, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+  SKULL_CRUSHER: { id: 'SKULL_CRUSHER', name: 'Skull Crusher', icon: '💪', demo: '💪', muscle: 'Triceps', desc: 'Lower bar to forehead, extend up', tip: 'Keep elbows fixed', defaultReps: 10, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+  RUSSIAN_TWIST: { id: 'RUSSIAN_TWIST', name: 'Russian Twist', icon: '🔥', demo: '🔥', muscle: 'Obliques', desc: 'Rotate torso side to side', tip: 'Keep core engaged', defaultReps: 20, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+  LEG_RAISE: { id: 'LEG_RAISE', name: 'Leg Raise', icon: '🔥', demo: '🔥', muscle: 'Lower Abs', desc: 'Raise legs to 90°, lower slowly', tip: 'Keep lower back pressed', defaultReps: 15, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true }
+};
 
-  // Adjust based on goal
-  if (goal === 'muscle_gain') {
-    baseSchedule['Monday'].push('LATERAL_RAISE');
-    baseSchedule['Wednesday'].push('GLUTE_BRIDGE');
-    baseSchedule['Friday'].push('PUSHUP');
-  } else if (goal === 'weight_loss') {
-    baseSchedule['Monday'].push('LUNGE');
-    baseSchedule['Wednesday'].push('CRUNCH');
-    baseSchedule['Friday'].push('PLANK');
-  } else if (goal === 'strength') {
-    baseSchedule['Monday'] = ['DEADLIFT', 'PUSHUP', 'ROW'];
-    baseSchedule['Wednesday'] = ['SQUAT', 'SHOULDER_PRESS', 'DEADLIFT'];
-    baseSchedule['Friday'] = ['DEADLIFT', 'PUSHUP', 'ROW'];
-  }
+// ─── Helper Functions ──────────────────────────────────────────
 
-  return baseSchedule;
+function getExercisesForDay(day, style) {
+  const styleData = WORKOUT_STYLES[style] || WORKOUT_STYLES.push_pull_legs;
+  const dayData = styleData.schedule[day] || { name: 'Rest', exercises: [] };
+  return dayData.exercises.map(id => {
+    const ex = EXERCISE_DB[id];
+    return ex ? { ...ex } : null;
+  }).filter(Boolean);
 }
 
-function getExercisesForDay(day, userId) {
-  // Check if user has custom schedule
-  let schedule = userCustomSchedules.get(userId);
-  if (!schedule) {
-    const profile = userProfiles.get(userId);
-    schedule = getDefaultSchedule(profile?.goal || 'muscle_gain');
-    userCustomSchedules.set(userId, schedule);
-  }
+function getTodayExercises(style) {
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  return getExercisesForDay(today, style);
+}
 
-  const exerciseIds = schedule[day] || [];
-  return exerciseIds.map(id => ({
-    id,
-    name: WORKOUT_LIBRARY[id]?.name || id,
-    icon: WORKOUT_LIBRARY[id]?.icon || '🏋️',
-    muscle: WORKOUT_LIBRARY[id]?.muscle || 'Unknown',
-    videoUrl: WORKOUT_LIBRARY[id]?.videoUrl || '',
-    description: WORKOUT_LIBRARY[id]?.description || '',
-    tip: WORKOUT_LIBRARY[id]?.tip || '',
-    reps: WORKOUT_LIBRARY[id]?.defaultReps || 10,
-    sets: WORKOUT_LIBRARY[id]?.defaultSets || 3,
-    formRules: WORKOUT_LIBRARY[id]?.formRules || {}
-  }));
+function getStyleSchedule(style) {
+  return WORKOUT_STYLES[style] || WORKOUT_STYLES.push_pull_legs;
 }
 
 // ─── Nutrition Calculator ──────────────────────────────────────
 function calculateNutrition(weight, height, age, goal) {
-  // Mifflin-St Jeor BMR
   let bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-  // Activity multiplier (moderate)
   let maintenance = bmr * 1.55;
-  
   let calories = maintenance;
-  let protein = weight * 1.8; // 1.8g per kg
+  let protein = weight * 1.8;
   let carbs = weight * 3;
   let fats = weight * 0.8;
 
@@ -365,89 +248,89 @@ function calculateNutrition(weight, height, age, goal) {
   };
 }
 
-// ─── Bot Welcome Message ──────────────────────────────────────
-function getWelcomeMessage(firstName = 'Athlete') {
-  return `
-🏋️ *WELCOME TO AI GYM TRAINER* 💪
+// ─── Motivational Messages with Photo ──────────────────────────
+const MOTIVATIONAL_QUOTES = [
+  "💪 Success is the sum of small efforts repeated day in and day out.",
+  "🔥 The only bad workout is the one that didn't happen.",
+  "🏋️ Your body can stand almost anything. It's your mind you have to convince.",
+  "⭐ It's not about being the best. It's about being better than you were yesterday.",
+  "🚀 The pain you feel today will be the strength you feel tomorrow.",
+  "💯 Don't stop when you're tired. Stop when you're done.",
+  "🏆 Champions are made in the gym, not on the field.",
+  "🔥 Progress, not perfection. Keep showing up.",
+  "💪 Strength does not come from physical capacity. It comes from an indomitable will.",
+  "⭐ The difference between who you are and who you want to be is what you do."
+];
 
-Hey *${firstName}*! I'm your personal AI fitness coach.
+// The photo you provided (embedded as base64 or URL)
+// Using a gym motivation image URL
+const MOTIVATION_IMAGE_URL = 'https://i.imgur.com/7a132fe4ce274ab9efe1a0b8bf9bec06.png';
 
-━━━━━━━━━━━━━━━━━━━━━
-
-🌟 *Let's Get Started!*
-
-To create your personalized workout plan, I need a few details:
-
-1️⃣ *Weight* (kg)
-2️⃣ *Height* (cm)
-3️⃣ *Daily Protein Goal* (g)
-4️⃣ *Daily Calorie Goal* (kcal)
-
-━━━━━━━━━━━━━━━━━━━━━
-
-💪 *What I Can Do For You:*
-
-🎯 *Smart Workout Schedule*
-   • Personalized weekly plan
-   • You can customize any day
-   • Track your progress daily
-
-🤖 *AI Form Analysis*
-   • Real-time pose detection
-   • Instant feedback on your form
-   • Get corrections like "Go lower!" or "Perfect!"
-
-📹 *Video Recording*
-   • Record your workouts
-   • Review your form later
-   • Track your improvement
-
-📊 *Progress Tracking*
-   • View your workout history
-   • See your improvement over time
-
-━━━━━━━━━━━━━━━━━━━━━
-
-📱 *How to Use:*
-
-1️⃣ Tap *"Open Gym App"* below
-2️⃣ Enter your stats
-3️⃣ View your personalized schedule
-4️⃣ Tap any workout to see video & details
-5️⃣ Start exercising with real-time feedback!
-
-━━━━━━━━━━━━━━━━━━━━━
-
-💡 *Pro Tips:*
-• Use a well-lit room
-• Wear contrasting colors
-• Stay hydrated! 💧
-
-🔥 *LET'S BEGIN YOUR FITNESS JOURNEY!* 🔥
-  `;
-}
-
-function getReminderMessage(firstName = 'Athlete') {
+function getMotivationalMessage(firstName = 'Athlete') {
+  const quote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-  return `
-⏰ *WORKOUT REMINDER* ⏰
+  const todayExercises = getTodayExercises('push_pull_legs');
+  const exList = todayExercises.map(ex => `   ${ex.icon} ${ex.name} (${ex.defaultSets}×${ex.defaultReps})`).join('\n');
 
-Hey *${firstName}*! It's time to crush your workout! 💪
+  return `
+🏋️ *HEY ${firstName.toUpperCase()}!* 💪
+
+${quote}
+
+━━━━━━━━━━━━━━━━━━━━━
 
 📅 *Today is ${today}*
 
-Don't forget to:
+Your workout for today:
+${exList || '   • Rest day - take it easy! 😊'}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+⏰ *What time do you work out?*
+
+Reply with your preferred workout time:
+Example: *10:00 PM* or *6:30 AM*
+
+I'll remind you daily at that time! 🕐
+
+━━━━━━━━━━━━━━━━━━━━━
+
+💪 *YOU'VE GOT THIS!*
+
+[${MOTIVATION_IMAGE_URL}]
+
+*Tap the button below to start your workout!* 🏋️
+  `;
+}
+
+function getTimeReminderMessage(firstName = 'Athlete', time = '8:00 PM') {
+  const quote = MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
+  return `
+⏰ *WORKOUT TIME REMINDER* ⏰
+
+Hey *${firstName}*! It's ${time} – time to crush your workout! 💪
+
+${quote}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*Don't forget:*
 • Warm up for 5-10 minutes
-• Stay hydrated
+• Stay hydrated 💧
 • Focus on form over weight
 • Log your workout
 
 ━━━━━━━━━━━━━━━━━━━━━
 
+[${MOTIVATION_IMAGE_URL}]
+
+*LET'S GO!* 🔥
+
 Tap the button below to start your workout! 🏋️
   `;
 }
 
+// ─── Bot Keyboard ──────────────────────────────────────────────
 function getMainKeyboard() {
   return {
     reply_markup: {
@@ -456,14 +339,15 @@ function getMainKeyboard() {
           { text: '🏋️ Open Gym App', web_app: { url: MINI_APP_URL } }
         ],
         [
-          { text: '📅 My Schedule', callback_data: 'schedule' },
+          { text: '📅 Today\'s Schedule', callback_data: 'schedule' },
           { text: '📊 My Progress', callback_data: 'progress' }
         ],
         [
           { text: '💪 Exercise Guide', callback_data: 'exercises' },
-          { text: '⚙️ Customize Schedule', callback_data: 'customize' }
+          { text: '⚙️ Change Style', callback_data: 'style' }
         ],
         [
+          { text: '⏰ Set Workout Time', callback_data: 'set_time' },
           { text: '❓ Help', callback_data: 'help' }
         ]
       ]
@@ -488,94 +372,32 @@ if (bot) {
       step: 'onboarding'
     });
 
-    bot.sendMessage(chatId, getWelcomeMessage(firstName), {
+    // Send motivational message with photo
+    bot.sendPhoto(chatId, MOTIVATION_IMAGE_URL, {
+      caption: getMotivationalMessage(firstName),
       parse_mode: 'Markdown',
-      ...getMainKeyboard(),
-      disable_web_page_preview: false
+      ...getMainKeyboard()
     });
-
-    // Send onboarding questions
-    setTimeout(() => {
-      bot.sendMessage(chatId, `
-📝 *Let's Set Up Your Profile*
-
-Please reply with:
-
-1️⃣ Your *weight* in kg (e.g., 75)
-2️⃣ Your *height* in cm (e.g., 175)
-3️⃣ Your *daily protein goal* in grams (e.g., 150)
-4️⃣ Your *daily calorie goal* (e.g., 2500)
-
-Example reply: *75, 175, 150, 2500*
-
-Or tap the Gym App button to set it up there! 🏋️
-      `, { parse_mode: 'Markdown' });
-    }, 1000);
   });
 
-  // Handle onboarding data
-  bot.onText(/^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/, (msg, match) => {
+  // Handle workout time input
+  bot.onText(/^(\d{1,2}:\d{2}\s*(AM|PM|am|pm))$/, (msg, match) => {
     const chatId = msg.chat.id;
-    const weight = parseInt(match[1]);
-    const height = parseInt(match[2]);
-    const protein = parseInt(match[3]);
-    const calories = parseInt(match[4]);
+    const time = match[1].toUpperCase();
+    const firstName = msg.from.first_name || 'Athlete';
 
-    if (weight < 30 || weight > 300 || height < 100 || height > 250) {
-      bot.sendMessage(chatId, '⚠️ Please enter valid values (weight: 30-300kg, height: 100-250cm)');
-      return;
-    }
-
-    // Save profile
-    userProfiles.set(chatId, {
-      weight,
-      height,
-      protein,
-      calories,
-      goal: 'muscle_gain',
-      createdAt: new Date().toISOString()
-    });
-
-    // Generate initial schedule
-    const schedule = getDefaultSchedule('muscle_gain');
-    userCustomSchedules.set(chatId, schedule);
-
-    // Calculate nutrition
-    const nutrition = calculateNutrition(weight, height, 30, 'muscle_gain');
-
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    const todayExercises = getExercisesForDay(today, chatId);
-
-    let workoutList = todayExercises.map((ex, i) => `   ${i+1}. ${ex.icon} ${ex.name} (${ex.sets} sets × ${ex.reps} reps)`).join('\n');
-
+    userWorkTimes.set(chatId, { time, setAt: new Date().toISOString() });
+    
     bot.sendMessage(chatId, `
-✅ *Profile Saved!* 🎉
+✅ *Workout time set!* ⏰
+
+I'll remind you every day at *${time}* to crush your workout! 💪
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-📊 *Your Stats:*
-• Weight: ${weight}kg
-• Height: ${height}cm
-• Protein Goal: ${protein}g/day
-• Calorie Goal: ${calories}kcal/day
+${MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]}
 
 ━━━━━━━━━━━━━━━━━━━━━
-
-🍽️ *Recommended Nutrition:*
-• Calories: ${nutrition.calories} kcal/day
-• Protein: ${nutrition.protein}g
-• Carbs: ${nutrition.carbs}g
-• Fats: ${nutrition.fats}g
-
-━━━━━━━━━━━━━━━━━━━━━
-
-📅 *Today's Workout (${today}):*
-${workoutList || '• Rest day - take it easy! 😊'}
-
-━━━━━━━━━━━━━━━━━━━━━
-
-💪 *You can customize your schedule anytime!*
-Tap "Customize Schedule" in the menu.
 
 *Ready to start? Tap the button below!* 🏋️
     `, {
@@ -584,119 +406,67 @@ Tap "Customize Schedule" in the menu.
     });
   });
 
-  // /schedule command
-  bot.onText(/\/schedule/, (msg) => {
+  // Handle free-text time input (e.g., "10pm", "6:30 am")
+  bot.onText(/^(.+)$/, (msg, match) => {
     const chatId = msg.chat.id;
-    const schedule = userCustomSchedules.get(chatId);
-    if (!schedule) {
-      bot.sendMessage(chatId, '⚠️ Please set up your profile first with /start');
-      return;
-    }
+    const text = match[1].toLowerCase().trim();
+    
+    // Check if it's a time-related message
+    const timeRegex = /(\d{1,2})\s*(?::\s*(\d{2}))?\s*(am|pm)?/i;
+    const matchTime = text.match(timeRegex);
+    
+    if (matchTime && (text.includes('am') || text.includes('pm') || text.includes(':'))) {
+      let hours = parseInt(matchTime[1]);
+      const minutes = matchTime[2] ? parseInt(matchTime[2]) : 0;
+      const meridiem = matchTime[3] ? matchTime[3].toUpperCase() : (hours >= 12 ? 'PM' : 'AM');
+      
+      if (meridiem === 'AM' && hours === 12) hours = 0;
+      if (meridiem === 'PM' && hours < 12) hours += 12;
+      
+      const timeStr = `${hours % 12 || 12}:${String(minutes).padStart(2, '0')} ${meridiem}`;
+      userWorkTimes.set(chatId, { time: timeStr, setAt: new Date().toISOString() });
+      
+      const firstName = msg.from.first_name || 'Athlete';
+      bot.sendMessage(chatId, `
+✅ *Workout time set!* ⏰
 
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    let message = '📅 *YOUR WORKOUT SCHEDULE* 📅\n━━━━━━━━━━━━━━━━━━━━━\n\n';
-
-    days.forEach(day => {
-      const exercises = getExercisesForDay(day, chatId);
-      const exList = exercises.length > 0 
-        ? exercises.map(ex => `${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`).join('\n   ')
-        : '   • Rest day 😊';
-      message += `*${day}:*\n   ${exList}\n\n`;
-    });
-
-    message += '━━━━━━━━━━━━━━━━━━━━━\n';
-    message += '💡 *To customize:* Tap "Customize Schedule" in the menu';
-
-    bot.sendMessage(chatId, message, {
-      parse_mode: 'Markdown',
-      ...getMainKeyboard()
-    });
-  });
-
-  // /customize command
-  bot.onText(/\/customize/, (msg) => {
-    const chatId = msg.chat.id;
-    const schedule = userCustomSchedules.get(chatId);
-    if (!schedule) {
-      bot.sendMessage(chatId, '⚠️ Please set up your profile first with /start');
-      return;
-    }
-
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const availableExercises = Object.keys(WORKOUT_LIBRARY);
-
-    let message = '⚙️ *CUSTOMIZE YOUR SCHEDULE* ⚙️\n━━━━━━━━━━━━━━━━━━━━━\n\n';
-    message += 'Reply with the day and exercises you want to change.\n\n';
-    message += 'Example: *Monday: PUSHUP, SQUAT, PLANK*\n\n';
-    message += 'Available exercises:\n';
-    availableExercises.forEach(id => {
-      message += `• ${WORKOUT_LIBRARY[id].icon} ${id} - ${WORKOUT_LIBRARY[id].name}\n`;
-    });
-
-    message += '\n━━━━━━━━━━━━━━━━━━━━━\n';
-    message += 'Current schedule:\n';
-
-    days.forEach(day => {
-      const exercises = getExercisesForDay(day, chatId);
-      const exList = exercises.length > 0 
-        ? exercises.map(ex => ex.id).join(', ')
-        : 'Rest';
-      message += `• ${day}: ${exList}\n`;
-    });
-
-    bot.sendMessage(chatId, message, {
-      parse_mode: 'Markdown',
-      ...getMainKeyboard()
-    });
-  });
-
-  // Handle schedule customization
-  bot.onText(/^([A-Za-z]+)\s*:\s*(.+)$/, (msg, match) => {
-    const chatId = msg.chat.id;
-    const day = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
-    const exerciseInput = match[2].toUpperCase().replace(/\s/g, '').split(',');
-
-    const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    if (!validDays.includes(day)) {
-      bot.sendMessage(chatId, '⚠️ Invalid day. Please use: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday');
-      return;
-    }
-
-    const validExercises = [];
-    const invalidExercises = [];
-    exerciseInput.forEach(ex => {
-      if (WORKOUT_LIBRARY[ex]) {
-        validExercises.push(ex);
-      } else if (ex !== 'REST' && ex !== '') {
-        invalidExercises.push(ex);
-      }
-    });
-
-    if (invalidExercises.length > 0) {
-      bot.sendMessage(chatId, `⚠️ Invalid exercises: ${invalidExercises.join(', ')}\nAvailable: ${Object.keys(WORKOUT_LIBRARY).join(', ')}`);
-      return;
-    }
-
-    // Update schedule
-    let schedule = userCustomSchedules.get(chatId) || getDefaultSchedule('muscle_gain');
-    schedule[day] = validExercises;
-    userCustomSchedules.set(chatId, schedule);
-
-    const exercises = getExercisesForDay(day, chatId);
-    const exList = exercises.length > 0 
-      ? exercises.map(ex => `${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`).join('\n   ')
-      : '• Rest day 😊';
-
-    bot.sendMessage(chatId, `
-✅ *Schedule Updated!* 🎉
-
-📅 *${day}:*
-   ${exList}
+I'll remind you every day at *${timeStr}* to crush your workout! 💪
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-Tap "My Schedule" to see your full week! 📅
-    `, {
+${MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*Ready to start? Tap the button below!* 🏋️
+      `, {
+        parse_mode: 'Markdown',
+        ...getMainKeyboard()
+      });
+    }
+  });
+
+  // /schedule command
+  bot.onText(/\/schedule/, (msg) => {
+    const chatId = msg.chat.id;
+    const style = userProfiles.get(chatId)?.style || 'push_pull_legs';
+    const schedule = getStyleSchedule(style);
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
+    let message = `📅 *${schedule.name} SCHEDULE* 📅\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    
+    days.forEach(day => {
+      const exercises = getExercisesForDay(day, style);
+      const exList = exercises.length > 0 
+        ? exercises.map(ex => `   ${ex.icon} ${ex.name}`).join('\n')
+        : '   • Rest day 😊';
+      message += `*${day}:*\n${exList}\n\n`;
+    });
+    
+    message += '━━━━━━━━━━━━━━━━━━━━━\n';
+    message += '💡 Change your workout style in the menu!';
+    
+    bot.sendMessage(chatId, message, {
       parse_mode: 'Markdown',
       ...getMainKeyboard()
     });
@@ -706,28 +476,20 @@ Tap "My Schedule" to see your full week! 📅
   bot.onText(/\/progress/, (msg) => {
     const chatId = msg.chat.id;
     const profile = userProfiles.get(chatId);
-    const history = workoutHistory.get(chatId) || [];
-
+    
     if (!profile) {
       bot.sendMessage(chatId, '⚠️ Please set up your profile first with /start');
       return;
     }
-
-    const workoutsDone = history.length;
-    const totalExercises = history.reduce((sum, w) => sum + (w.exercises || 1), 0);
-    const streak = Math.floor(Math.random() * 7) + 1;
-
-    // Get today's workouts
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    const todayExercises = getExercisesForDay(today, chatId);
-
+    
+    const nutrition = calculateNutrition(profile.weight, profile.height, 30, profile.goal);
+    const workTime = userWorkTimes.get(chatId);
+    
     bot.sendMessage(chatId, `
 📊 *YOUR PROGRESS* 📊
 ━━━━━━━━━━━━━━━━━━━━━
 
 👤 *${userSessions.get(chatId)?.firstName || 'Athlete'}*
-
-📅 *Started:* ${new Date(profile.createdAt).toLocaleDateString()}
 
 📊 *Stats:*
 • Weight: ${profile.weight}kg
@@ -735,18 +497,15 @@ Tap "My Schedule" to see your full week! 📅
 • Protein Goal: ${profile.protein}g/day
 • Calorie Goal: ${profile.calories}kcal/day
 
-🏆 *Workouts Completed:* ${workoutsDone}
-💪 *Total Exercises:* ${totalExercises}
-🔥 *Current Streak:* ${streak} days
+🍽️ *Nutrition:*
+• Calories: ${nutrition.calories} kcal
+• Protein: ${nutrition.protein}g
+• Carbs: ${nutrition.carbs}g
+• Fats: ${nutrition.fats}g
 
-━━━━━━━━━━━━━━━━━━━━━
+⏰ *Workout Time:* ${workTime?.time || 'Not set'}
 
-📅 *Today's Workout (${today}):*
-${todayExercises.map(ex => `• ${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`).join('\n')}
-
-━━━━━━━━━━━━━━━━━━━━━
-
-*Keep going! You're doing great!* 🚀
+🏆 *Keep pushing forward!* 💪
     `, {
       parse_mode: 'Markdown',
       ...getMainKeyboard()
@@ -757,31 +516,91 @@ ${todayExercises.map(ex => `• ${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`)
   bot.onText(/\/exercises/, (msg) => {
     const chatId = msg.chat.id;
     let message = '💪 *EXERCISE LIBRARY* 💪\n━━━━━━━━━━━━━━━━━━━━━\n\n';
-
+    
     const categories = {
-      'Chest': ['PUSHUP'],
-      'Legs': ['SQUAT', 'LUNGE'],
-      'Biceps': ['BICEP_CURL'],
-      'Shoulders': ['SHOULDER_PRESS', 'LATERAL_RAISE'],
-      'Abs': ['PLANK', 'CRUNCH'],
-      'Back': ['ROW', 'DEADLIFT'],
-      'Triceps': ['TRICEP_EXTENSION'],
-      'Glutes': ['GLUTE_BRIDGE']
+      'Chest': ['PUSHUP', 'BENCH_PRESS', 'CHEST_FLY', 'DIPS'],
+      'Legs': ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE', 'GLUTE_BRIDGE'],
+      'Back': ['ROW', 'DEADLIFT', 'PULLUP', 'FACE_PULL'],
+      'Shoulders': ['SHOULDER_PRESS', 'LATERAL_RAISE', 'FRONT_RAISE', 'REAR_FLY'],
+      'Arms': ['BICEP_CURL', 'TRICEP_EXTENSION', 'HAMMER_CURL', 'SKULL_CRUSHER'],
+      'Abs': ['PLANK', 'CRUNCH', 'RUSSIAN_TWIST', 'LEG_RAISE']
     };
-
+    
     Object.keys(categories).forEach(cat => {
       message += `*${cat}*\n`;
       categories[cat].forEach(id => {
-        const ex = WORKOUT_LIBRARY[id];
-        if (ex) message += `   ${ex.icon} ${ex.name} - ${ex.defaultSets}×${ex.defaultReps}\n`;
+        const ex = EXERCISE_DB[id];
+        if (ex) {
+          const premium = ex.premium ? ' 🔒' : '';
+          message += `   ${ex.icon} ${ex.name}${premium}\n`;
+        }
       });
       message += '\n';
     });
-
+    
     message += '━━━━━━━━━━━━━━━━━━━━━\n';
-    message += 'Tap the Gym App to start exercising! 🏋️';
-
+    message += '🔒 = Premium (watch ad to unlock)';
+    
     bot.sendMessage(chatId, message, {
+      parse_mode: 'Markdown',
+      ...getMainKeyboard()
+    });
+  });
+
+  // /style command
+  bot.onText(/\/style/, (msg) => {
+    const chatId = msg.chat.id;
+    const styles = Object.keys(WORKOUT_STYLES);
+    let message = '⚙️ *CHOOSE YOUR WORKOUT STYLE* ⚙️\n━━━━━━━━━━━━━━━━━━━━━\n\n';
+    
+    styles.forEach(key => {
+      const style = WORKOUT_STYLES[key];
+      message += `• ${style.name}\n`;
+    });
+    
+    message += '\n━━━━━━━━━━━━━━━━━━━━━\n';
+    message += 'Reply with the style name you want!';
+    
+    bot.sendMessage(chatId, message, {
+      parse_mode: 'Markdown',
+      ...getMainKeyboard()
+    });
+  });
+
+  // Handle style selection
+  bot.onText(/push|pull|full body|upper|lower|bro|custom/i, (msg, match) => {
+    const chatId = msg.chat.id;
+    const text = match[0].toLowerCase();
+    
+    let selectedStyle = 'push_pull_legs';
+    if (text.includes('full')) selectedStyle = 'full_body';
+    else if (text.includes('upper') || text.includes('lower')) selectedStyle = 'upper_lower';
+    else if (text.includes('bro')) selectedStyle = 'bro_split';
+    else if (text.includes('custom')) selectedStyle = 'custom';
+    else if (text.includes('push') || text.includes('pull')) selectedStyle = 'push_pull_legs';
+    
+    // Save style
+    let profile = userProfiles.get(chatId) || {};
+    profile.style = selectedStyle;
+    userProfiles.set(chatId, profile);
+    
+    const styleName = WORKOUT_STYLES[selectedStyle].name;
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todayEx = getExercisesForDay(today, selectedStyle);
+    const exList = todayEx.map(ex => `   ${ex.icon} ${ex.name} (${ex.defaultSets}×${ex.defaultReps})`).join('\n');
+    
+    bot.sendMessage(chatId, `
+✅ *Style updated!* 🎉
+
+📋 *${styleName}* selected
+
+📅 *Today's Workout (${today}):*
+${exList || '   • Rest day - take it easy! 😊'}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*Ready to crush it?* 💪
+    `, {
       parse_mode: 'Markdown',
       ...getMainKeyboard()
     });
@@ -795,42 +614,39 @@ ${todayExercises.map(ex => `• ${ex.icon} ${ex.name} (${ex.sets}×${ex.reps})`)
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-🎯 *Getting Started*
-1. Send /start to set up your profile
-2. Enter your weight, height, protein, calories
-3. View your personalized schedule
-4. Tap "Open Gym App" to start training
-
-━━━━━━━━━━━━━━━━━━━━━
-
-📋 *Commands:*
-/start - Set up your profile
+🎯 *Commands:*
+/start - Welcome & set up profile
 /schedule - View your workout schedule
-/customize - Change your schedule
-/progress - View your progress
+/style - Change workout style
+/progress - View your stats & progress
 /exercises - See all exercises
 /help - This help message
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-⚙️ *Customize Schedule*
-Send: *Monday: PUSHUP, SQUAT, PLANK*
-Replace with any day and exercises
-
-Available exercises:
-${Object.keys(WORKOUT_LIBRARY).map(id => `• ${id}`).join('\n')}
+⏰ *Set Workout Time:*
+Send a message like "10:00 PM" or "6:30 AM"
+I'll remind you daily at that time!
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-💡 *Tips for Best Results*
-• Good lighting is essential
-• Stand 2-3 meters from the camera
-• Wear fitted clothing
-• Follow the form cues
+🏋️ *Workout Styles:*
+• Push/Pull/Legs (3-day split)
+• Full Body (3x/week)
+• Upper/Lower (4x/week)
+• Bro Split (6-day)
+• Custom (your own)
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-*Ready to start? Tap the button below!* 🏋️
+💡 *Tips:*
+• Good lighting for camera
+• Stand 2-3m away
+• Wear fitted clothes
+
+━━━━━━━━━━━━━━━━━━━━━
+
+*Tap the button below to start!* 🏋️
     `, {
       parse_mode: 'Markdown',
       ...getMainKeyboard()
@@ -852,8 +668,18 @@ ${Object.keys(WORKOUT_LIBRARY).map(id => `• ${id}`).join('\n')}
       case 'exercises':
         bot.emit('text', { chat: { id: chatId }, text: '/exercises' });
         break;
-      case 'customize':
-        bot.emit('text', { chat: { id: chatId }, text: '/customize' });
+      case 'style':
+        bot.emit('text', { chat: { id: chatId }, text: '/style' });
+        break;
+      case 'set_time':
+        bot.sendMessage(chatId, `
+⏰ *Set Your Workout Time*
+
+Reply with your preferred workout time.
+Examples: *10:00 PM* or *6:30 AM*
+
+I'll remind you daily at that time! 🕐
+        `, { parse_mode: 'Markdown' });
         break;
       case 'help':
         bot.emit('text', { chat: { id: chatId }, text: '/help' });
@@ -865,23 +691,44 @@ ${Object.keys(WORKOUT_LIBRARY).map(id => `• ${id}`).join('\n')}
   });
 
   // ─── Reminder System ──────────────────────────────────────────
-  // Send reminders every morning at 8am
+  // Check every minute for users who need reminders
   setInterval(() => {
     const now = new Date();
-    if (now.getHours() === 8 && now.getMinutes() === 0) {
-      userSessions.forEach((session, chatId) => {
-        if (session.firstName) {
-          bot.sendMessage(chatId, getReminderMessage(session.firstName), {
-            parse_mode: 'Markdown',
-            ...getMainKeyboard()
-          });
-        }
-      });
-    }
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    userWorkTimes.forEach((data, chatId) => {
+      if (!data.time) return;
+      
+      // Parse time like "10:00 PM"
+      const timeParts = data.time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+      if (!timeParts) return;
+      
+      let hours = parseInt(timeParts[1]);
+      const minutes = parseInt(timeParts[2]);
+      const meridiem = timeParts[3].toUpperCase();
+      
+      if (meridiem === 'AM' && hours === 12) hours = 0;
+      if (meridiem === 'PM' && hours < 12) hours += 12;
+      
+      // Check if current time matches (within 2 minute window)
+      const timeDiff = (currentHour * 60 + currentMinute) - (hours * 60 + minutes);
+      if (Math.abs(timeDiff) <= 2) {
+        const session = userSessions.get(chatId);
+        const firstName = session?.firstName || 'Athlete';
+        
+        bot.sendPhoto(chatId, MOTIVATION_IMAGE_URL, {
+          caption: getTimeReminderMessage(firstName, data.time),
+          parse_mode: 'Markdown',
+          ...getMainKeyboard()
+        });
+      }
+    });
   }, 60000); // Check every minute
 
   console.log('✅ Bot handlers registered');
-  console.log('⏰ Reminder system active (8am daily)');
+  console.log('⏰ Reminder system active');
+  console.log(`📷 Motivation image: ${MOTIVATION_IMAGE_URL}`);
 }
 
 // ─── API ROUTES ─────────────────────────────────────────────────
@@ -899,11 +746,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Get motivation image URL
+app.get('/api/motivation', (req, res) => {
+  res.json({
+    imageUrl: MOTIVATION_IMAGE_URL,
+    quotes: MOTIVATIONAL_QUOTES
+  });
+});
+
 // ─── User Profile Routes ──────────────────────────────────────
 
-// Save user profile
 app.post('/api/profile', (req, res) => {
-  const { userId, weight, height, protein, calories, goal } = req.body;
+  const { userId, weight, height, protein, calories, goal, style } = req.body;
   if (!userId || !weight || !height) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -914,184 +768,101 @@ app.post('/api/profile', (req, res) => {
     protein: parseFloat(protein) || weight * 1.8,
     calories: parseFloat(calories) || 2000,
     goal: goal || 'muscle_gain',
+    style: style || 'push_pull_legs',
     createdAt: new Date().toISOString()
   });
 
-  // Generate default schedule if not exists
-  if (!userCustomSchedules.has(userId)) {
-    const schedule = getDefaultSchedule(goal || 'muscle_gain');
-    userCustomSchedules.set(userId, schedule);
-  }
-
-  // Calculate nutrition
-  const nutrition = calculateNutrition(
-    parseFloat(weight),
-    parseFloat(height),
-    30,
-    goal || 'muscle_gain'
-  );
+  const nutrition = calculateNutrition(parseFloat(weight), parseFloat(height), 30, goal || 'muscle_gain');
 
   res.json({
     success: true,
     profile: userProfiles.get(userId),
-    nutrition,
-    schedule: userCustomSchedules.get(userId)
+    nutrition
   });
 });
 
-// Get user profile
 app.get('/api/profile/:userId', (req, res) => {
   const { userId } = req.params;
   const profile = userProfiles.get(userId);
   if (!profile) {
     return res.status(404).json({ error: 'Profile not found' });
   }
-
-  const schedule = userCustomSchedules.get(userId) || getDefaultSchedule(profile.goal);
   const nutrition = calculateNutrition(profile.weight, profile.height, 30, profile.goal);
-
-  res.json({
-    profile,
-    nutrition,
-    schedule
-  });
+  const workTime = userWorkTimes.get(userId);
+  res.json({ profile, nutrition, workTime });
 });
 
 // ─── Schedule Routes ──────────────────────────────────────────
 
-// Get today's schedule
 app.get('/api/schedule/today/:userId', (req, res) => {
   const { userId } = req.params;
+  const profile = userProfiles.get(userId);
+  const style = profile?.style || 'push_pull_legs';
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-  const exercises = getExercisesForDay(today, userId);
-
-  res.json({
-    day: today,
-    exercises
-  });
+  const exercises = getExercisesForDay(today, style);
+  res.json({ day: today, exercises });
 });
 
-// Get full schedule
 app.get('/api/schedule/:userId', (req, res) => {
   const { userId } = req.params;
-  const schedule = userCustomSchedules.get(userId) || getDefaultSchedule('muscle_gain');
   const profile = userProfiles.get(userId);
-
+  const style = profile?.style || 'push_pull_legs';
+  const schedule = getStyleSchedule(style);
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const fullSchedule = {};
-  Object.keys(schedule).forEach(day => {
-    fullSchedule[day] = getExercisesForDay(day, userId);
+  days.forEach(day => {
+    fullSchedule[day] = {
+      name: schedule.schedule[day]?.name || 'Rest',
+      exercises: getExercisesForDay(day, style)
+    };
   });
-
-  res.json({
-    schedule: fullSchedule,
-    profile
-  });
+  res.json({ style: schedule.name, schedule: fullSchedule });
 });
 
-// Update schedule
-app.post('/api/schedule', (req, res) => {
-  const { userId, schedule } = req.body;
-  if (!userId || !schedule) {
+app.post('/api/schedule/style', (req, res) => {
+  const { userId, style } = req.body;
+  if (!userId || !style) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-
-  userCustomSchedules.set(userId, schedule);
-
-  res.json({
-    success: true,
-    schedule
-  });
-});
-
-// Update specific day
-app.post('/api/schedule/day', (req, res) => {
-  const { userId, day, exercises } = req.body;
-  if (!userId || !day || !exercises) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  let schedule = userCustomSchedules.get(userId) || getDefaultSchedule('muscle_gain');
-  schedule[day] = exercises;
-  userCustomSchedules.set(userId, schedule);
-
-  res.json({
-    success: true,
-    day,
-    exercises: getExercisesForDay(day, userId)
-  });
+  const profile = userProfiles.get(userId) || {};
+  profile.style = style;
+  userProfiles.set(userId, profile);
+  res.json({ success: true, style });
 });
 
 // ─── Exercise Routes ──────────────────────────────────────────
 
-// Get all exercises
 app.get('/api/exercises', (req, res) => {
-  const exercises = Object.keys(WORKOUT_LIBRARY).map(key => ({
+  const exercises = Object.keys(EXERCISE_DB).map(key => ({
     id: key,
-    ...WORKOUT_LIBRARY[key]
+    ...EXERCISE_DB[key]
   }));
   res.json(exercises);
 });
 
-// Get specific exercise
 app.get('/api/exercises/:id', (req, res) => {
-  const ex = WORKOUT_LIBRARY[req.params.id];
+  const ex = EXERCISE_DB[req.params.id];
   if (!ex) {
     return res.status(404).json({ error: 'Exercise not found' });
   }
   res.json(ex);
 });
 
-// ─── Workout History Routes ──────────────────────────────────
+// ─── Workout Time Routes ──────────────────────────────────────
 
-// Save workout
-app.post('/api/workout', (req, res) => {
-  const { userId, exercise, duration, reps, sets, feedback, videoUrl } = req.body;
-  if (!userId || !exercise) {
+app.post('/api/worktime', (req, res) => {
+  const { userId, time } = req.body;
+  if (!userId || !time) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
-
-  let history = workoutHistory.get(userId) || [];
-  history.push({
-    exercise,
-    date: new Date().toISOString(),
-    duration: duration || 0,
-    reps: reps || 0,
-    sets: sets || 0,
-    feedback: feedback || '',
-    videoUrl: videoUrl || ''
-  });
-  workoutHistory.set(userId, history);
-
-  res.json({
-    success: true,
-    workout: history[history.length - 1]
-  });
+  userWorkTimes.set(userId, { time, setAt: new Date().toISOString() });
+  res.json({ success: true, time });
 });
 
-// Get workout history
-app.get('/api/workout/:userId', (req, res) => {
+app.get('/api/worktime/:userId', (req, res) => {
   const { userId } = req.params;
-  const history = workoutHistory.get(userId) || [];
-  res.json(history);
-});
-
-// ─── Nutrition Routes ─────────────────────────────────────────
-
-// Calculate nutrition
-app.post('/api/nutrition', (req, res) => {
-  const { weight, height, age, goal } = req.body;
-  if (!weight || !height) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  const nutrition = calculateNutrition(
-    parseFloat(weight),
-    parseFloat(height),
-    age || 30,
-    goal || 'muscle_gain'
-  );
-
-  res.json(nutrition);
+  const workTime = userWorkTimes.get(userId);
+  res.json({ workTime });
 });
 
 // ─── Video Upload ─────────────────────────────────────────────
@@ -1100,7 +871,6 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No video uploaded' });
   }
-
   const { userId, exercise } = req.body;
   const metadata = {
     filename: req.file.filename,
@@ -1110,22 +880,15 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
     size: req.file.size,
     url: `/uploads/${req.file.filename}`
   };
-
   const metaPath = req.file.path + '.meta.json';
   fs.writeFileSync(metaPath, JSON.stringify(metadata, null, 2));
-
-  res.json({
-    success: true,
-    message: 'Video uploaded successfully',
-    ...metadata
-  });
+  res.json({ success: true, message: 'Video uploaded', ...metadata });
 });
 
-// ─── Serve Static Files ────────────────────────────────────────
+// ─── Static Files ─────────────────────────────────────────────
 
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-// Serve Mini App
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -1154,8 +917,9 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`📁 Uploads: ${UPLOAD_DIR}`);
   console.log(`🤖 Bot: @${process.env.TELEGRAM_BOT_USERNAME || 'Not configured'}`);
   console.log(`🌐 Mini App: ${MINI_APP_URL}`);
-  console.log(`📊 Exercises: ${Object.keys(WORKOUT_LIBRARY).length}`);
-  console.log(`👥 Users: ${userProfiles.size}`);
+  console.log(`📷 Motivation Image: ${MOTIVATION_IMAGE_URL}`);
+  console.log(`📊 Exercises: ${Object.keys(EXERCISE_DB).length}`);
+  console.log(`📅 Workout Styles: ${Object.keys(WORKOUT_STYLES).length}`);
   console.log('========================================\n');
 });
 
@@ -1164,7 +928,6 @@ server.listen(PORT, '0.0.0.0', () => {
 setInterval(() => {
   const now = Date.now();
   const maxAge = 30 * 24 * 60 * 60 * 1000;
-
   fs.readdir(UPLOAD_DIR, (err, files) => {
     if (err) return;
     files.forEach(file => {
