@@ -1323,87 +1323,22 @@
       showToast('📊 Dashboard ready!', 'info');
     }
 
-// ──────────────────────────────────────────────────────────────
-//  BACK TO SCHEDULE - WITH CONFIRMATION
-// ──────────────────────────────────────────────────────────────
-document.getElementById('dashboardBack').addEventListener('click', () => {
-  if (isWorkoutActive) {
-    // Ask user if they want to leave the workout
-    tg.showAlert('⚠️ You have an active workout! Are you sure you want to leave?', [
-      { text: 'Yes, Leave', type: 'destructive' },
-      { text: 'Continue Workout', type: 'default' }
-    ], (buttonId) => {
-      if (buttonId === '0') {
-        // User confirmed leave - stop workout and go back
-        isWorkoutActive = false;
-        clearInterval(timerInterval);
-        timerInterval = null;
-        if (isRecording) document.getElementById('recordBtn').click();
-        document.getElementById('startWorkoutBtn').disabled = false;
-        document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
-        document.getElementById('stopWorkoutBtn').disabled = true;
-        document.getElementById('formCorrection').textContent = '⏹️ Workout stopped';
-        document.getElementById('formCorrection').className = 'form-correction active waiting';
-        
-        document.getElementById('dashboardContainer').classList.remove('active');
+    // ──────────────────────────────────────────────────────────────
+    //  BACK TO WORKOUT LIST (Red Circle Button)
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('dashBackToList').addEventListener('click', () => {
+      if (isWorkoutActive) {
+        tg.showAlert('⚠️ Please stop your workout first!');
+        return;
+      }
+      document.getElementById('dashboardContainer').classList.remove('active');
+      if (selectedDayData) {
+        openWorkoutList(selectedDayData);
+      } else {
         document.getElementById('scheduleContainer').classList.add('active');
-        const schedule = generateSchedule(true);
-        if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
-        showToast('📅 Back to schedule!', 'info');
       }
-      // If buttonId === '1', user chose to continue, do nothing
+      showToast('📋 Back to workout list', 'info');
     });
-  } else {
-    // No active workout, go back directly
-    document.getElementById('dashboardContainer').classList.remove('active');
-    document.getElementById('scheduleContainer').classList.add('active');
-    const schedule = generateSchedule(true);
-    if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
-    showToast('📅 Back to schedule!', 'info');
-  }
-});
-
-// ──────────────────────────────────────────────────────────────
-//  BACK TO WORKOUT LIST - WITH CONFIRMATION
-// ──────────────────────────────────────────────────────────────
-document.getElementById('dashBackToList').addEventListener('click', () => {
-  if (isWorkoutActive) {
-    tg.showAlert('⚠️ You have an active workout! Are you sure you want to leave?', [
-      { text: 'Yes, Leave', type: 'destructive' },
-      { text: 'Continue Workout', type: 'default' }
-    ], (buttonId) => {
-      if (buttonId === '0') {
-        // User confirmed leave - stop workout and go back
-        isWorkoutActive = false;
-        clearInterval(timerInterval);
-        timerInterval = null;
-        if (isRecording) document.getElementById('recordBtn').click();
-        document.getElementById('startWorkoutBtn').disabled = false;
-        document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
-        document.getElementById('stopWorkoutBtn').disabled = true;
-        document.getElementById('formCorrection').textContent = '⏹️ Workout stopped';
-        document.getElementById('formCorrection').className = 'form-correction active waiting';
-        
-        document.getElementById('dashboardContainer').classList.remove('active');
-        if (selectedDayData) {
-          openWorkoutList(selectedDayData);
-        } else {
-          document.getElementById('scheduleContainer').classList.add('active');
-        }
-        showToast('📋 Back to workout list', 'info');
-      }
-    });
-  } else {
-    // No active workout, go back directly
-    document.getElementById('dashboardContainer').classList.remove('active');
-    if (selectedDayData) {
-      openWorkoutList(selectedDayData);
-    } else {
-      document.getElementById('scheduleContainer').classList.add('active');
-    }
-    showToast('📋 Back to workout list', 'info');
-  }
-});
 
     // ──────────────────────────────────────────────────────────────
     //  FINISH BUTTON - Mark exercise as done
@@ -1678,4 +1613,4 @@ document.getElementById('dashBackToList').addEventListener('click', () => {
     init();
   </script>
 </body>
-            </html>
+  </html>
