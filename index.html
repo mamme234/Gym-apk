@@ -61,11 +61,6 @@
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
       position: relative;
-      background-image: url('background.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
     }
 
     body::before {
@@ -75,7 +70,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 14, 23, 0.85);
+      background: rgba(10, 14, 23, 0.92);
       z-index: -1;
     }
 
@@ -408,6 +403,12 @@
       background: rgba(74, 222, 128, 0.15);
       color: var(--green);
       border-color: rgba(74, 222, 128, 0.2);
+    }
+
+    .schedule-day .day-workout-tag.premium {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--gold);
+      border-color: rgba(245, 158, 11, 0.2);
     }
 
     .schedule-day .day-workout-tag i {
@@ -921,6 +922,150 @@
     }
 
     /* ============================================================
+       RESULTS MODAL
+    ============================================================ */
+    .results-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 300;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(20px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeUp 0.5s ease-out;
+    }
+
+    .results-modal.active {
+      display: flex;
+    }
+
+    .results-modal .modal-content {
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      max-width: 460px;
+      width: 100%;
+      padding: 30px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .results-modal .modal-content::-webkit-scrollbar {
+      width: 3px;
+    }
+    .results-modal .modal-content::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 10px;
+    }
+
+    .results-modal .modal-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .results-modal .modal-title i {
+      color: var(--green);
+    }
+
+    .results-modal .modal-sub {
+      text-align: center;
+      color: var(--tg-hint);
+      font-size: 0.8rem;
+      margin-bottom: 18px;
+    }
+
+    .results-modal .result-body-img {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: rgba(74, 222, 128, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      border: 3px solid var(--green);
+    }
+
+    .results-modal .result-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .results-modal .result-stat {
+      background: var(--tg-bg);
+      border-radius: var(--radius-xs);
+      padding: 10px;
+      text-align: center;
+    }
+
+    .results-modal .result-stat .rs-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .results-modal .result-stat .rs-label {
+      font-size: 0.55rem;
+      color: var(--tg-hint);
+      text-transform: uppercase;
+    }
+
+    .results-modal .result-message {
+      background: var(--tg-bg);
+      border-radius: var(--radius-xs);
+      padding: 14px;
+      margin-bottom: 16px;
+      text-align: center;
+      border: 1px solid rgba(74, 222, 128, 0.1);
+    }
+
+    .results-modal .result-message .msg {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .results-modal .result-message .sub-msg {
+      font-size: 0.7rem;
+      color: var(--tg-hint);
+      margin-top: 4px;
+    }
+
+    .results-modal .close-results {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      color: var(--tg-button-text);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .results-modal .close-results:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
+
+    /* ============================================================
        RESPONSIVE
     ============================================================ */
     @media (max-width: 420px) {
@@ -941,6 +1086,9 @@
       }
       .dash-stat .stat-value {
         font-size: 0.9rem;
+      }
+      .results-modal .result-stats {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -980,6 +1128,28 @@
   <!-- ===== TOAST ===== -->
   <div class="toast" id="toast"></div>
 
+  <!-- ===== RESULTS MODAL ===== -->
+  <div class="results-modal" id="resultsModal">
+    <div class="modal-content">
+      <div class="result-body-img" id="resultBodyImg">💪</div>
+      <div class="modal-title" id="resultTitle">🎉 Amazing Workout!</div>
+      <div class="modal-sub" id="resultSub">You crushed it! Here's your summary.</div>
+      
+      <div class="result-stats" id="resultStats">
+        <!-- Rendered by JS -->
+      </div>
+      
+      <div class="result-message" id="resultMessage">
+        <div class="msg" id="resultMsg">🔥 You're on fire! Keep pushing!</div>
+        <div class="sub-msg" id="resultSubMsg">Your dedication is inspiring!</div>
+      </div>
+      
+      <button class="close-results" id="closeResultsBtn">
+        <i class="fas fa-check-circle"></i> Back to Schedule
+      </button>
+    </div>
+  </div>
+
   <div class="app">
 
     <!-- ===== ONBOARDING ===== -->
@@ -989,7 +1159,7 @@
       <div class="onboarding-grid">
         <div class="onboarding-field">
           <label>👤 Name</label>
-          <input type="text" id="userNameInput" placeholder="Your name" />
+          <input type="text" id="userNameInput" placeholder="Your name" value="Athlete" />
         </div>
         <div class="onboarding-field">
           <label>🎯 Workout Style</label>
@@ -1009,22 +1179,22 @@
         </div>
         <div class="onboarding-field">
           <label>⚖️ Weight</label>
-          <input type="number" id="weightInput" placeholder="75" />
+          <input type="number" id="weightInput" placeholder="75" value="75" />
           <span class="unit">kg</span>
         </div>
         <div class="onboarding-field">
           <label>📏 Height</label>
-          <input type="number" id="heightInput" placeholder="175" />
+          <input type="number" id="heightInput" placeholder="175" value="175" />
           <span class="unit">cm</span>
         </div>
         <div class="onboarding-field">
           <label>🥩 Protein Target</label>
-          <input type="number" id="proteinInput" placeholder="150" />
+          <input type="number" id="proteinInput" placeholder="150" value="150" />
           <span class="unit">g/day</span>
         </div>
         <div class="onboarding-field">
           <label>🔥 Calories Target</label>
-          <input type="number" id="caloriesInput" placeholder="2500" />
+          <input type="number" id="caloriesInput" placeholder="2500" value="2500" />
           <span class="unit">kcal/day</span>
         </div>
         <div class="onboarding-field onboarding-full">
@@ -1033,7 +1203,7 @@
         </div>
         <div class="onboarding-field onboarding-full">
           <label>⏱️ Workout Duration</label>
-          <input type="number" id="durationInput" placeholder="45" />
+          <input type="number" id="durationInput" placeholder="45" value="45" />
           <span class="unit">minutes</span>
         </div>
       </div>
@@ -1108,12 +1278,10 @@
     </div>
 
   </div>
-  <!-- ===== END OF FIRST HALF ===== -->  <!-- SECOND HALF: ALL JAVASCRIPT -->
-  <script>
+  <!-- ===== END OF FIRST HALF ===== -->  <script>
     // ──────────────────────────────────────────────────────────────
     //  CONFIGURATION
     // ──────────────────────────────────────────────────────────────
-    const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
     const USER_ID = 'telegram_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest_' + Date.now());
 
     // ──────────────────────────────────────────────────────────────
@@ -1122,6 +1290,32 @@
     const tg = window.Telegram?.WebApp || { ready: () => {}, expand: () => {}, showAlert: (msg) => alert(msg) };
     tg.ready();
     tg.expand();
+
+    // ──────────────────────────────────────────────────────────────
+    //  AD FUNCTIONS (Premium Workouts)
+    // ──────────────────────────────────────────────────────────────
+    async function showPremiumAd() {
+      try {
+        // Rewarded interstitial - user watches ad to unlock premium
+        await show_11190061();
+        return true;
+      } catch (e) {
+        console.log('Ad error:', e);
+        // Fallback - allow access anyway
+        return true;
+      }
+    }
+
+    async function showRewardedPopup() {
+      try {
+        // Rewarded popup
+        await show_11190061('pop');
+        return true;
+      } catch (e) {
+        console.log('Popup ad error:', e);
+        return true;
+      }
+    }
 
     // ──────────────────────────────────────────────────────────────
     //  EXERCISE DATABASE (140 exercises with YouTube videos)
@@ -1392,6 +1586,7 @@
     let seconds = 0;
     let facingMode = 'environment';
     let selectedExerciseId = null;
+    let selectedDay = null;
 
     // ──────────────────────────────────────────────────────────────
     //  TOAST
@@ -1436,7 +1631,7 @@
           tip: ex.tip,
           reps: ex.defaultReps,
           sets: ex.defaultSets,
-          premium: ex.premium,
+          premium: ex.premium || false,
           benefit: ex.benefit,
           reduce: ex.reduce
         };
@@ -1491,8 +1686,10 @@
         dayEl.className = 'schedule-day';
         
         const workoutTags = day.exercises.map(ex => {
-          return `<span class="day-workout-tag" data-exercise="${ex.id}">
-            <i class="fas fa-play-circle"></i> ${ex.icon} ${ex.name}
+          const premiumClass = ex.premium ? 'premium' : '';
+          const premiumIcon = ex.premium ? '⭐' : '';
+          return `<span class="day-workout-tag ${premiumClass}" data-exercise="${ex.id}">
+            <i class="fas fa-play-circle"></i> ${premiumIcon} ${ex.icon} ${ex.name}
           </span>`;
         }).join('');
 
@@ -1517,7 +1714,14 @@
             const exerciseId = tag.dataset.exercise;
             const ex = EXERCISE_DB[exerciseId];
             if (ex) {
-              openDashboard(day, schedule, exerciseId);
+              // If premium, show ad first
+              if (ex.premium) {
+                showPremiumAd().then(() => {
+                  openDashboard(day, schedule, exerciseId);
+                });
+              } else {
+                openDashboard(day, schedule, exerciseId);
+              }
             }
           });
         });
@@ -1534,6 +1738,7 @@
     function openDashboard(day, schedule, exerciseId = null) {
       currentWorkout = day;
       selectedExerciseId = exerciseId;
+      selectedDay = day;
 
       document.getElementById('scheduleContainer').classList.remove('active');
       document.getElementById('dashboardContainer').classList.add('active');
@@ -1555,7 +1760,7 @@
             tip: focusExercise.tip,
             reps: focusExercise.defaultReps,
             sets: focusExercise.defaultSets,
-            premium: focusExercise.premium,
+            premium: focusExercise.premium || false,
             benefit: focusExercise.benefit,
             reduce: focusExercise.reduce
           }];
@@ -1577,12 +1782,23 @@
       const calories = userData.calories || 2500;
       const protein = userData.protein || 150;
 
-      const stats = [
-        { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: 'Progress tracking' },
-        { icon: '🔥', value: `${calories}`, label: 'Calories', benefit: 'Daily target' },
-        { icon: '🥩', value: `${protein}g`, label: 'Protein', benefit: 'Muscle recovery' },
-        { icon: '💪', value: `${exercises.length}`, label: 'Exercises', benefit: 'Today\'s workout' }
-      ];
+      let stats = [];
+      
+      if (focusExercise) {
+        stats = [
+          { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: focusExercise.benefit || 'Builds strength' },
+          { icon: '🔥', value: `${calories}`, label: 'Calories', benefit: 'Daily target' },
+          { icon: '🥩', value: `${protein}g`, label: 'Protein', benefit: 'Muscle recovery' },
+          { icon: '⚠️', value: '🚫', label: 'Avoid', benefit: focusExercise.reduce || 'Use proper form' }
+        ];
+      } else {
+        stats = [
+          { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: 'Progress tracking' },
+          { icon: '🔥', value: `${calories}`, label: 'Calories', benefit: 'Daily target' },
+          { icon: '🥩', value: `${protein}g`, label: 'Protein', benefit: 'Muscle recovery' },
+          { icon: '💪', value: `${exercises.length}`, label: 'Exercises', benefit: 'Today\'s workout' }
+        ];
+      }
 
       stats.forEach(stat => {
         const statEl = document.createElement('div');
@@ -1591,7 +1807,7 @@
           <div class="stat-icon">${stat.icon}</div>
           <div class="stat-value">${stat.value}</div>
           <div class="stat-label">${stat.label}</div>
-          <div class="stat-benefit">✅ ${stat.benefit}</div>
+          <div class="${stat.benefit.includes('Avoid') ? 'stat-reduce' : 'stat-benefit'}">${stat.benefit}</div>
         `;
         statsContainer.appendChild(statEl);
       });
@@ -1605,7 +1821,7 @@
         detailsContainer.innerHTML = `
           <div class="detail-row">
             <span class="detail-label">🏋️ Exercise</span>
-            <span class="detail-value">${focusExercise.icon} ${focusExercise.name}</span>
+            <span class="detail-value">${focusExercise.icon} ${focusExercise.name} ${focusExercise.premium ? '⭐' : ''}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">🎯 Target</span>
@@ -1664,7 +1880,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-label">📋 Exercises</span>
-            <span class="detail-value" style="font-size:0.7rem;">${day.exercises.map(e => `${e.icon} ${e.name}`).join(' • ')}</span>
+            <span class="detail-value" style="font-size:0.7rem;">${day.exercises.map(e => `${e.icon} ${e.name}${e.premium ? '⭐' : ''}`).join(' • ')}</span>
           </div>
         `;
       }
@@ -1680,13 +1896,33 @@
       const fatsNeeded = Math.round((userData.weight || 75) * 0.5);
       const waterNeeded = Math.round((userData.weight || 75) * 35 + duration * 10);
 
+      // Determine specific post-workout nutrition based on muscle group
+      let muscleGroup = focusExercise ? focusExercise.muscle : 'Full Body';
+      let specificFoods = [];
+      
+      if (muscleGroup === 'Chest') {
+        specificFoods = ['🥩 Chicken Breast', '🍚 Brown Rice', '🥦 Broccoli'];
+      } else if (muscleGroup === 'Back') {
+        specificFoods = ['🐟 Salmon', '🍠 Sweet Potato', '🥗 Spinach'];
+      } else if (muscleGroup === 'Legs') {
+        specificFoods = ['🥩 Lean Beef', '🍝 Quinoa', '🥬 Kale'];
+      } else if (muscleGroup === 'Shoulders') {
+        specificFoods = ['🍗 Turkey', '🍚 Oats', '🥑 Avocado'];
+      } else if (muscleGroup === 'Biceps' || muscleGroup === 'Triceps') {
+        specificFoods = ['🥚 Eggs', '🍌 Banana', '🥜 Almonds'];
+      } else if (muscleGroup === 'Core') {
+        specificFoods = ['🐟 Tuna', '🍞 Whole Grain', '🥒 Cucumber'];
+      } else {
+        specificFoods = ['🥩 Protein Source', '🍚 Complex Carbs', '🥗 Vegetables'];
+      }
+
       const nutritionItems = [
         { label: '🔥 Calories', value: caloriesNeeded, unit: 'kcal', primary: true },
         { label: '🥩 Protein', value: proteinNeeded, unit: 'g', primary: true },
         { label: '🌾 Carbs', value: carbsNeeded, unit: 'g', primary: false },
         { label: '🥑 Fats', value: fatsNeeded, unit: 'g', primary: false },
         { label: '💧 Water', value: waterNeeded, unit: 'ml', primary: false },
-        { label: '⏱️ Duration', value: duration, unit: 'min', primary: false }
+        { label: '🍽️ Meals', value: specificFoods.join(' • '), unit: '', primary: false }
       ];
 
       nutritionItems.forEach(item => {
@@ -1775,7 +2011,7 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  STOP WORKOUT
+    //  STOP WORKOUT & SHOW RESULTS
     // ──────────────────────────────────────────────────────────────
     document.getElementById('stopWorkoutBtn').addEventListener('click', () => {
       if (!isWorkoutActive) return;
@@ -1793,8 +2029,127 @@
       document.getElementById('formCorrection').textContent = '✅ Workout complete! Great job! 💪';
       document.getElementById('formCorrection').className = 'form-correction active good';
 
+      // Show results modal
+      showResultsModal(seconds);
+
       showToast(`🎉 Workout complete! Duration: ${formatTime(seconds)}`, 'success');
-      tg.showAlert(`🎉 Amazing workout! You completed ${formatTime(seconds)}!`);
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  SHOW RESULTS MODAL
+    // ──────────────────────────────────────────────────────────────
+    function showResultsModal(durationSeconds) {
+      const modal = document.getElementById('resultsModal');
+      const minutes = Math.floor(durationSeconds / 60);
+      const secs = durationSeconds % 60;
+      const timeStr = `${minutes}m ${secs}s`;
+
+      // Get exercise info
+      const ex = selectedExerciseId ? EXERCISE_DB[selectedExerciseId] : null;
+      const exName = ex ? ex.name : 'Workout';
+      const muscleGroup = ex ? ex.muscle : 'Full Body';
+
+      // Calculate calories burned (rough estimate)
+      const weight = userData.weight || 75;
+      const caloriesBurned = Math.round(weight * 0.053 * (durationSeconds / 60));
+
+      // Calculate protein needed
+      const proteinNeeded = Math.round((userData.protein || 150) / 3);
+
+      // Body image based on workout type
+      const bodyEmojis = {
+        'Chest': '💪',
+        'Back': '🏋️',
+        'Legs': '🦵',
+        'Shoulders': '💪',
+        'Biceps': '💪',
+        'Triceps': '💪',
+        'Core': '🔥',
+        'Full Body': '💪'
+      };
+      const bodyEmoji = bodyEmojis[muscleGroup] || '💪';
+
+      // Motivational messages
+      const motivationalMessages = [
+        '🔥 You\'re on fire! Keep pushing!',
+        '💪 Amazing work! You\'re getting stronger!',
+        '🌟 Great job! Consistency is key!',
+        '⚡ You crushed it! Keep going!',
+        '🏆 Incredible performance! You\'re a champion!',
+        '🎯 Perfect form! You\'re a pro!',
+        '🚀 Sky\'s the limit! Keep climbing!',
+        '💯 Excellence! You\'re unstoppable!'
+      ];
+      const randomMsg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+
+      const subMessages = [
+        'Your dedication is inspiring!',
+        'Every rep counts towards your goal!',
+        'Keep showing up! Results are coming!',
+        'You\'re building something great!',
+        'Stay consistent, stay strong!'
+      ];
+      const randomSub = subMessages[Math.floor(Math.random() * subMessages.length)];
+
+      // Render stats
+      const statsContainer = document.getElementById('resultStats');
+      statsContainer.innerHTML = `
+        <div class="result-stat">
+          <div class="rs-value">${timeStr}</div>
+          <div class="rs-label">⏱️ Duration</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-value">${caloriesBurned} kcal</div>
+          <div class="rs-label">🔥 Calories Burned</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-value">${proteinNeeded}g</div>
+          <div class="rs-label">🥩 Protein Needed</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-value">${exName}</div>
+          <div class="rs-label">🏋️ Exercise</div>
+        </div>
+      `;
+
+      document.getElementById('resultBodyImg').textContent = bodyEmoji;
+      document.getElementById('resultTitle').textContent = `🎉 ${exName} Complete!`;
+      document.getElementById('resultSub').textContent = `You crushed ${muscleGroup} workout! 💪`;
+      document.getElementById('resultMsg').textContent = randomMsg;
+      document.getElementById('resultSubMsg').textContent = randomSub;
+
+      modal.classList.add('active');
+
+      // Show ad reward for premium workouts
+      const ex = selectedExerciseId ? EXERCISE_DB[selectedExerciseId] : null;
+      if (ex && ex.premium) {
+        showRewardedPopup().then(() => {
+          // User watched ad, give bonus
+          const msg = document.getElementById('resultMsg');
+          msg.textContent = '⭐ Premium Workout Complete! +50 Bonus Points! ⭐';
+          showToast('🎁 Bonus points awarded!', 'premium');
+        });
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  CLOSE RESULTS MODAL
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('closeResultsBtn').addEventListener('click', () => {
+      document.getElementById('resultsModal').classList.remove('active');
+      
+      // Go back to schedule
+      document.getElementById('dashboardContainer').classList.remove('active');
+      document.getElementById('scheduleContainer').classList.add('active');
+
+      // Regenerate schedule to show updates
+      const schedule = generateSchedule();
+      if (schedule) {
+        currentSchedule = schedule;
+        renderSchedule(schedule);
+      }
+
+      showToast('📅 Back to schedule!', 'info');
     });
 
     // ──────────────────────────────────────────────────────────────
@@ -1810,7 +2165,10 @@
       document.getElementById('scheduleContainer').classList.add('active');
 
       const schedule = generateSchedule();
-      if (schedule) renderSchedule(schedule);
+      if (schedule) {
+        currentSchedule = schedule;
+        renderSchedule(schedule);
+      }
 
       showToast('📅 Back to schedule!', 'info');
     });
@@ -1936,6 +2294,7 @@
 
       console.log('🏋️ AI Gym Trainer Pro loaded!');
       console.log(`💪 Exercises loaded: ${Object.keys(EXERCISE_DB).length}`);
+      console.log('⭐ Premium workouts available with ad support');
 
       setTimeout(hideLoading, 1500);
     }
