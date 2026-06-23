@@ -314,18 +314,18 @@
     }
 
     /* ============================================================
-       STYLE SELECTOR
+       BODY PART SELECTOR
     ============================================================ */
-    .style-selector {
+    .bodypart-selector {
       background: var(--tg-secondary);
       border-radius: var(--radius);
-      padding: 16px 18px;
+      padding: 14px 16px;
       margin-bottom: 14px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       box-shadow: var(--shadow);
     }
 
-    .style-selector .label {
+    .bodypart-selector .label {
       font-size: 0.7rem;
       font-weight: 600;
       color: var(--tg-hint);
@@ -337,23 +337,23 @@
       gap: 8px;
     }
 
-    .style-selector .label i {
+    .bodypart-selector .label i {
       color: var(--accent);
     }
 
-    .style-grid {
+    .bodypart-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
     }
 
-    .style-btn {
-      padding: 10px 8px;
+    .bodypart-btn {
+      padding: 8px 4px;
       border-radius: var(--radius-sm);
       border: 1px solid rgba(255, 255, 255, 0.06);
       background: var(--tg-bg);
       color: var(--tg-hint);
-      font-size: 0.7rem;
+      font-size: 0.55rem;
       font-weight: 600;
       cursor: pointer;
       transition: var(--transition);
@@ -361,17 +361,17 @@
       text-align: center;
     }
 
-    .style-btn .icon {
+    .bodypart-btn .icon {
       font-size: 1.2rem;
       display: block;
       margin-bottom: 2px;
     }
 
-    .style-btn:hover {
+    .bodypart-btn:hover {
       border-color: rgba(249, 176, 66, 0.2);
     }
 
-    .style-btn.active {
+    .bodypart-btn.active {
       border-color: var(--accent);
       background: rgba(249, 176, 66, 0.08);
       color: var(--accent);
@@ -507,9 +507,9 @@
     }
 
     /* ============================================================
-       SCHEDULE CARD
+       TODAY'S WORKOUT CARD
     ============================================================ */
-    .schedule-card {
+    .today-card {
       background: var(--tg-secondary);
       border-radius: var(--radius);
       padding: 16px 18px;
@@ -519,31 +519,30 @@
       transition: var(--transition);
     }
 
-    .schedule-card:hover {
+    .today-card:hover {
       border-color: rgba(249, 176, 66, 0.1);
     }
 
-    .schedule-header {
+    .today-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
     }
 
-    .schedule-header h3 {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--tg-hint);
+    .today-header h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
-    .schedule-header h3 i {
+    .today-header h3 i {
       color: var(--accent);
     }
 
-    .schedule-badge {
+    .today-badge {
       font-size: 0.55rem;
       background: var(--accent);
       color: #0a0e17;
@@ -565,78 +564,53 @@
       }
     }
 
-    .schedule-list {
+    .today-bodyparts {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .today-bodypart {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      background: rgba(249, 176, 66, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(249, 176, 66, 0.15);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .today-bodypart:hover {
+      background: rgba(249, 176, 66, 0.2);
+      transform: scale(1.05);
+    }
+
+    .today-bodypart.active {
+      background: var(--accent);
+      color: #0a0e17;
+      border-color: var(--accent);
+    }
+
+    .today-exercises {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      max-height: 350px;
+      max-height: 300px;
       overflow-y: auto;
     }
 
-    .schedule-list::-webkit-scrollbar {
+    .today-exercises::-webkit-scrollbar {
       width: 2px;
     }
-    .schedule-list::-webkit-scrollbar-thumb {
+    .today-exercises::-webkit-scrollbar-thumb {
       background: var(--accent);
       border-radius: 10px;
     }
 
-    .schedule-day {
-      margin-bottom: 4px;
-    }
-
-    .schedule-day .day-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 10px;
-      border-radius: var(--radius-xs);
-      background: var(--tg-bg);
-      cursor: pointer;
-      transition: var(--transition);
-      border: 1px solid transparent;
-    }
-
-    .schedule-day .day-header:hover {
-      border-color: rgba(249, 176, 66, 0.1);
-    }
-
-    .schedule-day .day-header.today {
-      border-color: var(--accent);
-      background: rgba(249, 176, 66, 0.06);
-    }
-
-    .schedule-day .day-header.today .day-name {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .schedule-day .day-name {
-      font-weight: 600;
-      font-size: 0.8rem;
-    }
-
-    .schedule-day .day-workout {
-      font-size: 0.7rem;
-      color: var(--tg-hint);
-    }
-
-    .schedule-day .day-exercises {
-      padding-left: 10px;
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      overflow: hidden;
-      max-height: 0;
-      transition: max-height 0.3s ease-out;
-    }
-
-    .schedule-day .day-exercises.open {
-      max-height: 500px;
-    }
-
-    .exercise-item {
+    .today-ex-item {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -646,35 +620,34 @@
       cursor: pointer;
       transition: var(--transition);
       border: 1px solid transparent;
-      position: relative;
     }
 
-    .exercise-item:hover {
+    .today-ex-item:hover {
       border-color: rgba(249, 176, 66, 0.12);
       transform: translateX(4px);
     }
 
-    .exercise-item .ex-icon {
+    .today-ex-item .ex-icon {
       font-size: 1.2rem;
       width: 30px;
       text-align: center;
     }
 
-    .exercise-item .ex-info {
+    .today-ex-item .ex-info {
       flex: 1;
     }
 
-    .exercise-item .ex-name {
+    .today-ex-item .ex-name {
       font-size: 0.8rem;
       font-weight: 600;
     }
 
-    .exercise-item .ex-detail {
+    .today-ex-item .ex-detail {
       font-size: 0.6rem;
       color: var(--tg-hint);
     }
 
-    .exercise-item .ex-badge {
+    .today-ex-item .ex-badge {
       font-size: 0.5rem;
       padding: 1px 8px;
       border-radius: 20px;
@@ -682,31 +655,26 @@
       text-transform: uppercase;
     }
 
-    .exercise-item .ex-badge.free {
+    .today-ex-item .ex-badge.free {
       background: rgba(74, 222, 128, 0.15);
       color: var(--green);
     }
 
-    .exercise-item .ex-badge.premium {
+    .today-ex-item .ex-badge.premium {
       background: rgba(245, 158, 11, 0.15);
       color: var(--gold);
     }
 
-    .exercise-item .ex-badge.locked {
+    .today-ex-item .ex-badge.locked {
       background: rgba(248, 113, 113, 0.15);
       color: var(--red);
     }
 
-    .exercise-item .ex-lock {
-      color: var(--gold);
-      font-size: 0.7rem;
-    }
-
-    .exercise-item.premium-locked {
+    .today-ex-item.premium-locked {
       opacity: 0.6;
     }
 
-    .exercise-item.premium-unlocked {
+    .today-ex-item.premium-unlocked {
       border-color: var(--gold);
       background: rgba(245, 158, 11, 0.05);
     }
@@ -1403,14 +1371,14 @@
       .onboarding-grid {
         grid-template-columns: 1fr;
       }
-      .style-grid {
+      .bodypart-grid {
         grid-template-columns: repeat(3, 1fr);
       }
-      .style-btn {
-        font-size: 0.6rem;
-        padding: 8px 4px;
+      .bodypart-btn {
+        font-size: 0.5rem;
+        padding: 6px 2px;
       }
-      .style-btn .icon {
+      .bodypart-btn .icon {
         font-size: 1rem;
       }
       .feedback-msg {
@@ -1433,7 +1401,7 @@
         font-size: 0.55rem;
         padding: 1px 8px;
       }
-      .exercise-item .ex-name {
+      .today-ex-item .ex-name {
         font-size: 0.7rem;
       }
       .premium-status .progress .dot {
@@ -1446,8 +1414,8 @@
     }
 
     @media (max-width: 360px) {
-      .style-grid {
-        grid-template-columns: 1fr 1fr;
+      .bodypart-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
       .demo-info h4 {
         font-size: 0.8rem;
@@ -1557,30 +1525,17 @@
       </div>
     </div>
 
-    <!-- ===== WORKOUT STYLE SELECTOR ===== -->
-    <div class="style-selector" id="styleSelector">
-      <div class="label"><i class="fas fa-dumbbell"></i> Choose Your Workout Style</div>
-      <div class="style-grid">
-        <button class="style-btn active" data-style="push_pull_legs">
-          <span class="icon">🔄</span>
-          Push/Pull/Legs
-        </button>
-        <button class="style-btn" data-style="full_body">
-          <span class="icon">🏋️</span>
-          Full Body
-        </button>
-        <button class="style-btn" data-style="upper_lower">
-          <span class="icon">⬆️⬇️</span>
-          Upper/Lower
-        </button>
-        <button class="style-btn" data-style="bro_split">
-          <span class="icon">💪</span>
-          Bro Split
-        </button>
-        <button class="style-btn" data-style="custom">
-          <span class="icon">⚙️</span>
-          Custom
-        </button>
+    <!-- ===== TODAY'S WORKOUT ===== -->
+    <div class="today-card" id="todayCard" style="display:none;">
+      <div class="today-header">
+        <h3><i class="fas fa-calendar-day"></i> Today's Workout</h3>
+        <span class="today-badge" id="todayBadge">TODAY</span>
+      </div>
+      <div class="today-bodyparts" id="todayBodyparts">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="today-exercises" id="todayExercises">
+        <!-- Rendered by JS -->
       </div>
     </div>
 
@@ -1622,17 +1577,6 @@
       <button class="onboarding-btn" id="saveProfileBtn">
         <i class="fas fa-save"></i> Save Profile
       </button>
-    </div>
-
-    <!-- ===== SCHEDULE ===== -->
-    <div class="schedule-card" id="scheduleCard" style="display:none;">
-      <div class="schedule-header">
-        <h3><i class="fas fa-calendar-day"></i> Your Weekly Schedule</h3>
-        <span class="schedule-badge" id="dayBadge">TODAY</span>
-      </div>
-      <div class="schedule-list" id="scheduleList">
-        <!-- Rendered by JS -->
-      </div>
     </div>
 
     <!-- ===== CAMERA ===== -->
@@ -1702,7 +1646,7 @@
     // ──────────────────────────────────────────────────────────────
     const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
     const USER_ID = 'telegram_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest_' + Date.now());
-    const ADS_REQUIRED = 5; // Need 5 ads per day to unlock premium
+    const ADS_REQUIRED = 5;
 
     // ──────────────────────────────────────────────────────────────
     //  TELEGRAM INIT
@@ -1728,14 +1672,200 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  AD / PREMIUM SYSTEM
+    //  ALL 140 EXERCISES BY BODY PART
     // ──────────────────────────────────────────────────────────────
-    let adWatchedToday = 0;
+    const EXERCISE_DB = {
+      // ===== CHEST (20 exercises) =====
+      CHEST_01: { id: 'CHEST_01', name: 'Barbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y', premium: true },
+      CHEST_02: { id: 'CHEST_02', name: 'Dumbbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/VmB1G1K7v94', premium: false },
+      CHEST_03: { id: 'CHEST_03', name: 'Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', premium: false },
+      CHEST_04: { id: 'CHEST_04', name: 'Incline Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/Srqn4F5BvFY', premium: true },
+      CHEST_05: { id: 'CHEST_05', name: 'Decline Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/LvL0kLJxYFw', premium: true },
+      CHEST_06: { id: 'CHEST_06', name: 'Chest Dips', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true },
+      CHEST_07: { id: 'CHEST_07', name: 'Floor Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_08: { id: 'CHEST_08', name: 'Dumbbell Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/QENPH9RqQk0', premium: false },
+      CHEST_09: { id: 'CHEST_09', name: 'Close-Grip Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_10: { id: 'CHEST_10', name: 'Machine Chest Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_11: { id: 'CHEST_11', name: 'Incline Dumbbell Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CHEST_12: { id: 'CHEST_12', name: 'Decline Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_13: { id: 'CHEST_13', name: 'Cable Crossovers', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CHEST_14: { id: 'CHEST_14', name: 'Pec Deck Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_15: { id: 'CHEST_15', name: 'Dumbbell Pullover', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CHEST_16: { id: 'CHEST_16', name: 'Svend Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_17: { id: 'CHEST_17', name: 'Single-Arm Cable Fly', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CHEST_18: { id: 'CHEST_18', name: 'Clap Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_19: { id: 'CHEST_19', name: 'Wide Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CHEST_20: { id: 'CHEST_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+
+      // ===== BACK (20 exercises) =====
+      BACK_01: { id: 'BACK_01', name: 'Pull-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', premium: true },
+      BACK_02: { id: 'BACK_02', name: 'Chin-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BACK_03: { id: 'BACK_03', name: 'Bent-Over Barbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw', premium: false },
+      BACK_04: { id: 'BACK_04', name: 'Seated Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_05: { id: 'BACK_05', name: 'Lat Pulldowns', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_06: { id: 'BACK_06', name: 'Single-Arm Dumbbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_07: { id: 'BACK_07', name: 'Face Pulls', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU', premium: true },
+      BACK_08: { id: 'BACK_08', name: 'Inverted Rows', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_09: { id: 'BACK_09', name: 'Deadlifts', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false },
+      BACK_10: { id: 'BACK_10', name: 'Pendlay Rows', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BACK_11: { id: 'BACK_11', name: 'T-Bar Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BACK_12: { id: 'BACK_12', name: 'Dumbbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_13: { id: 'BACK_13', name: 'Machine Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_14: { id: 'BACK_14', name: 'Reverse Fly', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_15: { id: 'BACK_15', name: 'Rack Pulls', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BACK_16: { id: 'BACK_16', name: 'Good Mornings', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_17: { id: 'BACK_17', name: 'Straight-Arm Pulldown', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_18: { id: 'BACK_18', name: 'Shrugs (Traps)', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BACK_19: { id: 'BACK_19', name: 'Farmers Walk', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BACK_20: { id: 'BACK_20', name: 'Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+
+      // ===== SHOULDERS (20 exercises) =====
+      SHOULDER_01: { id: 'SHOULDER_01', name: 'Overhead Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog', premium: false },
+      SHOULDER_02: { id: 'SHOULDER_02', name: 'Dumbbell Shoulder Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_03: { id: 'SHOULDER_03', name: 'Arnold Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_04: { id: 'SHOULDER_04', name: 'Lateral Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw', premium: false },
+      SHOULDER_05: { id: 'SHOULDER_05', name: 'Front Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_06: { id: 'SHOULDER_06', name: 'Reverse Fly', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_07: { id: 'SHOULDER_07', name: 'Upright Rows', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_08: { id: 'SHOULDER_08', name: 'Shrugs', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_09: { id: 'SHOULDER_09', name: 'Clean & Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_10: { id: 'SHOULDER_10', name: 'Dumbbell Snatch', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_11: { id: 'SHOULDER_11', name: 'Front Raises (Plate)', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_12: { id: 'SHOULDER_12', name: 'Cable Lateral Raise', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_13: { id: 'SHOULDER_13', name: 'Single-Arm Cable Raise', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_14: { id: 'SHOULDER_14', name: 'Face Pulls', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU', premium: true },
+      SHOULDER_15: { id: 'SHOULDER_15', name: 'Push Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_16: { id: 'SHOULDER_16', name: 'Pike Push-ups', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_17: { id: 'SHOULDER_17', name: 'Cuban Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_18: { id: 'SHOULDER_18', name: 'Arnold Press (Variation)', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      SHOULDER_19: { id: 'SHOULDER_19', name: 'YTW Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      SHOULDER_20: { id: 'SHOULDER_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+
+      // ===== BICEPS (20 exercises) =====
+      BICEPS_01: { id: 'BICEPS_01', name: 'Barbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo', premium: false },
+      BICEPS_02: { id: 'BICEPS_02', name: 'Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_03: { id: 'BICEPS_03', name: 'Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_04: { id: 'BICEPS_04', name: 'Preacher Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BICEPS_05: { id: 'BICEPS_05', name: 'Concentration Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_06: { id: 'BICEPS_06', name: 'Cable Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_07: { id: 'BICEPS_07', name: 'Chin-ups (Underhand)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BICEPS_08: { id: 'BICEPS_08', name: 'Resistance Band Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_09: { id: 'BICEPS_09', name: 'EZ Bar Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_10: { id: 'BICEPS_10', name: 'Wide-Grip Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_11: { id: 'BICEPS_11', name: 'Zottman Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BICEPS_12: { id: 'BICEPS_12', name: 'Reverse Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_13: { id: 'BICEPS_13', name: 'Spider Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BICEPS_14: { id: 'BICEPS_14', name: 'Incline Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BICEPS_15: { id: 'BICEPS_15', name: '21s (7-7-7)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_16: { id: 'BICEPS_16', name: 'Isometric Hold Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_17: { id: 'BICEPS_17', name: 'Bayesian Cable Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      BICEPS_18: { id: 'BICEPS_18', name: 'Cross-Body Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_19: { id: 'BICEPS_19', name: 'Towel Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      BICEPS_20: { id: 'BICEPS_20', name: 'Cable Curl (Variation)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+
+      // ===== TRICEPS (20 exercises) =====
+      TRICEPS_01: { id: 'TRICEPS_01', name: 'Tricep Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_02: { id: 'TRICEPS_02', name: 'Close-Grip Bench Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_03: { id: 'TRICEPS_03', name: 'Tricep Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true },
+      TRICEPS_04: { id: 'TRICEPS_04', name: 'Overhead Tricep Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME', premium: false },
+      TRICEPS_05: { id: 'TRICEPS_05', name: 'Diamond Push-ups', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_06: { id: 'TRICEPS_06', name: 'Rope Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_07: { id: 'TRICEPS_07', name: 'Reverse Grip Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_08: { id: 'TRICEPS_08', name: 'Lying Tricep Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_09: { id: 'TRICEPS_09', name: 'Tricep Press Machine', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_10: { id: 'TRICEPS_10', name: 'Neutral-Grip Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      TRICEPS_11: { id: 'TRICEPS_11', name: 'Skull Crushers', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_12: { id: 'TRICEPS_12', name: 'Dumbbell Kickbacks', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_13: { id: 'TRICEPS_13', name: 'Cable Kickbacks', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      TRICEPS_14: { id: 'TRICEPS_14', name: 'Bench Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_15: { id: 'TRICEPS_15', name: 'Tate Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      TRICEPS_16: { id: 'TRICEPS_16', name: 'Single-Arm Overhead Extension', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_17: { id: 'TRICEPS_17', name: 'JM Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      TRICEPS_18: { id: 'TRICEPS_18', name: 'Floor Press (Close Grip)', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_19: { id: 'TRICEPS_19', name: 'Band Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      TRICEPS_20: { id: 'TRICEPS_20', name: 'Tricep Hold Extensions', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+
+      // ===== LEGS (20 exercises) =====
+      LEGS_01: { id: 'LEGS_01', name: 'Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', premium: false },
+      LEGS_02: { id: 'LEGS_02', name: 'Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false },
+      LEGS_03: { id: 'LEGS_03', name: 'Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', premium: false },
+      LEGS_04: { id: 'LEGS_04', name: 'Bulgarian Split Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      LEGS_05: { id: 'LEGS_05', name: 'Glute Bridges', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE', premium: false },
+      LEGS_06: { id: 'LEGS_06', name: 'Romanian Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_07: { id: 'LEGS_07', name: 'Hip Thrusts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      LEGS_08: { id: 'LEGS_08', name: 'Reverse Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_09: { id: 'LEGS_09', name: 'Single-Leg Glute Bridge', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_10: { id: 'LEGS_10', name: 'Hamstring Curls', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_11: { id: 'LEGS_11', name: 'Step-ups', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_12: { id: 'LEGS_12', name: 'Leg Press', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_13: { id: 'LEGS_13', name: 'Leg Extensions', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_14: { id: 'LEGS_14', name: 'Leg Curls', icon: '💪', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_15: { id: 'LEGS_15', name: 'Calf Raises', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/-M4-G8p8fmc', premium: false },
+      LEGS_16: { id: 'LEGS_16', name: 'Seated Calf Raises', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_17: { id: 'LEGS_17', name: 'Sumo Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_18: { id: 'LEGS_18', name: 'Lateral Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_19: { id: 'LEGS_19', name: 'Side-Lying Leg Lifts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      LEGS_20: { id: 'LEGS_20', name: 'Resistance Band Walks', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+
+      // ===== CORE (20 exercises) =====
+      CORE_01: { id: 'CORE_01', name: 'Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU', premium: false },
+      CORE_02: { id: 'CORE_02', name: 'Leg Raises', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_03: { id: 'CORE_03', name: 'Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', premium: false },
+      CORE_04: { id: 'CORE_04', name: 'Side Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_05: { id: 'CORE_05', name: 'Mountain Climbers', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_06: { id: 'CORE_06', name: 'Sit-ups', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_07: { id: 'CORE_07', name: 'Hollow Body Holds', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CORE_08: { id: 'CORE_08', name: 'Deadbugs', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_09: { id: 'CORE_09', name: 'Reverse Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_10: { id: 'CORE_10', name: 'Cable Woodchoppers', icon: '💪', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CORE_11: { id: 'CORE_11', name: 'Russian Twists', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_12: { id: 'CORE_12', name: 'Flutter Kicks', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_13: { id: 'CORE_13', name: 'V-Ups', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CORE_14: { id: 'CORE_14', name: 'Bicycle Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_15: { id: 'CORE_15', name: 'Toe Touches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_16: { id: 'CORE_16', name: 'Heel Touches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false },
+      CORE_17: { id: 'CORE_17', name: 'L-Sits', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CORE_18: { id: 'CORE_18', name: 'Windshield Wipers', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CORE_19: { id: 'CORE_19', name: 'Dragon Flags', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true },
+      CORE_20: { id: 'CORE_20', name: 'Barbell Rollouts', icon: '🏋️', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true }
+    };
+
+    // ──────────────────────────────────────────────────────────────
+    //  TODAY'S SCHEDULE – Body Parts by Day
+    // ──────────────────────────────────────────────────────────────
+    const TODAY_SCHEDULE = {
+      'Monday': ['Chest', 'Triceps', 'Shoulders'],
+      'Tuesday': ['Back', 'Biceps'],
+      'Wednesday': ['Legs', 'Core'],
+      'Thursday': ['Chest', 'Shoulders', 'Triceps'],
+      'Friday': ['Back', 'Biceps'],
+      'Saturday': ['Legs', 'Core'],
+      'Sunday': ['Rest']
+    };
+
+    const BODY_PART_EXERCISES = {
+      'Chest': Object.keys(EXERCISE_DB).filter(id => EXERCISE_DB[id].muscle === 'Chest'),
+      'Back': Object.keys(EXERCISE_DB).filter(id => EXERCISE_DB[id].muscle === 'Back'),
+      'Shoulders': Object.keys(EXERCISE_DB).filter(id => EXERCISE_DB[id].muscle === 'Shoulders'),
+      'Biceps': Object.keys(EXERCISE_DB).filter(id => EXERCISE_DB[id].muscle === 'Biceps'),
+      'Triceps': Object.keys(EXERCISE_DB).filter(id => EXERCISE_DB[id].muscle === 'Triceps'),
+      'Legs': Object.keys(EXERCISE_DB).filter(id => EXERCISE_DB[id].muscle === 'Legs'),
+      'Core': Object.keys(EXERCISE_DB).filter(id => EXERCISE_DB[id].muscle === 'Core')
+    };
+
+    // ──────────────────────────────────────────────────────────────
+    //  STATE
+    // ──────────────────────────────────────────────────────────────
+    let selectedExercise = 'CHEST_03'; // Default: Push-ups
+    let currentBodyPart = 'Chest';
     let premiumUnlocked = false;
+    let adWatchedToday = 0;
     let pendingPremiumExercise = null;
     let isAdWatching = false;
 
-    // Load ad count from localStorage
+    // ──────────────────────────────────────────────────────────────
+    //  AD / PREMIUM SYSTEM
+    // ──────────────────────────────────────────────────────────────
     function loadAdCount() {
       const today = new Date().toDateString();
       const saved = localStorage.getItem('gym_ad_data');
@@ -1765,14 +1895,12 @@
     }
 
     function updatePremiumUI() {
-      // Update premium status bar
       const statusEl = document.getElementById('premiumStatus');
       if (adWatchedToday >= ADS_REQUIRED) {
         premiumUnlocked = true;
         statusEl.style.display = 'flex';
         document.getElementById('premiumCount').textContent = '✅ UNLOCKED';
         document.querySelectorAll('#premiumDots .dot').forEach(d => d.classList.add('filled'));
-        showToast('🎉 Premium workouts unlocked for today!', 'premium');
       } else {
         premiumUnlocked = false;
         statusEl.style.display = 'flex';
@@ -1782,14 +1910,13 @@
         });
       }
 
-      // Update ad modal progress
       document.querySelectorAll('#adProgress .dot').forEach((d, i) => {
         d.classList.toggle('filled', i < adWatchedToday);
       });
       document.getElementById('adCountDisplay').textContent = adWatchedToday;
 
       // Update exercise items
-      document.querySelectorAll('.exercise-item').forEach(el => {
+      document.querySelectorAll('.today-ex-item').forEach(el => {
         const isPremium = el.dataset.premium === 'true';
         if (isPremium) {
           if (premiumUnlocked) {
@@ -1812,17 +1939,13 @@
         }
       });
 
-      // Update demo section if current exercise is premium
-      const currentEx = EXERCISE_DB[selectedExercise];
-      if (currentEx?.premium) {
+      // Update demo
+      const ex = EXERCISE_DB[selectedExercise];
+      if (ex?.premium) {
         const tag = document.getElementById('demoPremiumTag');
         tag.style.display = premiumUnlocked ? 'none' : 'inline';
         document.getElementById('demoUnlockBtn').style.display = premiumUnlocked ? 'none' : 'flex';
-        if (!premiumUnlocked) {
-          document.getElementById('startBtn').disabled = true;
-        } else {
-          document.getElementById('startBtn').disabled = false;
-        }
+        document.getElementById('startBtn').disabled = !premiumUnlocked;
       } else {
         document.getElementById('demoPremiumTag').style.display = 'none';
         document.getElementById('demoUnlockBtn').style.display = 'none';
@@ -1832,7 +1955,6 @@
       }
     }
 
-    // ─── Watch Ad Function ──────────────────────────────────────
     async function watchAd() {
       if (isAdWatching) return;
       if (adWatchedToday >= ADS_REQUIRED) {
@@ -1846,11 +1968,8 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading ad...';
 
       try {
-        // Use the libtl.com ad SDK
         if (typeof show_11190061 === 'function') {
-          // Rewarded interstitial
           await show_11190061();
-          // User watched the ad
           adWatchedToday++;
           saveAdCount();
           showToast(`✅ Ad watched! ${adWatchedToday}/${ADS_REQUIRED}`, 'premium');
@@ -1859,9 +1978,7 @@
             premiumUnlocked = true;
             updatePremiumUI();
             showToast('🎉 All premium workouts unlocked for today!', 'premium');
-            // Close modal
             document.getElementById('adModal').classList.remove('active');
-            // Update the exercise we were trying to unlock
             if (pendingPremiumExercise) {
               selectExercise(pendingPremiumExercise);
               pendingPremiumExercise = null;
@@ -1870,8 +1987,8 @@
             updatePremiumUI();
           }
         } else {
-          // Fallback: simulate ad watch
-          showToast('📺 Simulating ad... (SDK not loaded)', 'info');
+          // Fallback
+          showToast('📺 Simulating ad...', 'info');
           await new Promise(resolve => setTimeout(resolve, 2000));
           adWatchedToday++;
           saveAdCount();
@@ -1899,7 +2016,6 @@
       isAdWatching = false;
     }
 
-    // ─── Open Ad Modal ──────────────────────────────────────────
     function openAdModal(exerciseId) {
       pendingPremiumExercise = exerciseId;
       const ex = EXERCISE_DB[exerciseId];
@@ -1908,419 +2024,11 @@
       updatePremiumUI();
     }
 
-    // ─── Ad Modal Events ────────────────────────────────────────
     document.getElementById('adWatchBtn').addEventListener('click', watchAd);
-
     document.getElementById('adSkipBtn').addEventListener('click', () => {
       document.getElementById('adModal').classList.remove('active');
       pendingPremiumExercise = null;
     });
-
-    // ──────────────────────────────────────────────────────────────
-    //  WORKOUT STYLES & SCHEDULES
-    // ──────────────────────────────────────────────────────────────
-    const WORKOUT_STYLES = {
-      push_pull_legs: {
-        name: 'Push/Pull/Legs',
-        schedule: {
-          'Monday': { name: 'Push Day', exercises: ['BENCH_PRESS', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'LATERAL_RAISE'] },
-          'Tuesday': { name: 'Pull Day', exercises: ['DEADLIFT', 'ROW', 'BICEP_CURL', 'FACE_PULL'] },
-          'Wednesday': { name: 'Legs Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
-          'Thursday': { name: 'Push Day', exercises: ['PUSHUP', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'LATERAL_RAISE'] },
-          'Friday': { name: 'Pull Day', exercises: ['DEADLIFT', 'ROW', 'BICEP_CURL', 'FACE_PULL'] },
-          'Saturday': { name: 'Legs Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
-          'Sunday': { name: 'Rest Day', exercises: [] }
-        }
-      },
-      full_body: {
-        name: 'Full Body',
-        schedule: {
-          'Monday': { name: 'Full Body A', exercises: ['SQUAT', 'BENCH_PRESS', 'ROW', 'SHOULDER_PRESS', 'PLANK'] },
-          'Tuesday': { name: 'Rest', exercises: [] },
-          'Wednesday': { name: 'Full Body B', exercises: ['DEADLIFT', 'PUSHUP', 'LUNGE', 'BICEP_CURL', 'CRUNCH'] },
-          'Thursday': { name: 'Rest', exercises: [] },
-          'Friday': { name: 'Full Body C', exercises: ['SQUAT', 'ROW', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'PLANK'] },
-          'Saturday': { name: 'Rest', exercises: [] },
-          'Sunday': { name: 'Rest', exercises: [] }
-        }
-      },
-      upper_lower: {
-        name: 'Upper/Lower',
-        schedule: {
-          'Monday': { name: 'Upper A', exercises: ['BENCH_PRESS', 'ROW', 'SHOULDER_PRESS', 'BICEP_CURL', 'TRICEP_EXTENSION'] },
-          'Tuesday': { name: 'Lower A', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
-          'Wednesday': { name: 'Rest', exercises: [] },
-          'Thursday': { name: 'Upper B', exercises: ['PUSHUP', 'DEADLIFT', 'LATERAL_RAISE', 'BICEP_CURL', 'TRICEP_EXTENSION'] },
-          'Friday': { name: 'Lower B', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
-          'Saturday': { name: 'Rest', exercises: [] },
-          'Sunday': { name: 'Rest', exercises: [] }
-        }
-      },
-      bro_split: {
-        name: 'Bro Split',
-        schedule: {
-          'Monday': { name: 'Chest Day', exercises: ['BENCH_PRESS', 'PUSHUP', 'CHEST_FLY', 'DIPS'] },
-          'Tuesday': { name: 'Back Day', exercises: ['DEADLIFT', 'ROW', 'PULLUP', 'FACE_PULL'] },
-          'Wednesday': { name: 'Shoulder Day', exercises: ['SHOULDER_PRESS', 'LATERAL_RAISE', 'FRONT_RAISE', 'REAR_FLY'] },
-          'Thursday': { name: 'Leg Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
-          'Friday': { name: 'Arm Day', exercises: ['BICEP_CURL', 'TRICEP_EXTENSION', 'HAMMER_CURL', 'SKULL_CRUSHER'] },
-          'Saturday': { name: 'Core Day', exercises: ['PLANK', 'CRUNCH', 'RUSSIAN_TWIST', 'LEG_RAISE'] },
-          'Sunday': { name: 'Rest Day', exercises: [] }
-        }
-      },
-      custom: {
-        name: 'Custom',
-        schedule: {
-          'Monday': { name: 'Custom Day 1', exercises: ['PUSHUP', 'SQUAT', 'ROW'] },
-          'Tuesday': { name: 'Custom Day 2', exercises: ['PLANK', 'LUNGE', 'BICEP_CURL'] },
-          'Wednesday': { name: 'Custom Day 3', exercises: ['DEADLIFT', 'SHOULDER_PRESS', 'CRUNCH'] },
-          'Thursday': { name: 'Custom Day 4', exercises: ['PUSHUP', 'SQUAT', 'ROW'] },
-          'Friday': { name: 'Custom Day 5', exercises: ['PLANK', 'LUNGE', 'BICEP_CURL'] },
-          'Saturday': { name: 'Custom Day 6', exercises: ['DEADLIFT', 'SHOULDER_PRESS', 'CRUNCH'] },
-          'Sunday': { name: 'Rest Day', exercises: [] }
-        }
-      }
-    };
-
-    // ──────────────────────────────────────────────────────────────
-    //  EXERCISE DATABASE
-    // ──────────────────────────────────────────────────────────────
-    const EXERCISE_DB = {
-      PUSHUP: {
-        id: 'PUSHUP',
-        name: 'Push-up',
-        icon: '💪',
-        demo: '🧍',
-        muscle: 'Chest',
-        desc: 'Keep back straight, lower chest to ground',
-        tip: 'Keep elbows at 45°',
-        defaultReps: 12,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4',
-        premium: false
-      },
-      SQUAT: {
-        id: 'SQUAT',
-        name: 'Squat',
-        icon: '🦵',
-        demo: '🏋️',
-        muscle: 'Legs',
-        desc: 'Keep chest up, go to parallel',
-        tip: 'Knees track over toes',
-        defaultReps: 15,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U',
-        premium: false
-      },
-      BICEP_CURL: {
-        id: 'BICEP_CURL',
-        name: 'Bicep Curl',
-        icon: '💪',
-        demo: '🏋️',
-        muscle: 'Biceps',
-        desc: 'Curl up, squeeze bicep',
-        tip: 'Elbows pinned to sides',
-        defaultReps: 10,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo',
-        premium: false
-      },
-      SHOULDER_PRESS: {
-        id: 'SHOULDER_PRESS',
-        name: 'Shoulder Press',
-        icon: '🏋️',
-        demo: '🏋️',
-        muscle: 'Shoulders',
-        desc: 'Press overhead, core tight',
-        tip: "Don't arch back",
-        defaultReps: 10,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog',
-        premium: false
-      },
-      PLANK: {
-        id: 'PLANK',
-        name: 'Plank',
-        icon: '🧘',
-        demo: '🧘',
-        muscle: 'Abs',
-        desc: 'Straight line from head to heels',
-        tip: "Don't sag hips",
-        defaultReps: 3,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw',
-        premium: false
-      },
-      LUNGE: {
-        id: 'LUNGE',
-        name: 'Lunge',
-        icon: '🚶',
-        demo: '🚶',
-        muscle: 'Legs',
-        desc: 'Front knee 90°, back knee hovers',
-        tip: 'Keep torso upright',
-        defaultReps: 12,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U',
-        premium: false
-      },
-      CRUNCH: {
-        id: 'CRUNCH',
-        name: 'Crunch',
-        icon: '🔥',
-        demo: '🔥',
-        muscle: 'Abs',
-        desc: 'Curl shoulders off ground',
-        tip: 'Keep neck relaxed',
-        defaultReps: 20,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU',
-        premium: false
-      },
-      ROW: {
-        id: 'ROW',
-        name: 'Bent-over Row',
-        icon: '🔙',
-        demo: '🔙',
-        muscle: 'Back',
-        desc: 'Pull elbows back, squeeze blades',
-        tip: 'Keep back straight',
-        defaultReps: 10,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw',
-        premium: false
-      },
-      DEADLIFT: {
-        id: 'DEADLIFT',
-        name: 'Deadlift',
-        icon: '🏋️',
-        demo: '🏋️',
-        muscle: 'Back/Legs',
-        desc: 'Hinge at hips, back straight',
-        tip: 'Drive through heels',
-        defaultReps: 8,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE',
-        premium: false
-      },
-      LATERAL_RAISE: {
-        id: 'LATERAL_RAISE',
-        name: 'Lateral Raise',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Shoulders',
-        desc: 'Raise arms to sides',
-        tip: 'Slight bend in elbows',
-        defaultReps: 12,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw',
-        premium: false
-      },
-      TRICEP_EXTENSION: {
-        id: 'TRICEP_EXTENSION',
-        name: 'Tricep Extension',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Triceps',
-        desc: 'Extend overhead, lower behind head',
-        tip: 'Keep elbows pointing forward',
-        defaultReps: 12,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME',
-        premium: false
-      },
-      GLUTE_BRIDGE: {
-        id: 'GLUTE_BRIDGE',
-        name: 'Glute Bridge',
-        icon: '🦵',
-        demo: '🦵',
-        muscle: 'Glutes',
-        desc: 'Lift hips up, squeeze glutes',
-        tip: "Don't overextend lower back",
-        defaultReps: 15,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE',
-        premium: false
-      },
-      // ---- PREMIUM EXERCISES (require 5 ads) ----
-      BENCH_PRESS: {
-        id: 'BENCH_PRESS',
-        name: 'Bench Press',
-        icon: '🏋️',
-        demo: '🏋️',
-        muscle: 'Chest',
-        desc: 'Lower bar to chest, press up',
-        tip: 'Keep shoulders packed',
-        defaultReps: 10,
-        defaultSets: 4,
-        videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y',
-        premium: true
-      },
-      PULLUP: {
-        id: 'PULLUP',
-        name: 'Pull-up',
-        icon: '💪',
-        demo: '🧍',
-        muscle: 'Back',
-        desc: 'Pull chin above bar, controlled descent',
-        tip: 'Engage lats, don\'t swing',
-        defaultReps: 8,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g',
-        premium: true
-      },
-      DIPS: {
-        id: 'DIPS',
-        name: 'Dips',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Chest/Triceps',
-        desc: 'Lower body until shoulders below elbows',
-        tip: 'Lean forward for chest focus',
-        defaultReps: 10,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As',
-        premium: true
-      },
-      FACE_PULL: {
-        id: 'FACE_PULL',
-        name: 'Face Pull',
-        icon: '🔙',
-        demo: '🔙',
-        muscle: 'Rear Delts',
-        desc: 'Pull rope to face, squeeze shoulder blades',
-        tip: 'Keep elbows high',
-        defaultReps: 15,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU',
-        premium: true
-      },
-      LEG_CURL: {
-        id: 'LEG_CURL',
-        name: 'Leg Curl',
-        icon: '🦵',
-        demo: '🦵',
-        muscle: 'Hamstrings',
-        desc: 'Curl weight towards glutes',
-        tip: 'Control the negative',
-        defaultReps: 12,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/1Tq3Qd2u4t8',
-        premium: true
-      },
-      CALF_RAISE: {
-        id: 'CALF_RAISE',
-        name: 'Calf Raise',
-        icon: '🦵',
-        demo: '🦵',
-        muscle: 'Calves',
-        desc: 'Rise onto toes, squeeze calves',
-        tip: 'Full range of motion',
-        defaultReps: 20,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/-M4-G8p8fmc',
-        premium: true
-      },
-      CHEST_FLY: {
-        id: 'CHEST_FLY',
-        name: 'Chest Fly',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Chest',
-        desc: 'Open arms wide, squeeze together',
-        tip: 'Keep a slight bend in elbows',
-        defaultReps: 12,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
-        premium: true
-      },
-      FRONT_RAISE: {
-        id: 'FRONT_RAISE',
-        name: 'Front Raise',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Shoulders',
-        desc: 'Raise arms to shoulder height',
-        tip: 'Control the movement',
-        defaultReps: 12,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
-        premium: true
-      },
-      REAR_FLY: {
-        id: 'REAR_FLY',
-        name: 'Rear Delt Fly',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Rear Delts',
-        desc: 'Open arms back, squeeze shoulder blades',
-        tip: 'Keep back straight',
-        defaultReps: 15,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
-        premium: true
-      },
-      HAMMER_CURL: {
-        id: 'HAMMER_CURL',
-        name: 'Hammer Curl',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Biceps/Brachialis',
-        desc: 'Curl with neutral grip',
-        tip: 'Keep elbows stable',
-        defaultReps: 10,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
-        premium: true
-      },
-      SKULL_CRUSHER: {
-        id: 'SKULL_CRUSHER',
-        name: 'Skull Crusher',
-        icon: '💪',
-        demo: '💪',
-        muscle: 'Triceps',
-        desc: 'Lower bar to forehead, extend up',
-        tip: 'Keep elbows fixed',
-        defaultReps: 10,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
-        premium: true
-      },
-      RUSSIAN_TWIST: {
-        id: 'RUSSIAN_TWIST',
-        name: 'Russian Twist',
-        icon: '🔥',
-        demo: '🔥',
-        muscle: 'Obliques',
-        desc: 'Rotate torso side to side',
-        tip: 'Keep core engaged',
-        defaultReps: 20,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
-        premium: true
-      },
-      LEG_RAISE: {
-        id: 'LEG_RAISE',
-        name: 'Leg Raise',
-        icon: '🔥',
-        demo: '🔥',
-        muscle: 'Lower Abs',
-        desc: 'Raise legs to 90°, lower slowly',
-        tip: 'Keep lower back pressed',
-        defaultReps: 15,
-        defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
-        premium: true
-      }
-    };
-
-    // ──────────────────────────────────────────────────────────────
-    //  STATE
-    // ──────────────────────────────────────────────────────────────
-    let currentStyle = 'push_pull_legs';
-    let selectedExercise = 'PUSHUP';
-    let isRecording = false;
-    let currentExerciseData = null;
 
     // ──────────────────────────────────────────────────────────────
     //  BACKEND CONNECTION
@@ -2360,19 +2068,13 @@
             document.getElementById('proteinInput').value = data.profile.protein || '';
             document.getElementById('caloriesInput').value = data.profile.calories || '';
             document.getElementById('goalInput').value = data.profile.goal || 'muscle_gain';
-            if (data.profile.style) {
-              currentStyle = data.profile.style;
-              document.querySelectorAll('.style-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.style === currentStyle);
-              });
-            }
             document.getElementById('onboardingCard').style.display = 'none';
-            document.getElementById('scheduleCard').style.display = 'block';
+            document.getElementById('todayCard').style.display = 'block';
             document.getElementById('cameraWrapper').style.display = 'block';
             document.getElementById('demoSection').style.display = 'flex';
             document.getElementById('feedbackPanel').style.display = 'flex';
             document.getElementById('startBtn').disabled = false;
-            renderSchedule();
+            renderTodayWorkout();
             return true;
           }
         }
@@ -2396,24 +2098,17 @@
         const res = await fetch(`${BACKEND_URL}/api/profile`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: USER_ID,
-            weight,
-            height,
-            protein: protein || weight * 1.8,
-            calories: calories || 2000,
-            goal,
-            style: currentStyle
-          })
+          body: JSON.stringify({ userId: USER_ID, weight, height, protein: protein || weight * 1.8, calories: calories ||
+              2000, goal })
         });
         if (res.ok) {
           document.getElementById('onboardingCard').style.display = 'none';
-          document.getElementById('scheduleCard').style.display = 'block';
+          document.getElementById('todayCard').style.display = 'block';
           document.getElementById('cameraWrapper').style.display = 'block';
           document.getElementById('demoSection').style.display = 'flex';
           document.getElementById('feedbackPanel').style.display = 'flex';
           document.getElementById('startBtn').disabled = false;
-          renderSchedule();
+          renderTodayWorkout();
           showToast('✅ Profile saved!', 'success');
           tg.showAlert('🎉 Profile saved! Your workout plan is ready!');
         } else {
@@ -2423,96 +2118,95 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  STYLE SELECTOR
+    //  RENDER TODAY'S WORKOUT
     // ──────────────────────────────────────────────────────────────
-    document.querySelectorAll('.style-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        currentStyle = this.dataset.style;
-        renderSchedule();
-        showToast(`🔄 Switched to ${this.textContent.trim()}`, 'info');
-      });
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  RENDER SCHEDULE
-    // ──────────────────────────────────────────────────────────────
-    function renderSchedule() {
+    function renderTodayWorkout() {
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-      document.getElementById('dayBadge').textContent = today.toUpperCase();
+      document.getElementById('todayBadge').textContent = today.toUpperCase();
 
-      const schedule = WORKOUT_STYLES[currentStyle]?.schedule || WORKOUT_STYLES.push_pull_legs.schedule;
-      const list = document.getElementById('scheduleList');
-      list.innerHTML = '';
+      const bodyParts = TODAY_SCHEDULE[today] || ['Rest'];
+      const container = document.getElementById('todayBodyparts');
+      container.innerHTML = '';
 
-      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      if (bodyParts[0] === 'Rest') {
+        container.innerHTML = '<span style="color:var(--tg-hint);font-size:0.8rem;">😴 Rest day! Take a break and recover.</span>';
+        document.getElementById('todayExercises').innerHTML = '';
+        return;
+      }
 
-      days.forEach(day => {
-        const dayData = schedule[day] || { name: 'Rest', exercises: [] };
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'schedule-day';
+      // Add body part buttons
+      bodyParts.forEach(bp => {
+        const btn = document.createElement('span');
+        btn.className = 'today-bodypart' + (bp === currentBodyPart ? ' active' : '');
+        btn.textContent = bp;
+        btn.dataset.bodypart = bp;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.today-bodypart').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentBodyPart = bp;
+          renderExercisesForBodyPart(bp);
+        });
+        container.appendChild(btn);
+      });
 
-        const isToday = day === today;
+      // If current body part not in today's list, select first
+      if (!bodyParts.includes(currentBodyPart)) {
+        currentBodyPart = bodyParts[0];
+        document.querySelectorAll('.today-bodypart').forEach(b => {
+          b.classList.toggle('active', b.dataset.bodypart === currentBodyPart);
+        });
+      }
 
-        const header = document.createElement('div');
-        header.className = 'day-header' + (isToday ? ' today' : '');
-        header.innerHTML = `
-          <span class="day-name">${day}</span>
-          <span class="day-workout">${dayData.name} (${dayData.exercises.length} exercises)</span>
+      renderExercisesForBodyPart(currentBodyPart);
+    }
+
+    function renderExercisesForBodyPart(bodyPart) {
+      const container = document.getElementById('todayExercises');
+      const exerciseIds = BODY_PART_EXERCISES[bodyPart] || [];
+      container.innerHTML = '';
+
+      if (exerciseIds.length === 0) {
+        container.innerHTML = '<span style="color:var(--tg-hint);font-size:0.8rem;">No exercises found for this body part.</span>';
+        return;
+      }
+
+      exerciseIds.forEach(id => {
+        const ex = EXERCISE_DB[id];
+        if (!ex) return;
+
+        const item = document.createElement('div');
+        item.className = 'today-ex-item';
+        item.dataset.premium = ex.premium ? 'true' : 'false';
+
+        if (ex.premium && !premiumUnlocked) {
+          item.classList.add('premium-locked');
+        } else if (ex.premium && premiumUnlocked) {
+          item.classList.add('premium-unlocked');
+        }
+
+        const badgeText = ex.premium ? (premiumUnlocked ? '⭐ Unlocked' : '🔒 Premium') : 'Free';
+        const badgeClass = ex.premium ? (premiumUnlocked ? 'premium' : 'locked') : 'free';
+
+        item.innerHTML = `
+          <span class="ex-icon">${ex.icon}</span>
+          <div class="ex-info">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-detail">${ex.muscle}</div>
+          </div>
+          <span class="ex-badge ${badgeClass}">${badgeText}</span>
+          ${ex.premium && !premiumUnlocked ? '<span class="ex-lock"><i class="fas fa-lock"></i></span>' : ''}
         `;
-        header.addEventListener('click', () => {
-          const exContainer = dayDiv.querySelector('.day-exercises');
-          exContainer.classList.toggle('open');
-        });
 
-        dayDiv.appendChild(header);
-
-        const exContainer = document.createElement('div');
-        exContainer.className = 'day-exercises' + (isToday ? ' open' : '');
-
-        dayData.exercises.forEach(exId => {
-          const ex = EXERCISE_DB[exId];
-          if (!ex) return;
-
-          const item = document.createElement('div');
-          item.className = 'exercise-item';
-          item.dataset.premium = ex.premium ? 'true' : 'false';
-
+        item.addEventListener('click', () => {
           if (ex.premium && !premiumUnlocked) {
-            item.classList.add('premium-locked');
-          } else if (ex.premium && premiumUnlocked) {
-            item.classList.add('premium-unlocked');
+            openAdModal(id);
+            return;
           }
-
-          const badgeText = ex.premium ? (premiumUnlocked ? '⭐ Unlocked' : '🔒 Premium') : 'Free';
-          const badgeClass = ex.premium ? (premiumUnlocked ? 'premium' : 'locked') : 'free';
-
-          item.innerHTML = `
-            <span class="ex-icon">${ex.icon}</span>
-            <div class="ex-info">
-              <div class="ex-name">${ex.name}</div>
-              <div class="ex-detail">${ex.muscle} • ${ex.defaultSets}×${ex.defaultReps}</div>
-            </div>
-            <span class="ex-badge ${badgeClass}">${badgeText}</span>
-            ${ex.premium && !premiumUnlocked ? '<span class="ex-lock"><i class="fas fa-lock"></i></span>' : ''}
-          `;
-
-          item.addEventListener('click', () => {
-            if (ex.premium && !premiumUnlocked) {
-              // Show ad modal to unlock
-              openAdModal(exId);
-              return;
-            }
-            selectedExercise = exId;
-            selectExercise(exId);
-          });
-
-          exContainer.appendChild(item);
+          selectedExercise = id;
+          selectExercise(id);
         });
 
-        dayDiv.appendChild(exContainer);
-        list.appendChild(dayDiv);
+        container.appendChild(item);
       });
     }
 
@@ -2523,17 +2217,14 @@
       const ex = EXERCISE_DB[exId];
       if (!ex) return;
 
-      currentExerciseData = ex;
-
-      // Check if premium and locked
       if (ex.premium && !premiumUnlocked) {
         document.getElementById('demoMan').textContent = '🔒';
         document.getElementById('demoName').textContent = ex.name;
         document.getElementById('demoMuscle').textContent = ex.muscle;
         document.getElementById('demoDesc').textContent = 'Premium workout - watch 5 ads to unlock!';
         document.getElementById('demoTip').innerHTML = '<i class="fas fa-star"></i> ⭐ Premium Exercise';
-        document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps}</strong> reps`;
-        document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets}</strong> sets`;
+        document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps || 10}</strong> reps`;
+        document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets || 3}</strong> sets`;
         document.getElementById('demoPremiumTag').style.display = 'inline';
         document.getElementById('demoUnlockBtn').style.display = 'flex';
         document.getElementById('demoUnlockBtn').onclick = () => openAdModal(exId);
@@ -2543,20 +2234,19 @@
         return;
       }
 
-      document.getElementById('demoMan').textContent = ex.demo || '🧍';
+      document.getElementById('demoMan').textContent = ex.icon || '🧍';
       document.getElementById('demoName').textContent = ex.name;
       document.getElementById('demoMuscle').textContent = ex.muscle;
       document.getElementById('demoDesc').textContent = ex.desc || 'Keep proper form';
       document.getElementById('demoTip').innerHTML = `<i class="fas fa-lightbulb"></i> ${ex.tip || 'Focus on form'}`;
-      document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps}</strong> reps`;
-      document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets}</strong> sets`;
+      document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps || 10}</strong> reps`;
+      document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets || 3}</strong> sets`;
       document.getElementById('demoPremiumTag').style.display = ex.premium ? 'inline' : 'none';
       document.getElementById('demoUnlockBtn').style.display = 'none';
       document.getElementById('feedbackText').textContent = ex.name;
       document.getElementById('feedbackMsg').className = 'feedback-msg waiting';
       document.getElementById('startBtn').disabled = false;
 
-      // Video button
       if (ex.videoUrl) {
         document.getElementById('demoVideoBtn').style.display = 'flex';
         document.getElementById('demoVideoBtn').onclick = () => openVideo(ex.videoUrl);
@@ -2598,6 +2288,7 @@
     let pose = null;
     let frameLoop = null;
     let facingMode = 'environment';
+    let isRecording = false;
 
     function onResults(results) {
       canvas.width = video.videoWidth || 640;
@@ -2634,7 +2325,7 @@
       const rand = Math.random();
       let msg, status, angle;
 
-      if (selectedExercise === 'PLANK') {
+      if (selectedExercise.includes('PLANK') || selectedExercise === 'CORE_03') {
         const hipY = (lm[23].y + lm[24].y) / 2;
         const shY = (lm[11].y + lm[12].y) / 2;
         const diff = hipY - shY;
@@ -2773,15 +2464,16 @@
     });
 
     document.getElementById('startBtn').addEventListener('click', () => {
-      if (currentExerciseData?.premium && !premiumUnlocked) {
+      const ex = EXERCISE_DB[selectedExercise];
+      if (ex?.premium && !premiumUnlocked) {
         openAdModal(selectedExercise);
         return;
       }
-      tg.showAlert(`🏋️ Starting ${selectedExercise} workout!`);
+      tg.showAlert(`🏋️ Starting ${ex?.name || selectedExercise} workout!`);
       document.getElementById('startBtn').disabled = true;
       document.getElementById('stopBtn').disabled = false;
       if (!isRecording) document.getElementById('recordBtn').click();
-      showToast(`🎯 ${selectedExercise} started!`, 'info');
+      showToast(`🎯 ${ex?.name || selectedExercise} started!`, 'info');
     });
 
     document.getElementById('stopBtn').addEventListener('click', () => {
@@ -2801,14 +2493,14 @@
 
       if (!hasProfile) {
         document.getElementById('onboardingCard').style.display = 'block';
-        document.getElementById('scheduleCard').style.display = 'none';
+        document.getElementById('todayCard').style.display = 'none';
         document.getElementById('cameraWrapper').style.display = 'none';
         document.getElementById('demoSection').style.display = 'none';
         document.getElementById('feedbackPanel').style.display = 'none';
       }
 
       // Load default exercise
-      selectExercise('PUSHUP');
+      selectExercise('CHEST_03');
 
       // Start camera
       if (navigator.mediaDevices?.getUserMedia) {
@@ -2826,9 +2518,8 @@
       setInterval(checkBackend, 30000);
 
       console.log('🏋️ AI Gym Trainer Pro loaded!');
-      console.log(`🔗 Backend: ${BACKEND_URL}`);
-      console.log(`👤 User: ${user?.first_name || 'Guest'}`);
       console.log(`📺 Ads watched today: ${adWatchedToday}/${ADS_REQUIRED}`);
+      console.log(`💪 Exercises loaded: ${Object.keys(EXERCISE_DB).length}`);
     }
 
     init();
