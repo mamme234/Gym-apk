@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/webhook",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "TELEGRAM_BOT_TOKEN": "7609348168:AAHcFz8LxKJfGqWnR8mN3pQvZx7YwCbTdE",
+    "TELEGRAM_BOT_USERNAME": "YourGymBot",
+    "TELEGRAM_WEBHOOK_URL": "https://gym-apk-wicj.onrender.com/webhook",
+    "TELEGRAM_MINI_APP_URL": "https://gym-apk-krk7.vercel.app"
+  }
+}
