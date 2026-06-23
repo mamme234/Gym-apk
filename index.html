@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>🏋️ AI Gym Trainer</title>
+  <title>🏋️ AI Gym Trainer Pro</title>
 
   <!-- Telegram Mini App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -12,26 +12,32 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
     /* ============================================================
-       CSS VARIABLES & RESET
+       CSS VARIABLES
     ============================================================ */
     :root {
-      --tg-bg: var(--tg-theme-bg-color, #0b0e14);
-      --tg-secondary: var(--tg-theme-secondary-bg-color, #151c26);
-      --tg-text: var(--tg-theme-text-color, #eef2f6);
-      --tg-hint: var(--tg-theme-hint-color, #8899b0);
+      --tg-bg: var(--tg-theme-bg-color, #0a0e17);
+      --tg-secondary: var(--tg-theme-secondary-bg-color, #131b26);
+      --tg-text: var(--tg-theme-text-color, #f0f4fa);
+      --tg-hint: var(--tg-theme-hint-color, #7a8fa6);
       --tg-button: var(--tg-theme-button-color, #f9b042);
-      --tg-button-text: var(--tg-theme-button-text-color, #0b0e14);
+      --tg-button-text: var(--tg-theme-button-text-color, #0a0e17);
       --accent: #f9b042;
-      --accent-glow: rgba(249, 176, 66, 0.3);
-      --green: #66d9a0;
-      --red: #ff7a7a;
+      --accent-glow: rgba(249, 176, 66, 0.25);
+      --green: #4ade80;
+      --green-glow: rgba(74, 222, 128, 0.2);
+      --red: #f87171;
+      --red-glow: rgba(248, 113, 113, 0.2);
+      --blue: #60a5fa;
+      --purple: #a78bfa;
       --radius: 20px;
       --radius-sm: 12px;
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --radius-xs: 8px;
+      --shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 8px 40px rgba(249, 176, 66, 0.15);
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -49,6 +55,34 @@
       padding: 16px 14px 100px;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+
+    /* Background gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(249, 176, 66, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 80%, rgba(96, 165, 250, 0.03) 0%, transparent 60%);
+      z-index: -1;
+      animation: bgFloat 20s ease-in-out infinite;
+    }
+
+    @keyframes bgFloat {
+      0%,
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+      33% {
+        transform: translate(2%, -2%) rotate(2deg);
+      }
+      66% {
+        transform: translate(-1%, 1%) rotate(-1deg);
+      }
     }
 
     /* ============================================================
@@ -57,13 +91,24 @@
     .app {
       max-width: 480px;
       margin: 0 auto;
-      animation: fadeUp 0.6s ease-out;
+      animation: fadeUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @keyframes fadeUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
       }
       to {
         opacity: 1;
@@ -79,42 +124,58 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
-      padding: 0 4px;
-      flex-wrap: wrap;
-      gap: 8px;
+      padding: 0 2px;
+      animation: slideDown 0.6s ease-out;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .logo-icon {
-      width: 44px;
-      height: 44px;
-      background: linear-gradient(135deg, var(--accent), #ff6b6b);
-      border-radius: 14px;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
-      box-shadow: 0 4px 20px var(--accent-glow);
+      font-size: 1.5rem;
+      box-shadow: 0 4px 24px var(--accent-glow);
+      transition: var(--transition);
+    }
+
+    .logo-icon:hover {
+      transform: scale(1.05) rotate(-5deg);
     }
 
     .logo h1 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--accent), #ff6b6b);
+      background: linear-gradient(135deg, var(--accent), #f59e0b, #fb923c);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .logo span {
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: var(--tg-hint);
+      -webkit-text-fill-color: var(--tg-hint);
+      display: block;
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     .greeting {
       background: var(--tg-secondary);
-      padding: 8px 16px;
+      padding: 8px 16px 8px 14px;
       border-radius: 40px;
       font-size: 0.8rem;
       font-weight: 500;
@@ -123,11 +184,19 @@
       align-items: center;
       gap: 8px;
       color: var(--tg-hint);
+      transition: var(--transition);
+      cursor: default;
+      backdrop-filter: blur(10px);
+    }
+
+    .greeting:hover {
+      border-color: rgba(249, 176, 66, 0.2);
     }
 
     .greeting .wave {
-      animation: wave 2s infinite;
+      animation: wave 2.5s infinite;
       display: inline-block;
+      transform-origin: 70% 70%;
     }
 
     @keyframes wave {
@@ -135,43 +204,66 @@
       100% {
         transform: rotate(0deg);
       }
-      25% {
-        transform: rotate(20deg);
+      10% {
+        transform: rotate(14deg);
       }
-      75% {
-        transform: rotate(-10deg);
+      20% {
+        transform: rotate(-8deg);
+      }
+      30% {
+        transform: rotate(14deg);
+      }
+      40% {
+        transform: rotate(-4deg);
+      }
+      50% {
+        transform: rotate(10deg);
+      }
+      60%,
+      100% {
+        transform: rotate(0deg);
       }
     }
 
     /* ============================================================
-       BACKEND CONNECTION STATUS
+       CONNECTION STATUS
     ============================================================ */
     .connection-status {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 0.7rem;
       color: var(--tg-hint);
       background: var(--tg-secondary);
-      padding: 6px 14px;
+      padding: 6px 16px 6px 12px;
       border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.04);
       margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+      animation: slideDown 0.7s ease-out;
     }
 
-    .connection-status .dot-online {
+    .connection-status .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .connection-status .dot.online {
       background: var(--green);
+      box-shadow: 0 0 12px var(--green-glow);
       animation: pulse-dot 1.5s infinite;
     }
 
-    .connection-status .dot-offline {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .connection-status .dot.offline {
       background: var(--red);
+      box-shadow: 0 0 12px var(--red-glow);
+    }
+
+    .connection-status .dot.checking {
+      background: var(--accent);
+      animation: pulse-dot 0.8s infinite;
     }
 
     @keyframes pulse-dot {
@@ -187,6 +279,141 @@
     }
 
     /* ============================================================
+       ONBOARDING CARD
+    ============================================================ */
+    .onboarding-card {
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+      animation: slideDown 0.8s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .onboarding-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 60%;
+      height: 200%;
+      background: radial-gradient(ellipse, rgba(249, 176, 66, 0.05), transparent 70%);
+      pointer-events: none;
+    }
+
+    .onboarding-card .title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .onboarding-card .title i {
+      color: var(--accent);
+    }
+
+    .onboarding-card .sub {
+      font-size: 0.8rem;
+      color: var(--tg-hint);
+      margin-bottom: 16px;
+    }
+
+    .onboarding-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .onboarding-field {
+      background: var(--tg-bg);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: var(--transition);
+    }
+
+    .onboarding-field:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .onboarding-field label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--tg-hint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .onboarding-field input {
+      background: transparent;
+      border: none;
+      color: var(--tg-text);
+      font-size: 1rem;
+      font-weight: 600;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .onboarding-field input::placeholder {
+      color: var(--tg-hint);
+      font-weight: 400;
+      font-size: 0.85rem;
+    }
+
+    .onboarding-field .unit {
+      font-size: 0.7rem;
+      color: var(--tg-hint);
+      margin-left: 4px;
+    }
+
+    .onboarding-full {
+      grid-column: 1 / -1;
+    }
+
+    .onboarding-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      color: var(--tg-button-text);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .onboarding-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
+
+    .onboarding-btn:active {
+      transform: scale(0.97);
+    }
+
+    .onboarding-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ============================================================
        SCHEDULE CARD
     ============================================================ */
     .schedule-card {
@@ -197,10 +424,11 @@
       border: 1px solid rgba(255, 255, 255, 0.05);
       box-shadow: var(--shadow);
       transition: var(--transition);
+      animation: slideDown 0.9s ease-out;
     }
 
     .schedule-card:hover {
-      border-color: rgba(249, 176, 66, 0.2);
+      border-color: rgba(249, 176, 66, 0.1);
     }
 
     .schedule-header {
@@ -224,9 +452,9 @@
     }
 
     .schedule-badge {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       background: var(--accent);
-      color: #0b0e14;
+      color: #0a0e17;
       padding: 3px 12px;
       border-radius: 20px;
       font-weight: 700;
@@ -240,7 +468,7 @@
         transform: scale(1);
       }
       50% {
-        opacity: 0.8;
+        opacity: 0.7;
         transform: scale(0.95);
       }
     }
@@ -272,7 +500,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, rgba(249, 176, 66, 0.05), transparent);
+      background: linear-gradient(135deg, rgba(249, 176, 66, 0.06), transparent);
       opacity: 0;
       transition: var(--transition);
     }
@@ -282,7 +510,7 @@
     }
 
     .schedule-item:hover {
-      border-color: rgba(249, 176, 66, 0.15);
+      border-color: rgba(249, 176, 66, 0.12);
       transform: translateX(4px);
     }
 
@@ -303,7 +531,7 @@
 
     .schedule-item .workout {
       color: var(--tg-hint);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
 
     .schedule-item .check {
@@ -333,13 +561,14 @@
     ============================================================ */
     .camera-wrapper {
       position: relative;
-      background: #0a0d12;
+      background: #080b12;
       border-radius: var(--radius);
       overflow: hidden;
       aspect-ratio: 4/3;
       border: 1px solid rgba(255, 255, 255, 0.06);
       box-shadow: var(--shadow);
       margin-bottom: 14px;
+      animation: slideDown 1s ease-out;
     }
 
     #video {
@@ -348,7 +577,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      background: #111;
+      background: #0a0e17;
     }
 
     #canvas {
@@ -367,21 +596,23 @@
       left: 12px;
       z-index: 5;
       background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       padding: 5px 14px;
       border-radius: 30px;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 600;
       border: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
       align-items: center;
       gap: 8px;
       color: var(--tg-hint);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
 
     .cam-status .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--green);
       animation: pulse-dot 1.5s infinite;
@@ -393,16 +624,18 @@
       right: 12px;
       z-index: 5;
       background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       padding: 5px 14px 5px 10px;
       border-radius: 30px;
       display: none;
       align-items: center;
       gap: 8px;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 700;
       border: 1px solid var(--red);
       color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .rec-indicator .red-dot {
@@ -431,12 +664,12 @@
 
     .cam-btn {
       background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       color: var(--tg-text);
       padding: 8px 18px;
       border-radius: 40px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
@@ -464,28 +697,28 @@
     }
 
     .cam-btn.record:hover {
-      background: #ff4444;
-      border-color: #ff4444;
+      background: #ef4444;
+      border-color: #ef4444;
     }
 
     .cam-btn.record.recording {
-      background: #555;
-      border-color: #555;
+      background: #4b5563;
+      border-color: #4b5563;
       animation: pulse-record 1.5s infinite;
     }
 
     @keyframes pulse-record {
       0%,
       100% {
-        box-shadow: 0 0 0 0 rgba(255, 42, 42, 0.3);
+        box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.3);
       }
       50% {
-        box-shadow: 0 0 0 12px rgba(255, 42, 42, 0);
+        box-shadow: 0 0 0 12px rgba(248, 113, 113, 0);
       }
     }
 
     /* ============================================================
-       DEMO / MANNEQUIN SECTION
+       DEMO / WORKOUT DETAILS
     ============================================================ */
     .demo-section {
       display: flex;
@@ -498,10 +731,11 @@
       border: 1px solid rgba(255, 255, 255, 0.05);
       box-shadow: var(--shadow);
       transition: var(--transition);
+      animation: slideDown 1.1s ease-out;
     }
 
     .demo-section:hover {
-      border-color: rgba(249, 176, 66, 0.15);
+      border-color: rgba(249, 176, 66, 0.12);
     }
 
     .demo-man {
@@ -513,7 +747,7 @@
       min-width: 70px;
       text-align: center;
       transition: var(--transition);
-      animation: float 3s ease-in-out infinite;
+      animation: float 4s ease-in-out infinite;
     }
 
     @keyframes float {
@@ -522,18 +756,35 @@
         transform: translateY(0);
       }
       50% {
-        transform: translateY(-6px);
+        transform: translateY(-8px);
       }
     }
 
     .demo-info {
       flex: 1;
+      min-width: 0;
+    }
+
+    .demo-info .name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .demo-info h4 {
       font-size: 0.95rem;
       font-weight: 700;
-      color: var(--tg-text);
+    }
+
+    .demo-info .muscle-tag {
+      font-size: 0.55rem;
+      background: rgba(249, 176, 66, 0.15);
+      color: var(--accent);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
     .demo-info p {
@@ -543,7 +794,7 @@
     }
 
     .demo-info .tip {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--accent);
       margin-top: 4px;
       display: flex;
@@ -552,7 +803,110 @@
     }
 
     .demo-info .tip i {
+      font-size: 0.6rem;
+    }
+
+    .demo-info .reps-sets {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .demo-info .reps-sets span {
       font-size: 0.7rem;
+      background: var(--tg-bg);
+      padding: 2px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--tg-hint);
+    }
+
+    .demo-info .reps-sets strong {
+      color: var(--tg-text);
+    }
+
+    /* Video button */
+    .video-btn {
+      background: var(--tg-bg);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--tg-text);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      margin-top: 4px;
+    }
+
+    .video-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Video Modal */
+    .video-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(20px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeUp 0.3s ease-out;
+    }
+
+    .video-modal.active {
+      display: flex;
+    }
+
+    .video-modal-content {
+      max-width: 560px;
+      width: 100%;
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .video-modal-content iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+      display: block;
+    }
+
+    .video-modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
     }
 
     /* ============================================================
@@ -571,10 +925,11 @@
       gap: 10px;
       margin-bottom: 14px;
       transition: var(--transition);
+      animation: slideDown 1.2s ease-out;
     }
 
     .feedback-msg {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -582,7 +937,7 @@
     }
 
     .feedback-msg .icon {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
     }
 
     .feedback-msg.good {
@@ -596,13 +951,13 @@
     }
 
     .feedback-angle {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--tg-hint);
       background: var(--tg-bg);
       padding: 4px 14px;
       border-radius: 30px;
       font-weight: 500;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.04);
     }
 
     /* ============================================================
@@ -617,11 +972,23 @@
       padding-bottom: max(12px, env(safe-area-inset-bottom));
       background: var(--tg-secondary);
       border-top: 1px solid rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(24px);
       display: flex;
       gap: 10px;
       z-index: 100;
-      box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     .action-btn {
@@ -630,7 +997,7 @@
       border-radius: var(--radius-sm);
       border: none;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
       transition: var(--transition);
       font-family: inherit;
@@ -645,18 +1012,18 @@
     }
 
     .action-btn.primary {
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
       color: var(--tg-button-text);
-      box-shadow: 0 4px 20px var(--accent-glow);
+      box-shadow: 0 4px 24px var(--accent-glow);
     }
 
     .action-btn.primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 30px var(--accent-glow);
+      box-shadow: 0 8px 40px var(--accent-glow);
     }
 
     .action-btn.primary:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
@@ -673,8 +1040,71 @@
     }
 
     .action-btn.secondary:disabled {
-      opacity: 0.4;
+      opacity: 0.3;
       cursor: not-allowed;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 420px) {
+      body {
+        padding: 12px 10px 90px;
+      }
+      .logo h1 {
+        font-size: 1.2rem;
+      }
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+      .greeting {
+        font-size: 0.65rem;
+        padding: 6px 12px;
+      }
+      .onboarding-grid {
+        grid-template-columns: 1fr;
+      }
+      .schedule-item {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+      .feedback-msg {
+        font-size: 0.95rem;
+      }
+      .demo-man {
+        font-size: 2.5rem;
+        min-width: 56px;
+        padding: 6px 12px;
+      }
+      .cam-btn {
+        padding: 6px 14px;
+        font-size: 0.6rem;
+      }
+      .action-btn {
+        padding: 12px;
+        font-size: 0.75rem;
+      }
+      .demo-info .reps-sets span {
+        font-size: 0.6rem;
+        padding: 1px 10px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .schedule-item .workout {
+        font-size: 0.7rem;
+      }
+      .demo-info h4 {
+        font-size: 0.8rem;
+      }
+      .demo-info p {
+        font-size: 0.7rem;
+      }
+      .feedback-msg {
+        font-size: 0.85rem;
+      }
     }
 
     /* ============================================================
@@ -692,72 +1122,83 @@
     }
 
     /* ============================================================
-       RESPONSIVE
+       LOADING SHIMMER
     ============================================================ */
-    @media (max-width: 420px) {
-      body {
-        padding: 12px 10px 90px;
-      }
-      .logo h1 {
-        font-size: 1.2rem;
-      }
-      .logo-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 1rem;
-      }
-      .greeting {
-        font-size: 0.7rem;
-        padding: 6px 12px;
-      }
-      .schedule-item {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-      }
-      .feedback-msg {
-        font-size: 1rem;
-      }
-      .demo-man {
-        font-size: 2.5rem;
-        min-width: 56px;
-        padding: 6px 12px;
-      }
-      .cam-btn {
-        padding: 6px 14px;
-        font-size: 0.65rem;
-      }
-      .action-btn {
-        padding: 12px;
-        font-size: 0.8rem;
-      }
+    .shimmer {
+      background: linear-gradient(90deg, var(--tg-secondary) 25%, var(--tg-bg) 50%, var(--tg-secondary) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
     }
 
-    /* ============================================================
-       UTILITY ANIMATIONS
-    ============================================================ */
-    .pulse-glow {
-      animation: pulseGlow 2s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%,
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
       100% {
-        box-shadow: 0 0 20px var(--accent-glow);
+        background-position: 200% 0;
       }
-      50% {
-        box-shadow: 0 0 40px var(--accent-glow);
-      }
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--tg-secondary);
+      color: var(--tg-text);
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      z-index: 200;
+      animation: fadeUp 0.3s ease-out;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .toast.success {
+      border-color: var(--green);
+    }
+    .toast.error {
+      border-color: var(--red);
+    }
+    .toast.info {
+      border-color: var(--accent);
     }
   </style>
 </head>
 <body>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== VIDEO MODAL ===== -->
+  <div class="video-modal" id="videoModal">
+    <div class="video-modal-content">
+      <iframe id="videoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <button class="video-modal-close" id="videoModalClose"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
   <div class="app">
 
     <!-- ===== HEADER ===== -->
     <header class="header">
       <div class="logo">
         <div class="logo-icon">🏋️</div>
-        <h1>Gym Trainer</h1>
+        <div>
+          <h1>Gym Trainer</h1>
+          <span>AI Powered</span>
+        </div>
       </div>
       <div class="greeting" id="greeting">
         <span class="wave">👋</span>
@@ -767,12 +1208,52 @@
 
     <!-- ===== CONNECTION STATUS ===== -->
     <div class="connection-status" id="connectionStatus">
-      <span class="dot-online" id="statusDot"></span>
+      <span class="dot checking" id="statusDot"></span>
       <span id="statusText">Connecting to server...</span>
     </div>
 
+    <!-- ===== ONBOARDING ===== -->
+    <div class="onboarding-card" id="onboardingCard">
+      <div class="title"><i class="fas fa-user-circle"></i> Your Profile</div>
+      <div class="sub">Enter your stats to get a personalized workout plan</div>
+      <div class="onboarding-grid">
+        <div class="onboarding-field">
+          <label>Weight</label>
+          <input type="number" id="weightInput" placeholder="75" />
+          <span class="unit">kg</span>
+        </div>
+        <div class="onboarding-field">
+          <label>Height</label>
+          <input type="number" id="heightInput" placeholder="175" />
+          <span class="unit">cm</span>
+        </div>
+        <div class="onboarding-field">
+          <label>Protein</label>
+          <input type="number" id="proteinInput" placeholder="150" />
+          <span class="unit">g</span>
+        </div>
+        <div class="onboarding-field">
+          <label>Calories</label>
+          <input type="number" id="caloriesInput" placeholder="2500" />
+          <span class="unit">kcal</span>
+        </div>
+        <div class="onboarding-field onboarding-full">
+          <label>Goal</label>
+          <select id="goalInput" style="background:transparent;border:none;color:var(--tg-text);font-size:1rem;font-weight:600;width:100%;outline:none;font-family:inherit;cursor:pointer;">
+            <option value="muscle_gain">💪 Muscle Gain</option>
+            <option value="weight_loss">🔥 Weight Loss</option>
+            <option value="strength">🏋️ Strength</option>
+            <option value="maintenance">⚖️ Maintenance</option>
+          </select>
+        </div>
+      </div>
+      <button class="onboarding-btn" id="saveProfileBtn">
+        <i class="fas fa-save"></i> Save Profile
+      </button>
+    </div>
+
     <!-- ===== SCHEDULE ===== -->
-    <div class="schedule-card">
+    <div class="schedule-card" id="scheduleCard" style="display:none;">
       <div class="schedule-header">
         <h3><i class="fas fa-calendar-day"></i> Today's Workout</h3>
         <span class="schedule-badge" id="dayBadge">TODAY</span>
@@ -783,7 +1264,7 @@
     </div>
 
     <!-- ===== CAMERA ===== -->
-    <div class="camera-wrapper" id="cameraWrapper">
+    <div class="camera-wrapper" id="cameraWrapper" style="display:none;">
       <video id="video" playsinline></video>
       <canvas id="canvas"></canvas>
 
@@ -805,20 +1286,30 @@
       </div>
     </div>
 
-    <!-- ===== DEMO / MANNEQUIN ===== -->
-    <div class="demo-section" id="demoSection">
+    <!-- ===== DEMO / WORKOUT DETAILS ===== -->
+    <div class="demo-section" id="demoSection" style="display:none;">
       <div class="demo-man" id="demoMan">🧍</div>
       <div class="demo-info">
-        <h4 id="demoName">Push-up</h4>
+        <div class="name-row">
+          <h4 id="demoName">Push-up</h4>
+          <span class="muscle-tag" id="demoMuscle">Chest</span>
+        </div>
         <p id="demoDesc">Keep back straight, lower chest to ground</p>
+        <div class="reps-sets">
+          <span id="demoReps">🔁 <strong>12</strong> reps</span>
+          <span id="demoSets">📋 <strong>3</strong> sets</span>
+        </div>
         <div class="tip" id="demoTip">
           <i class="fas fa-lightbulb"></i> Keep elbows at 45°
         </div>
+        <button class="video-btn" id="demoVideoBtn">
+          <i class="fas fa-play-circle"></i> Watch Form Video
+        </button>
       </div>
     </div>
 
     <!-- ===== FEEDBACK ===== -->
-    <div class="feedback-panel">
+    <div class="feedback-panel" id="feedbackPanel" style="display:none;">
       <div class="feedback-msg waiting" id="feedbackMsg">
         <span class="icon">🙋</span>
         <span id="feedbackText">Select an exercise</span>
@@ -828,7 +1319,7 @@
 
     <!-- ===== ACTION BAR ===== -->
     <div class="action-bar">
-      <button class="action-btn primary" id="startBtn">
+      <button class="action-btn primary" id="startBtn" disabled>
         <i class="fas fa-play"></i> Start Workout
       </button>
       <button class="action-btn secondary" id="stopBtn" disabled>
@@ -846,18 +1337,38 @@
     //  CONFIGURATION
     // ──────────────────────────────────────────────────────────────
     const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
+    const USER_ID = 'telegram_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest_' + Date.now());
 
     // ──────────────────────────────────────────────────────────────
     //  TELEGRAM MINI APP INIT
     // ──────────────────────────────────────────────────────────────
-    const tg = window.Telegram?.WebApp || { ready: () => {}, expand: () => {}, close: () => {}, showAlert: (msg) =>
-        alert(msg) };
+    const tg = window.Telegram?.WebApp || {
+      ready: () => {},
+      expand: () => {},
+      close: () => {},
+      showAlert: (msg) => alert(msg)
+    };
     tg.ready();
     tg.expand();
 
     const user = tg.initDataUnsafe?.user;
     if (user) {
       document.getElementById('userName').textContent = user.first_name || 'Athlete';
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  TOAST SYSTEM
+    // ──────────────────────────────────────────────────────────────
+    let toastTimeout;
+
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show ' + type;
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -871,111 +1382,268 @@
         const response = await fetch(`${BACKEND_URL}/api/health`);
         if (response.ok) {
           const data = await response.json();
-          statusText.textContent = `🟢 Connected to server (${data.bot ? 'Bot online' : 'Bot offline'})`;
-          statusDot.className = 'dot-online';
+          statusText.textContent = `🟢 Connected (${data.bot ? 'Bot online' : 'Bot offline'})`;
+          statusDot.className = 'dot online';
+          return true;
         } else {
-          statusText.textContent = '🟡 Server responding but unhealthy';
-          statusDot.className = 'dot-offline';
+          statusText.textContent = '🟡 Server responding';
+          statusDot.className = 'dot offline';
+          return false;
         }
       } catch (err) {
         statusText.textContent = '🔴 Cannot connect to server';
-        statusDot.className = 'dot-offline';
-        console.error('Backend connection error:', err);
+        statusDot.className = 'dot offline';
+        showToast('⚠️ Cannot connect to server. Please check your connection.', 'error');
+        return false;
       }
     }
 
-    checkBackend();
-    setInterval(checkBackend, 30000); // Check every 30 seconds
+    // ──────────────────────────────────────────────────────────────
+    //  ONBOARDING
+    // ──────────────────────────────────────────────────────────────
+    const weightInput = document.getElementById('weightInput');
+    const heightInput = document.getElementById('heightInput');
+    const proteinInput = document.getElementById('proteinInput');
+    const caloriesInput = document.getElementById('caloriesInput');
+    const goalInput = document.getElementById('goalInput');
+
+    // Load saved profile
+    async function loadProfile() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/profile/${USER_ID}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.profile) {
+            weightInput.value = data.profile.weight;
+            heightInput.value = data.profile.height;
+            proteinInput.value = data.profile.protein || '';
+            caloriesInput.value = data.profile.calories || '';
+            goalInput.value = data.profile.goal || 'muscle_gain';
+
+            document.getElementById('onboardingCard').style.display = 'none';
+            document.getElementById('scheduleCard').style.display = 'block';
+            document.getElementById('cameraWrapper').style.display = 'block';
+            document.getElementById('demoSection').style.display = 'flex';
+            document.getElementById('feedbackPanel').style.display = 'flex';
+            document.getElementById('startBtn').disabled = false;
+
+            renderSchedule(data.schedule);
+            showToast('✅ Profile loaded! Ready to train!', 'success');
+            return true;
+          }
+        }
+        return false;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    // Save profile
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+      const weight = parseFloat(weightInput.value);
+      const height = parseFloat(heightInput.value);
+      const protein = parseFloat(proteinInput.value);
+      const calories = parseFloat(caloriesInput.value);
+      const goal = goalInput.value;
+
+      if (!weight || !height) {
+        showToast('⚠️ Please enter at least weight and height', 'error');
+        return;
+      }
+
+      if (weight < 30 || weight > 300 || height < 100 || height > 250) {
+        showToast('⚠️ Invalid values (weight: 30-300, height: 100-250)', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/profile`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: USER_ID,
+            weight,
+            height,
+            protein: protein || weight * 1.8,
+            calories: calories || 2000,
+            goal
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('onboardingCard').style.display = 'none';
+          document.getElementById('scheduleCard').style.display = 'block';
+          document.getElementById('cameraWrapper').style.display = 'block';
+          document.getElementById('demoSection').style.display = 'flex';
+          document.getElementById('feedbackPanel').style.display = 'flex';
+          document.getElementById('startBtn').disabled = false;
+
+          renderSchedule(data.schedule);
+          showToast('✅ Profile saved! Check your schedule below!', 'success');
+          tg.showAlert('🎉 Profile saved! Your personalized workout plan is ready!');
+        } else {
+          showToast('❌ Failed to save profile', 'error');
+        }
+      } catch (err) {
+        showToast('❌ Network error', 'error');
+      }
+    });
 
     // ──────────────────────────────────────────────────────────────
     //  SCHEDULE
     // ──────────────────────────────────────────────────────────────
-    const SCHEDULE = {
-      'Monday': 'Chest / Triceps',
-      'Tuesday': 'Back / Biceps',
-      'Wednesday': 'Legs / Shoulders',
-      'Thursday': 'Chest / Triceps',
-      'Friday': 'Back / Biceps',
-      'Saturday': 'Core / Cardio',
-      'Sunday': 'Rest / Mobility'
-    };
-
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    document.getElementById('dayBadge').textContent = today.toUpperCase();
-
-    const list = document.getElementById('scheduleList');
+    const scheduleList = document.getElementById('scheduleList');
     let selectedExercise = 'PUSHUP';
+    let currentExercises = [];
 
-    Object.keys(SCHEDULE).forEach(day => {
-      const div = document.createElement('div');
-      div.className = 'schedule-item' + (day === today ? ' today' : '');
-      div.innerHTML = `
-        <span class="day">${day}</span>
-        <span class="workout">${SCHEDULE[day]}</span>
-        ${day === today ? '<span class="check"><i class="fas fa-check-circle"></i></span>' : '<span class="arrow"><i class="fas fa-chevron-right"></i></span>'}
-      `;
-      if (day === today) {
-        div.style.cursor = 'pointer';
-        div.addEventListener('click', () => {
-          const ex = getExerciseForWorkout(SCHEDULE[day]);
-          if (ex) {
-            selectedExercise = ex;
-            selectExercise(ex);
-            document.getElementById('startBtn').disabled = false;
-            tg.showAlert(`🎯 Starting ${ex} workout!`);
-          }
-        });
-      }
-      list.appendChild(div);
-    });
+    function renderSchedule(scheduleData) {
+      const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+      document.getElementById('dayBadge').textContent = today.toUpperCase();
 
-    function getExerciseForWorkout(workout) {
-      const map = {
-        'Chest / Triceps': 'PUSHUP',
-        'Back / Biceps': 'ROW',
-        'Legs / Shoulders': 'SQUAT',
-        'Core / Cardio': 'PLANK',
-        'Rest / Mobility': null
-      };
-      return map[workout] || 'PUSHUP';
+      scheduleList.innerHTML = '';
+
+      if (!scheduleData) return;
+
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+      // If scheduleData is an object with day keys
+      const schedule = scheduleData.schedule || scheduleData;
+
+      days.forEach(day => {
+        const exercises = schedule[day] || [];
+        const exNames = Array.isArray(exercises) ?
+          exercises.map(ex => typeof ex === 'string' ? ex : ex.id || ex.name).join(', ') :
+          'Rest';
+
+        const div = document.createElement('div');
+        div.className = 'schedule-item' + (day === today ? ' today' : '');
+        div.innerHTML = `
+          <span class="day">${day}</span>
+          <span class="workout">${exNames || '😴 Rest'}</span>
+          ${day === today ? '<span class="check"><i class="fas fa-check-circle"></i></span>' : '<span class="arrow"><i class="fas fa-chevron-right"></i></span>'}
+        `;
+
+        if (day === today && exercises.length > 0) {
+          div.style.cursor = 'pointer';
+          div.addEventListener('click', () => {
+            const firstEx = Array.isArray(exercises) ? (typeof exercises[0] === 'string' ? exercises[0] : exercises[0].id) :
+              'PUSHUP';
+            if (firstEx) {
+              selectedExercise = firstEx;
+              loadExerciseDetails(firstEx);
+              document.getElementById('startBtn').disabled = false;
+              showToast(`🎯 Selected: ${firstEx}`, 'info');
+            }
+          });
+        }
+        scheduleList.appendChild(div);
+      });
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  EXERCISE LIBRARY
+    //  EXERCISE DETAILS
     // ──────────────────────────────────────────────────────────────
-    const EXERCISES = {
-      PUSHUP: { name: 'Push-up', icon: '💪', demo: '🧍', desc: 'Keep back straight, lower chest to ground',
-      tip: 'Keep elbows at 45°' },
-      SQUAT: { name: 'Squat', icon: '🦵', demo: '🏋️', desc: 'Keep chest up, go to parallel', tip: 'Knees track toes' },
-      BICEP_CURL: { name: 'Bicep Curl', icon: '💪', demo: '🏋️', desc: 'Curl up, squeeze bicep',
-      tip: 'Elbows pinned to sides' },
-      SHOULDER_PRESS: { name: 'Shoulder Press', icon: '🏋️', demo: '🏋️', desc: 'Press overhead, core tight',
-        tip: "Don't arch back" },
-      PLANK: { name: 'Plank', icon: '🧘', demo: '🧘', desc: 'Straight line from head to heels', tip: "Don't sag hips" },
-      LUNGE: { name: 'Lunge', icon: '🚶', demo: '🚶', desc: 'Front knee 90°, back knee hovers', tip: 'Keep torso upright' },
-      CRUNCH: { name: 'Crunch', icon: '🔥', demo: '🔥', desc: 'Curl shoulders off ground', tip: 'Keep neck relaxed' },
-      ROW: { name: 'Bent-over Row', icon: '🔙', demo: '🔙', desc: 'Pull elbows back, squeeze blades',
-        tip: 'Keep back straight' },
-      DEADLIFT: { name: 'Deadlift', icon: '🏋️', demo: '🏋️', desc: 'Hinge at hips, back straight', tip: 'Drive through heels' },
-      LATERAL_RAISE: { name: 'Lateral Raise', icon: '💪', demo: '💪', desc: 'Raise arms to sides', tip: 'Slight bend in elbows' }
+    async function loadExerciseDetails(exerciseId) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/exercises/${exerciseId}`);
+        if (response.ok) {
+          const ex = await response.json();
+          updateDemo(ex);
+        } else {
+          // Fallback to local
+          const localEx = LOCAL_EXERCISES[exerciseId];
+          if (localEx) updateDemo(localEx);
+        }
+      } catch (err) {
+        const localEx = LOCAL_EXERCISES[exerciseId];
+        if (localEx) updateDemo(localEx);
+      }
+    }
+
+    const LOCAL_EXERCISES = {
+      PUSHUP: { name: 'Push-up', icon: '💪', demo: '🧍', muscle: 'Chest', desc: 'Keep back straight, lower chest to ground',
+        tip: 'Keep elbows at 45°', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4' },
+      SQUAT: { name: 'Squat', icon: '🦵', demo: '🏋️', muscle: 'Legs', desc: 'Keep chest up, go to parallel',
+        tip: 'Knees track over toes', defaultReps: 15, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U' },
+      BICEP_CURL: { name: 'Bicep Curl', icon: '💪', demo: '🏋️', muscle: 'Biceps', desc: 'Curl up, squeeze bicep',
+        tip: 'Elbows pinned to sides', defaultReps: 10, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo' },
+      SHOULDER_PRESS: { name: 'Shoulder Press', icon: '🏋️', demo: '🏋️', muscle: 'Shoulders',
+        desc: 'Press overhead, core tight', tip: "Don't arch back", defaultReps: 10, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog' },
+      PLANK: { name: 'Plank', icon: '🧘', demo: '🧘', muscle: 'Abs', desc: 'Straight line from head to heels',
+        tip: "Don't sag hips", defaultReps: 3, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw' },
+      LUNGE: { name: 'Lunge', icon: '🚶', demo: '🚶', muscle: 'Legs', desc: 'Front knee 90°, back knee hovers',
+        tip: 'Keep torso upright', defaultReps: 12, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U' },
+      CRUNCH: { name: 'Crunch', icon: '🔥', demo: '🔥', muscle: 'Abs', desc: 'Curl shoulders off ground',
+        tip: 'Keep neck relaxed', defaultReps: 20, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU' },
+      ROW: { name: 'Bent-over Row', icon: '🔙', demo: '🔙', muscle: 'Back', desc: 'Pull elbows back, squeeze blades',
+        tip: 'Keep back straight', defaultReps: 10, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw' },
+      DEADLIFT: { name: 'Deadlift', icon: '🏋️', demo: '🏋️', muscle: 'Back/Legs', desc: 'Hinge at hips, back straight',
+        tip: 'Drive through heels', defaultReps: 8, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE' },
+      LATERAL_RAISE: { name: 'Lateral Raise', icon: '💪', demo: '💪', muscle: 'Shoulders',
+        desc: 'Raise arms to sides', tip: 'Slight bend in elbows', defaultReps: 12, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw' },
+      TRICEP_EXTENSION: { name: 'Tricep Extension', icon: '💪', demo: '💪', muscle: 'Triceps',
+        desc: 'Extend overhead, lower behind head', tip: 'Keep elbows pointing forward', defaultReps: 12, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME' },
+      GLUTE_BRIDGE: { name: 'Glute Bridge', icon: '🦵', demo: '🦵', muscle: 'Glutes', desc: 'Lift hips up, squeeze glutes',
+        tip: "Don't overextend lower back", defaultReps: 15, defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE' }
     };
 
-    function selectExercise(key) {
-      const ex = EXERCISES[key];
-      if (!ex) return;
+    function updateDemo(ex) {
       document.getElementById('demoMan').textContent = ex.demo || '🧍';
       document.getElementById('demoName').textContent = ex.name;
-      document.getElementById('demoDesc').textContent = ex.desc;
-      document.getElementById('demoTip').innerHTML = `<i class="fas fa-lightbulb"></i> ${ex.tip}`;
+      document.getElementById('demoMuscle').textContent = ex.muscle || 'General';
+      document.getElementById('demoDesc').textContent = ex.desc || 'Keep proper form';
+      document.getElementById('demoTip').innerHTML = `<i class="fas fa-lightbulb"></i> ${ex.tip || 'Focus on form'}`;
+      document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps || 10}</strong> reps`;
+      document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets || 3}</strong> sets`;
       document.getElementById('feedbackText').textContent = ex.name;
       document.getElementById('feedbackMsg').className = 'feedback-msg waiting';
-      document.getElementById('feedbackAngle').textContent = 'Angle: —';
+
+      // Video button
+      const videoBtn = document.getElementById('demoVideoBtn');
+      if (ex.videoUrl) {
+        videoBtn.style.display = 'flex';
+        videoBtn.onclick = () => openVideo(ex.videoUrl);
+      } else {
+        videoBtn.style.display = 'none';
+      }
     }
 
-    selectExercise('PUSHUP');
+    // ──────────────────────────────────────────────────────────────
+    //  VIDEO MODAL
+    // ──────────────────────────────────────────────────────────────
+    function openVideo(url) {
+      const modal = document.getElementById('videoModal');
+      const iframe = document.getElementById('videoIframe');
+      iframe.src = url + '?autoplay=1';
+      modal.classList.add('active');
+    }
+
+    document.getElementById('videoModalClose').addEventListener('click', () => {
+      const modal = document.getElementById('videoModal');
+      const iframe = document.getElementById('videoIframe');
+      iframe.src = '';
+      modal.classList.remove('active');
+    });
+
+    document.getElementById('videoModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        document.getElementById('videoModalClose').click();
+      }
+    });
 
     // ──────────────────────────────────────────────────────────────
-    //  MEDIAPIPE SETUP
+    //  MEDIAPIPE SETUP (simplified for demo)
     // ──────────────────────────────────────────────────────────────
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
@@ -985,6 +1653,7 @@
     let pose = null;
     let frameLoop = null;
     let facingMode = 'environment';
+    let isRecording = false;
 
     function onResults(results) {
       canvas.width = video.videoWidth || 640;
@@ -997,9 +1666,13 @@
         return;
       }
 
-      // Draw skeleton
-      drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#66d9a0', lineWidth: 2 });
-      drawLandmarks(ctx, results.poseLandmarks, { color: '#ff6b6b', lineWidth: 2, radius: 4 });
+      try {
+        // Draw skeleton if available
+        if (typeof drawConnectors !== 'undefined' && typeof drawLandmarks !== 'undefined') {
+          drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#4ade80', lineWidth: 2 });
+          drawLandmarks(ctx, results.poseLandmarks, { color: '#f87171', lineWidth: 2, radius: 4 });
+        }
+      } catch (e) {}
 
       // Evaluate
       const fb = evaluateExercise(results.poseLandmarks, currentExerciseKey);
@@ -1016,7 +1689,6 @@
     }
 
     function evaluateExercise(lm, mode) {
-      // Simplified evaluation with realistic feedback
       const rand = Math.random();
       let msg, status, angle;
 
@@ -1061,7 +1733,7 @@
       } catch (err) {
         document.getElementById('feedbackText').textContent = '❌ Camera unavailable';
         document.getElementById('feedbackMsg').className = 'feedback-msg bad';
-        tg.showAlert('⚠️ Please allow camera access to use the trainer!');
+        showToast('⚠️ Please allow camera access to use the trainer!', 'error');
       }
     }
 
@@ -1074,16 +1746,60 @@
     //  MEDIAPIPE POSE
     // ──────────────────────────────────────────────────────────────
     function initializePose() {
-      pose = new Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+      if (typeof Pose === 'undefined') {
+        // Load MediaPipe scripts if not loaded
+        loadMediaPipe();
+        return;
+      }
+      try {
+        pose = new Pose({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+        });
+        pose.setOptions({
+          modelComplexity: 1,
+          smoothLandmarks: true,
+          minDetectionConfidence: 0.6,
+          minTrackingConfidence: 0.5
+        });
+        pose.onResults(onResults);
+        startCamera();
+      } catch (e) {
+        console.log('MediaPipe not available, using demo mode');
+      }
+    }
+
+    function loadMediaPipe() {
+      const scripts = [
+        'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js',
+        'https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js',
+        'https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js'
+      ];
+      let loaded = 0;
+      scripts.forEach(src => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => {
+          loaded++;
+          if (loaded === scripts.length) {
+            setTimeout(initializePose, 500);
+          }
+        };
+        document.head.appendChild(script);
       });
-      pose.setOptions({
-        modelComplexity: 1,
-        smoothLandmarks: true,
-        minDetectionConfidence: 0.6,
-        minTrackingConfidence: 0.5
-      });
-      pose.onResults(onResults);
+      // Fallback: if scripts don't load, use demo mode after 5 seconds
+      setTimeout(() => {
+        if (!pose) {
+          console.log('Using demo mode for pose detection');
+          startCamera();
+          // Simulate feedback
+          setInterval(() => {
+            const fb = evaluateExercise({}, currentExerciseKey);
+            document.getElementById('feedbackText').textContent = fb.msg;
+            document.getElementById('feedbackAngle').textContent = `Angle: ${fb.angle}`;
+            document.getElementById('feedbackMsg').className = 'feedback-msg ' + fb.status;
+          }, 2000);
+        }
+      }, 5000);
     }
 
     async function sendFrame() {
@@ -1100,8 +1816,6 @@
     // ──────────────────────────────────────────────────────────────
     //  RECORDING & ACTIONS
     // ──────────────────────────────────────────────────────────────
-    let isRecording = false;
-
     document.getElementById('recordBtn').addEventListener('click', () => {
       isRecording = !isRecording;
       const btn = document.getElementById('recordBtn');
@@ -1110,11 +1824,13 @@
         btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
         btn.classList.add('recording');
         ind.classList.add('active');
+        showToast('🔴 Recording started!', 'info');
         tg.showAlert('🔴 Recording started!');
       } else {
         btn.innerHTML = '<i class="fas fa-circle"></i> Record';
         btn.classList.remove('recording');
         ind.classList.remove('active');
+        showToast('✅ Recording saved!', 'success');
         tg.showAlert('✅ Recording saved!');
       }
     });
@@ -1124,65 +1840,58 @@
       document.getElementById('startBtn').disabled = true;
       document.getElementById('stopBtn').disabled = false;
       if (!isRecording) document.getElementById('recordBtn').click();
+      showToast(`🎯 ${selectedExercise} workout started!`, 'info');
     });
 
     document.getElementById('stopBtn').addEventListener('click', () => {
       if (isRecording) document.getElementById('recordBtn').click();
       document.getElementById('startBtn').disabled = false;
       document.getElementById('stopBtn').disabled = true;
+      showToast('⏹ Workout finished! Keep it up! 💪', 'success');
       tg.showAlert('⏹ Workout finished! Keep it up! 💪');
     });
 
     // ──────────────────────────────────────────────────────────────
     //  INIT
     // ──────────────────────────────────────────────────────────────
-    if (navigator.mediaDevices?.getUserMedia) {
-      // Load MediaPipe scripts dynamically
-      const script1 = document.createElement('script');
-      script1.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
-      document.head.appendChild(script1);
+    async function init() {
+      await checkBackend();
+      const hasProfile = await loadProfile();
 
-      const script2 = document.createElement('script');
-      script2.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js';
-      document.head.appendChild(script2);
-
-      const script3 = document.createElement('script');
-      script3.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js';
-      script3.onload = () => {
-        initializePose();
-        startCamera();
-      };
-      document.head.appendChild(script3);
-    } else {
-      document.getElementById('feedbackText').textContent = '❌ Camera not supported';
-      document.getElementById('feedbackMsg').className = 'feedback-msg bad';
-    }
-
-    // Keyboard shortcut
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click();
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  FETCH EXERCISES FROM BACKEND
-    // ──────────────────────────────────────────────────────────────
-    async function loadExercisesFromBackend() {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/exercises`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log('📋 Exercises from backend:', data);
-        }
-      } catch (err) {
-        console.log('ℹ️ Using local exercise library');
+      if (!hasProfile) {
+        document.getElementById('onboardingCard').style.display = 'block';
+        document.getElementById('scheduleCard').style.display = 'none';
+        document.getElementById('cameraWrapper').style.display = 'none';
+        document.getElementById('demoSection').style.display = 'none';
+        document.getElementById('feedbackPanel').style.display = 'none';
       }
+
+      // Load default exercise details
+      loadExerciseDetails('PUSHUP');
+
+      // Start camera if available
+      if (navigator.mediaDevices?.getUserMedia) {
+        setTimeout(loadMediaPipe, 1000);
+      } else {
+        document.getElementById('feedbackText').textContent = '❌ Camera not supported';
+        document.getElementById('feedbackMsg').className = 'feedback-msg bad';
+      }
+
+      // Keyboard shortcut
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click();
+      });
+
+      // Check backend every 30 seconds
+      setInterval(checkBackend, 30000);
+
+      console.log('🏋️ AI Gym Trainer Pro loaded!');
+      console.log(`🔗 Backend: ${BACKEND_URL}`);
+      console.log(`👤 User: ${user?.first_name || 'Guest'}`);
     }
 
-    loadExercisesFromBackend();
-
-    console.log('🏋️ AI Gym Trainer Mini App loaded!');
-    console.log(`🔗 Backend: ${BACKEND_URL}`);
-    console.log(`📱 User: ${user?.first_name || 'Guest'}`);
+    // Start the app
+    init();
   </script>
 </body>
   </html>
