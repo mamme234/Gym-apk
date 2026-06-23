@@ -8,6 +8,9 @@
   <!-- Telegram Mini App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+  <!-- Ad SDK for Premium Workouts -->
+  <script src="//libtl.com/sdk.js" data-zone="11190061" data-sdk="show_11190061"></script>
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -33,6 +36,9 @@
       --red-glow: rgba(248, 113, 113, 0.2);
       --blue: #60a5fa;
       --purple: #a78bfa;
+      --gold: #fbbf24;
+      --premium: #f59e0b;
+      --premium-glow: rgba(245, 158, 11, 0.3);
       --radius: 20px;
       --radius-sm: 12px;
       --radius-xs: 8px;
@@ -52,13 +58,12 @@
       background: var(--tg-bg);
       color: var(--tg-text);
       min-height: 100vh;
-      padding: 16px 14px 100px;
+      padding: 14px 12px 100px;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
       position: relative;
     }
 
-    /* Background gradient */
     body::before {
       content: '';
       position: fixed;
@@ -85,9 +90,6 @@
       }
     }
 
-    /* ============================================================
-       APP CONTAINER
-    ============================================================ */
     .app {
       max-width: 480px;
       margin: 0 auto;
@@ -105,17 +107,6 @@
       }
     }
 
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     /* ============================================================
        HEADER
     ============================================================ */
@@ -123,38 +114,32 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
       padding: 0 2px;
-      animation: slideDown 0.6s ease-out;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .logo-icon {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       background: linear-gradient(135deg, var(--accent), #f59e0b);
-      border-radius: 16px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       box-shadow: 0 4px 24px var(--accent-glow);
-      transition: var(--transition);
-    }
-
-    .logo-icon:hover {
-      transform: scale(1.05) rotate(-5deg);
     }
 
     .logo h1 {
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--accent), #f59e0b, #fb923c);
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -163,34 +148,26 @@
     }
 
     .logo span {
-      font-size: 0.55rem;
+      font-size: 0.5rem;
       font-weight: 600;
       color: var(--tg-hint);
       -webkit-text-fill-color: var(--tg-hint);
       display: block;
-      margin-top: 2px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
 
     .greeting {
       background: var(--tg-secondary);
-      padding: 8px 16px 8px 14px;
+      padding: 6px 14px 6px 12px;
       border-radius: 40px;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       font-weight: 500;
       border: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       color: var(--tg-hint);
-      transition: var(--transition);
-      cursor: default;
-      backdrop-filter: blur(10px);
-    }
-
-    .greeting:hover {
-      border-color: rgba(249, 176, 66, 0.2);
     }
 
     .greeting .wave {
@@ -231,21 +208,19 @@
     .connection-status {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.7rem;
+      gap: 8px;
+      font-size: 0.65rem;
       color: var(--tg-hint);
       background: var(--tg-secondary);
-      padding: 6px 16px 6px 12px;
+      padding: 5px 14px 5px 10px;
       border-radius: 30px;
       border: 1px solid rgba(255, 255, 255, 0.04);
-      margin-bottom: 16px;
-      backdrop-filter: blur(10px);
-      animation: slideDown 0.7s ease-out;
+      margin-bottom: 14px;
     }
 
     .connection-status .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       transition: var(--transition);
     }
@@ -279,38 +254,149 @@
     }
 
     /* ============================================================
+       PREMIUM ADS STATUS
+    ============================================================ */
+    .premium-status {
+      background: var(--tg-secondary);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .premium-status .label {
+      font-size: 0.7rem;
+      color: var(--tg-hint);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .premium-status .label i {
+      color: var(--gold);
+    }
+
+    .premium-status .progress {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .premium-status .progress .dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .premium-status .progress .dot {
+      width: 20px;
+      height: 6px;
+      border-radius: 10px;
+      background: var(--tg-bg);
+      transition: var(--transition);
+    }
+
+    .premium-status .progress .dot.filled {
+      background: var(--gold);
+      box-shadow: 0 0 12px var(--premium-glow);
+    }
+
+    .premium-status .progress .text {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--gold);
+      min-width: 30px;
+      text-align: right;
+    }
+
+    /* ============================================================
+       STYLE SELECTOR
+    ============================================================ */
+    .style-selector {
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+    }
+
+    .style-selector .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--tg-hint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .style-selector .label i {
+      color: var(--accent);
+    }
+
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .style-btn {
+      padding: 10px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--tg-bg);
+      color: var(--tg-hint);
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .style-btn .icon {
+      font-size: 1.2rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .style-btn:hover {
+      border-color: rgba(249, 176, 66, 0.2);
+    }
+
+    .style-btn.active {
+      border-color: var(--accent);
+      background: rgba(249, 176, 66, 0.08);
+      color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* ============================================================
        ONBOARDING CARD
     ============================================================ */
     .onboarding-card {
       background: var(--tg-secondary);
       border-radius: var(--radius);
-      padding: 24px 20px;
-      margin-bottom: 18px;
+      padding: 20px 18px;
+      margin-bottom: 14px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       box-shadow: var(--shadow);
-      animation: slideDown 0.8s ease-out;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .onboarding-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -30%;
-      width: 60%;
-      height: 200%;
-      background: radial-gradient(ellipse, rgba(249, 176, 66, 0.05), transparent 70%);
-      pointer-events: none;
     }
 
     .onboarding-card .title {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
       margin-bottom: 4px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .onboarding-card .title i {
@@ -318,21 +404,21 @@
     }
 
     .onboarding-card .sub {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--tg-hint);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .onboarding-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
     }
 
     .onboarding-field {
       background: var(--tg-bg);
       border-radius: var(--radius-sm);
-      padding: 12px 14px;
+      padding: 10px 12px;
       border: 1px solid rgba(255, 255, 255, 0.04);
       transition: var(--transition);
     }
@@ -343,34 +429,41 @@
     }
 
     .onboarding-field label {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 600;
       color: var(--tg-hint);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       display: block;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
 
-    .onboarding-field input {
+    .onboarding-field input,
+    .onboarding-field select {
       background: transparent;
       border: none;
       color: var(--tg-text);
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 600;
       width: 100%;
       outline: none;
       font-family: inherit;
     }
 
+    .onboarding-field select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
     .onboarding-field input::placeholder {
       color: var(--tg-hint);
       font-weight: 400;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
 
     .onboarding-field .unit {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--tg-hint);
       margin-left: 4px;
     }
@@ -381,13 +474,13 @@
 
     .onboarding-btn {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       border-radius: var(--radius-sm);
       border: none;
       background: linear-gradient(135deg, var(--accent), #f59e0b);
       color: var(--tg-button-text);
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: var(--transition);
       font-family: inherit;
@@ -419,12 +512,11 @@
     .schedule-card {
       background: var(--tg-secondary);
       border-radius: var(--radius);
-      padding: 18px 20px;
-      margin-bottom: 18px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       box-shadow: var(--shadow);
       transition: var(--transition);
-      animation: slideDown 0.9s ease-out;
     }
 
     .schedule-card:hover {
@@ -435,16 +527,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .schedule-header h3 {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--tg-hint);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .schedule-header h3 i {
@@ -452,10 +544,10 @@
     }
 
     .schedule-badge {
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       background: var(--accent);
       color: #0a0e17;
-      padding: 3px 12px;
+      padding: 2px 10px;
       border-radius: 20px;
       font-weight: 700;
       animation: pulseBadge 2s infinite;
@@ -477,83 +569,146 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      max-height: 350px;
+      overflow-y: auto;
     }
 
-    .schedule-item {
+    .schedule-list::-webkit-scrollbar {
+      width: 2px;
+    }
+    .schedule-list::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 10px;
+    }
+
+    .schedule-day {
+      margin-bottom: 4px;
+    }
+
+    .schedule-day .day-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 14px;
-      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      border-radius: var(--radius-xs);
+      background: var(--tg-bg);
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .schedule-day .day-header:hover {
+      border-color: rgba(249, 176, 66, 0.1);
+    }
+
+    .schedule-day .day-header.today {
+      border-color: var(--accent);
+      background: rgba(249, 176, 66, 0.06);
+    }
+
+    .schedule-day .day-header.today .day-name {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .schedule-day .day-name {
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .schedule-day .day-workout {
+      font-size: 0.7rem;
+      color: var(--tg-hint);
+    }
+
+    .schedule-day .day-exercises {
+      padding-left: 10px;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .schedule-day .day-exercises.open {
+      max-height: 500px;
+    }
+
+    .exercise-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: var(--radius-xs);
       background: var(--tg-bg);
       cursor: pointer;
       transition: var(--transition);
       border: 1px solid transparent;
       position: relative;
-      overflow: hidden;
     }
 
-    .schedule-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(249, 176, 66, 0.06), transparent);
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .schedule-item:hover::before {
-      opacity: 1;
-    }
-
-    .schedule-item:hover {
+    .exercise-item:hover {
       border-color: rgba(249, 176, 66, 0.12);
       transform: translateX(4px);
     }
 
-    .schedule-item.today {
-      border-color: var(--accent);
-      background: rgba(249, 176, 66, 0.06);
+    .exercise-item .ex-icon {
+      font-size: 1.2rem;
+      width: 30px;
+      text-align: center;
     }
 
-    .schedule-item.today .day {
-      color: var(--accent);
-      font-weight: 700;
+    .exercise-item .ex-info {
+      flex: 1;
     }
 
-    .schedule-item .day {
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
-
-    .schedule-item .workout {
-      color: var(--tg-hint);
+    .exercise-item .ex-name {
       font-size: 0.8rem;
+      font-weight: 600;
     }
 
-    .schedule-item .check {
+    .exercise-item .ex-detail {
+      font-size: 0.6rem;
+      color: var(--tg-hint);
+    }
+
+    .exercise-item .ex-badge {
+      font-size: 0.5rem;
+      padding: 1px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .exercise-item .ex-badge.free {
+      background: rgba(74, 222, 128, 0.15);
       color: var(--green);
-      font-size: 0.8rem;
-      opacity: 0;
-      transition: var(--transition);
     }
 
-    .schedule-item.today .check {
-      opacity: 1;
+    .exercise-item .ex-badge.premium {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--gold);
     }
 
-    .schedule-item .arrow {
-      color: var(--tg-hint);
+    .exercise-item .ex-badge.locked {
+      background: rgba(248, 113, 113, 0.15);
+      color: var(--red);
+    }
+
+    .exercise-item .ex-lock {
+      color: var(--gold);
       font-size: 0.7rem;
-      transition: var(--transition);
     }
 
-    .schedule-item:hover .arrow {
-      color: var(--accent);
-      transform: translateX(4px);
+    .exercise-item.premium-locked {
+      opacity: 0.6;
+    }
+
+    .exercise-item.premium-unlocked {
+      border-color: var(--gold);
+      background: rgba(245, 158, 11, 0.05);
     }
 
     /* ============================================================
@@ -567,8 +722,7 @@
       aspect-ratio: 4/3;
       border: 1px solid rgba(255, 255, 255, 0.06);
       box-shadow: var(--shadow);
-      margin-bottom: 14px;
-      animation: slideDown 1s ease-out;
+      margin-bottom: 12px;
     }
 
     #video {
@@ -592,27 +746,27 @@
 
     .cam-status {
       position: absolute;
-      top: 12px;
-      left: 12px;
+      top: 10px;
+      left: 10px;
       z-index: 5;
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(12px);
-      padding: 5px 14px;
+      padding: 4px 12px;
       border-radius: 30px;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 600;
       border: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       color: var(--tg-hint);
       letter-spacing: 0.3px;
       text-transform: uppercase;
     }
 
     .cam-status .dot {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--green);
       animation: pulse-dot 1.5s infinite;
@@ -620,17 +774,17 @@
 
     .rec-indicator {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 10px;
+      right: 10px;
       z-index: 5;
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(12px);
-      padding: 5px 14px 5px 10px;
+      padding: 4px 12px 4px 8px;
       border-radius: 30px;
       display: none;
       align-items: center;
-      gap: 8px;
-      font-size: 0.6rem;
+      gap: 6px;
+      font-size: 0.55rem;
       font-weight: 700;
       border: 1px solid var(--red);
       color: var(--red);
@@ -639,8 +793,8 @@
     }
 
     .rec-indicator .red-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       background: var(--red);
       border-radius: 50%;
       animation: pulse-dot 1s infinite;
@@ -652,12 +806,12 @@
 
     .cam-controls {
       position: absolute;
-      bottom: 14px;
+      bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 5;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
     }
@@ -667,15 +821,15 @@
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       color: var(--tg-text);
-      padding: 8px 18px;
+      padding: 6px 14px;
       border-radius: 40px;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       font-family: inherit;
     }
 
@@ -723,15 +877,14 @@
     .demo-section {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       background: var(--tg-secondary);
       border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 14px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       box-shadow: var(--shadow);
       transition: var(--transition);
-      animation: slideDown 1.1s ease-out;
     }
 
     .demo-section:hover {
@@ -739,12 +892,12 @@
     }
 
     .demo-man {
-      font-size: 3rem;
+      font-size: 2.8rem;
       background: var(--tg-bg);
-      padding: 8px 16px;
+      padding: 6px 14px;
       border-radius: var(--radius-sm);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      min-width: 70px;
+      min-width: 60px;
       text-align: center;
       transition: var(--transition);
       animation: float 4s ease-in-out infinite;
@@ -756,7 +909,7 @@
         transform: translateY(0);
       }
       50% {
-        transform: translateY(-8px);
+        transform: translateY(-6px);
       }
     }
 
@@ -768,19 +921,31 @@
     .demo-info .name-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .demo-info h4 {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 700;
     }
 
     .demo-info .muscle-tag {
-      font-size: 0.55rem;
+      font-size: 0.5rem;
       background: rgba(249, 176, 66, 0.15);
       color: var(--accent);
-      padding: 2px 10px;
+      padding: 1px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .demo-info .premium-tag {
+      font-size: 0.5rem;
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--gold);
+      padding: 1px 8px;
       border-radius: 20px;
       font-weight: 600;
       text-transform: uppercase;
@@ -788,15 +953,15 @@
     }
 
     .demo-info p {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--tg-hint);
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     .demo-info .tip {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--accent);
-      margin-top: 4px;
+      margin-top: 3px;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -808,14 +973,14 @@
 
     .demo-info .reps-sets {
       display: flex;
-      gap: 12px;
-      margin-top: 6px;
+      gap: 10px;
+      margin-top: 4px;
     }
 
     .demo-info .reps-sets span {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       background: var(--tg-bg);
-      padding: 2px 12px;
+      padding: 2px 10px;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.04);
       color: var(--tg-hint);
@@ -825,14 +990,13 @@
       color: var(--tg-text);
     }
 
-    /* Video button */
     .video-btn {
       background: var(--tg-bg);
       border: 1px solid rgba(255, 255, 255, 0.06);
       color: var(--tg-text);
-      padding: 6px 14px;
+      padding: 4px 12px;
       border-radius: 30px;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       cursor: pointer;
       transition: var(--transition);
       display: flex;
@@ -847,7 +1011,81 @@
       color: var(--accent);
     }
 
-    /* Video Modal */
+    .unlock-btn {
+      background: linear-gradient(135deg, var(--gold), #f59e0b);
+      border: none;
+      color: #0a0e17;
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      margin-top: 4px;
+    }
+
+    .unlock-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px var(--premium-glow);
+    }
+
+    /* ============================================================
+       FEEDBACK PANEL
+    ============================================================ */
+    .feedback-panel {
+      background: var(--tg-secondary);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+      transition: var(--transition);
+    }
+
+    .feedback-msg {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feedback-msg .icon {
+      font-size: 1.1rem;
+    }
+
+    .feedback-msg.good {
+      color: var(--green);
+    }
+    .feedback-msg.bad {
+      color: var(--red);
+    }
+    .feedback-msg.waiting {
+      color: var(--accent);
+    }
+
+    .feedback-angle {
+      font-size: 0.75rem;
+      color: var(--tg-hint);
+      background: var(--tg-bg);
+      padding: 3px 12px;
+      border-radius: 30px;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    /* ============================================================
+       VIDEO MODAL
+    ============================================================ */
     .video-modal {
       display: none;
       position: fixed;
@@ -856,7 +1094,7 @@
       right: 0;
       bottom: 0;
       z-index: 999;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.92);
       backdrop-filter: blur(20px);
       align-items: center;
       justify-content: center;
@@ -887,16 +1125,16 @@
 
     .video-modal-close {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 10px;
+      right: 10px;
       background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(8px);
       border: none;
       color: white;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: var(--transition);
       display: flex;
@@ -910,54 +1148,124 @@
     }
 
     /* ============================================================
-       FEEDBACK PANEL
+       AD / PREMIUM MODAL
     ============================================================ */
-    .feedback-panel {
+    .ad-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 999;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(20px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeUp 0.3s ease-out;
+    }
+
+    .ad-modal.active {
+      display: flex;
+    }
+
+    .ad-modal-content {
+      max-width: 400px;
+      width: 100%;
       background: var(--tg-secondary);
       border-radius: var(--radius);
-      padding: 14px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 30px 24px;
+      text-align: center;
       box-shadow: var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 14px;
-      transition: var(--transition);
-      animation: slideDown 1.2s ease-out;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .feedback-msg {
-      font-size: 1.1rem;
-      font-weight: 700;
+    .ad-modal-content .ad-icon {
+      font-size: 4rem;
+      margin-bottom: 12px;
+    }
+
+    .ad-modal-content h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .ad-modal-content p {
+      font-size: 0.85rem;
+      color: var(--tg-hint);
+      margin-bottom: 16px;
+    }
+
+    .ad-modal-content .ad-progress {
       display: flex;
-      align-items: center;
+      justify-content: center;
       gap: 8px;
+      margin: 12px 0;
     }
 
-    .feedback-msg .icon {
+    .ad-modal-content .ad-progress .dot {
+      width: 40px;
+      height: 6px;
+      border-radius: 10px;
+      background: var(--tg-bg);
+      transition: var(--transition);
+    }
+
+    .ad-modal-content .ad-progress .dot.filled {
+      background: var(--gold);
+      box-shadow: 0 0 12px var(--premium-glow);
+    }
+
+    .ad-modal-content .ad-count {
+      font-size: 0.9rem;
+      color: var(--tg-hint);
+      margin-bottom: 12px;
+    }
+
+    .ad-modal-content .ad-count strong {
+      color: var(--gold);
       font-size: 1.2rem;
     }
 
-    .feedback-msg.good {
-      color: var(--green);
-    }
-    .feedback-msg.bad {
-      color: var(--red);
-    }
-    .feedback-msg.waiting {
-      color: var(--accent);
+    .ad-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      margin-top: 8px;
     }
 
-    .feedback-angle {
-      font-size: 0.8rem;
+    .ad-btn.primary {
+      background: linear-gradient(135deg, var(--gold), #f59e0b);
+      color: #0a0e17;
+    }
+
+    .ad-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--premium-glow);
+    }
+
+    .ad-btn.primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .ad-btn.secondary {
+      background: transparent;
       color: var(--tg-hint);
-      background: var(--tg-bg);
-      padding: 4px 14px;
-      border-radius: 30px;
-      font-weight: 500;
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ad-btn.secondary:hover {
+      border-color: var(--tg-hint);
     }
 
     /* ============================================================
@@ -968,43 +1276,31 @@
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 12px 16px;
-      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      padding: 10px 14px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
       background: var(--tg-secondary);
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(24px);
       display: flex;
-      gap: 10px;
+      gap: 8px;
       z-index: 100;
       box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.5);
-      animation: slideUp 0.5s ease-out;
-    }
-
-    @keyframes slideUp {
-      from {
-        transform: translateY(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
     }
 
     .action-btn {
       flex: 1;
-      padding: 14px;
+      padding: 12px;
       border-radius: var(--radius-sm);
       border: none;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: var(--transition);
       font-family: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .action-btn:active {
@@ -1045,111 +1341,18 @@
     }
 
     /* ============================================================
-       RESPONSIVE
+       TOAST
     ============================================================ */
-    @media (max-width: 420px) {
-      body {
-        padding: 12px 10px 90px;
-      }
-      .logo h1 {
-        font-size: 1.2rem;
-      }
-      .logo-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-      }
-      .greeting {
-        font-size: 0.65rem;
-        padding: 6px 12px;
-      }
-      .onboarding-grid {
-        grid-template-columns: 1fr;
-      }
-      .schedule-item {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-      }
-      .feedback-msg {
-        font-size: 0.95rem;
-      }
-      .demo-man {
-        font-size: 2.5rem;
-        min-width: 56px;
-        padding: 6px 12px;
-      }
-      .cam-btn {
-        padding: 6px 14px;
-        font-size: 0.6rem;
-      }
-      .action-btn {
-        padding: 12px;
-        font-size: 0.75rem;
-      }
-      .demo-info .reps-sets span {
-        font-size: 0.6rem;
-        padding: 1px 10px;
-      }
-    }
-
-    @media (max-width: 360px) {
-      .schedule-item .workout {
-        font-size: 0.7rem;
-      }
-      .demo-info h4 {
-        font-size: 0.8rem;
-      }
-      .demo-info p {
-        font-size: 0.7rem;
-      }
-      .feedback-msg {
-        font-size: 0.85rem;
-      }
-    }
-
-    /* ============================================================
-       SCROLLBAR
-    ============================================================ */
-    ::-webkit-scrollbar {
-      width: 3px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 10px;
-    }
-
-    /* ============================================================
-       LOADING SHIMMER
-    ============================================================ */
-    .shimmer {
-      background: linear-gradient(90deg, var(--tg-secondary) 25%, var(--tg-bg) 50%, var(--tg-secondary) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-      0% {
-        background-position: -200% 0;
-      }
-      100% {
-        background-position: 200% 0;
-      }
-    }
-
-    /* Toast notification */
     .toast {
       position: fixed;
-      bottom: 90px;
+      bottom: 85px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--tg-secondary);
       color: var(--tg-text);
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: 40px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
       border: 1px solid rgba(255, 255, 255, 0.06);
       box-shadow: var(--shadow);
@@ -1174,6 +1377,108 @@
     .toast.info {
       border-color: var(--accent);
     }
+    .toast.premium {
+      border-color: var(--gold);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 420px) {
+      body {
+        padding: 10px 8px 85px;
+      }
+      .logo h1 {
+        font-size: 1.1rem;
+      }
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+      }
+      .greeting {
+        font-size: 0.6rem;
+        padding: 4px 10px 4px 8px;
+      }
+      .onboarding-grid {
+        grid-template-columns: 1fr;
+      }
+      .style-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .style-btn {
+        font-size: 0.6rem;
+        padding: 8px 4px;
+      }
+      .style-btn .icon {
+        font-size: 1rem;
+      }
+      .feedback-msg {
+        font-size: 0.85rem;
+      }
+      .demo-man {
+        font-size: 2rem;
+        min-width: 48px;
+        padding: 4px 10px;
+      }
+      .cam-btn {
+        padding: 5px 12px;
+        font-size: 0.55rem;
+      }
+      .action-btn {
+        padding: 10px;
+        font-size: 0.7rem;
+      }
+      .demo-info .reps-sets span {
+        font-size: 0.55rem;
+        padding: 1px 8px;
+      }
+      .exercise-item .ex-name {
+        font-size: 0.7rem;
+      }
+      .premium-status .progress .dot {
+        width: 14px;
+        height: 5px;
+      }
+      .ad-modal-content .ad-progress .dot {
+        width: 30px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .style-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .demo-info h4 {
+        font-size: 0.8rem;
+      }
+      .demo-info p {
+        font-size: 0.65rem;
+      }
+      .feedback-msg {
+        font-size: 0.75rem;
+      }
+      .premium-status .progress .dot {
+        width: 12px;
+      }
+      .ad-modal-content .ad-progress .dot {
+        width: 25px;
+      }
+    }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar {
+      width: 3px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
@@ -1186,6 +1491,29 @@
     <div class="video-modal-content">
       <iframe id="videoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
       <button class="video-modal-close" id="videoModalClose"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <!-- ===== AD / PREMIUM MODAL ===== -->
+  <div class="ad-modal" id="adModal">
+    <div class="ad-modal-content">
+      <div class="ad-icon">⭐</div>
+      <h2>Unlock Premium Workout</h2>
+      <p id="adWorkoutName">Watch ads to unlock this premium exercise!</p>
+      <div class="ad-progress" id="adProgress">
+        <div class="dot" data-index="0"></div>
+        <div class="dot" data-index="1"></div>
+        <div class="dot" data-index="2"></div>
+        <div class="dot" data-index="3"></div>
+        <div class="dot" data-index="4"></div>
+      </div>
+      <div class="ad-count">
+        <strong id="adCountDisplay">0</strong> / 5 ads watched today
+      </div>
+      <button class="ad-btn primary" id="adWatchBtn">
+        <i class="fas fa-play"></i> Watch Ad
+      </button>
+      <button class="ad-btn secondary" id="adSkipBtn">Skip for now</button>
     </div>
   </div>
 
@@ -1209,13 +1537,57 @@
     <!-- ===== CONNECTION STATUS ===== -->
     <div class="connection-status" id="connectionStatus">
       <span class="dot checking" id="statusDot"></span>
-      <span id="statusText">Connecting to server...</span>
+      <span id="statusText">Connecting...</span>
+    </div>
+
+    <!-- ===== PREMIUM ADS STATUS ===== -->
+    <div class="premium-status" id="premiumStatus" style="display:none;">
+      <div class="label">
+        <i class="fas fa-star"></i> Premium Access
+      </div>
+      <div class="progress">
+        <div class="dots" id="premiumDots">
+          <div class="dot" data-index="0"></div>
+          <div class="dot" data-index="1"></div>
+          <div class="dot" data-index="2"></div>
+          <div class="dot" data-index="3"></div>
+          <div class="dot" data-index="4"></div>
+        </div>
+        <span class="text" id="premiumCount">0/5</span>
+      </div>
+    </div>
+
+    <!-- ===== WORKOUT STYLE SELECTOR ===== -->
+    <div class="style-selector" id="styleSelector">
+      <div class="label"><i class="fas fa-dumbbell"></i> Choose Your Workout Style</div>
+      <div class="style-grid">
+        <button class="style-btn active" data-style="push_pull_legs">
+          <span class="icon">🔄</span>
+          Push/Pull/Legs
+        </button>
+        <button class="style-btn" data-style="full_body">
+          <span class="icon">🏋️</span>
+          Full Body
+        </button>
+        <button class="style-btn" data-style="upper_lower">
+          <span class="icon">⬆️⬇️</span>
+          Upper/Lower
+        </button>
+        <button class="style-btn" data-style="bro_split">
+          <span class="icon">💪</span>
+          Bro Split
+        </button>
+        <button class="style-btn" data-style="custom">
+          <span class="icon">⚙️</span>
+          Custom
+        </button>
+      </div>
     </div>
 
     <!-- ===== ONBOARDING ===== -->
     <div class="onboarding-card" id="onboardingCard">
       <div class="title"><i class="fas fa-user-circle"></i> Your Profile</div>
-      <div class="sub">Enter your stats to get a personalized workout plan</div>
+      <div class="sub">Enter your stats for a personalized workout plan</div>
       <div class="onboarding-grid">
         <div class="onboarding-field">
           <label>Weight</label>
@@ -1239,7 +1611,7 @@
         </div>
         <div class="onboarding-field onboarding-full">
           <label>Goal</label>
-          <select id="goalInput" style="background:transparent;border:none;color:var(--tg-text);font-size:1rem;font-weight:600;width:100%;outline:none;font-family:inherit;cursor:pointer;">
+          <select id="goalInput">
             <option value="muscle_gain">💪 Muscle Gain</option>
             <option value="weight_loss">🔥 Weight Loss</option>
             <option value="strength">🏋️ Strength</option>
@@ -1255,7 +1627,7 @@
     <!-- ===== SCHEDULE ===== -->
     <div class="schedule-card" id="scheduleCard" style="display:none;">
       <div class="schedule-header">
-        <h3><i class="fas fa-calendar-day"></i> Today's Workout</h3>
+        <h3><i class="fas fa-calendar-day"></i> Your Weekly Schedule</h3>
         <span class="schedule-badge" id="dayBadge">TODAY</span>
       </div>
       <div class="schedule-list" id="scheduleList">
@@ -1267,22 +1639,11 @@
     <div class="camera-wrapper" id="cameraWrapper" style="display:none;">
       <video id="video" playsinline></video>
       <canvas id="canvas"></canvas>
-
-      <div class="cam-status">
-        <span class="dot"></span> LIVE
-      </div>
-
-      <div class="rec-indicator" id="recIndicator">
-        <span class="red-dot"></span> REC
-      </div>
-
+      <div class="cam-status"><span class="dot"></span> LIVE</div>
+      <div class="rec-indicator" id="recIndicator"><span class="red-dot"></span> REC</div>
       <div class="cam-controls">
-        <button class="cam-btn" id="camToggle">
-          <i class="fas fa-sync-alt"></i> Switch
-        </button>
-        <button class="cam-btn record" id="recordBtn">
-          <i class="fas fa-circle"></i> Record
-        </button>
+        <button class="cam-btn" id="camToggle"><i class="fas fa-sync-alt"></i> Switch</button>
+        <button class="cam-btn record" id="recordBtn"><i class="fas fa-circle"></i> Record</button>
       </div>
     </div>
 
@@ -1293,18 +1654,20 @@
         <div class="name-row">
           <h4 id="demoName">Push-up</h4>
           <span class="muscle-tag" id="demoMuscle">Chest</span>
+          <span class="premium-tag" id="demoPremiumTag" style="display:none;">⭐ Premium</span>
         </div>
         <p id="demoDesc">Keep back straight, lower chest to ground</p>
         <div class="reps-sets">
           <span id="demoReps">🔁 <strong>12</strong> reps</span>
           <span id="demoSets">📋 <strong>3</strong> sets</span>
         </div>
-        <div class="tip" id="demoTip">
-          <i class="fas fa-lightbulb"></i> Keep elbows at 45°
+        <div class="tip" id="demoTip"><i class="fas fa-lightbulb"></i> Keep elbows at 45°</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+          <button class="video-btn" id="demoVideoBtn"><i class="fas fa-play-circle"></i> Watch Form Video</button>
+          <button class="unlock-btn" id="demoUnlockBtn" style="display:none;">
+            <i class="fas fa-star"></i> Unlock Premium
+          </button>
         </div>
-        <button class="video-btn" id="demoVideoBtn">
-          <i class="fas fa-play-circle"></i> Watch Form Video
-        </button>
       </div>
     </div>
 
@@ -1328,9 +1691,10 @@
     </div>
 
   </div>
+  <!-- ===== END OF FIRST HALF ===== -->
 
-  <!-- ============================================================
-  JAVASCRIPT
+  <!-- SECOND HALF: ALL JAVASCRIPT BELOW -->  <!-- ============================================================
+       SECOND HALF – ALL JAVASCRIPT
   ============================================================ -->
   <script>
     // ──────────────────────────────────────────────────────────────
@@ -1338,51 +1702,636 @@
     // ──────────────────────────────────────────────────────────────
     const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
     const USER_ID = 'telegram_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest_' + Date.now());
+    const ADS_REQUIRED = 5; // Need 5 ads per day to unlock premium
 
     // ──────────────────────────────────────────────────────────────
-    //  TELEGRAM MINI APP INIT
+    //  TELEGRAM INIT
     // ──────────────────────────────────────────────────────────────
-    const tg = window.Telegram?.WebApp || {
-      ready: () => {},
-      expand: () => {},
-      close: () => {},
-      showAlert: (msg) => alert(msg)
-    };
+    const tg = window.Telegram?.WebApp || { ready: () => {}, expand: () => {}, showAlert: (msg) => alert(msg) };
     tg.ready();
     tg.expand();
 
     const user = tg.initDataUnsafe?.user;
-    if (user) {
-      document.getElementById('userName').textContent = user.first_name || 'Athlete';
-    }
+    if (user) document.getElementById('userName').textContent = user.first_name || 'Athlete';
 
     // ──────────────────────────────────────────────────────────────
-    //  TOAST SYSTEM
+    //  TOAST
     // ──────────────────────────────────────────────────────────────
     let toastTimeout;
 
-    function showToast(message, type = 'info') {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = 'toast show ' + type;
+    function showToast(msg, type = 'info') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + type;
       clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
+      toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  CHECK BACKEND CONNECTION
+    //  AD / PREMIUM SYSTEM
+    // ──────────────────────────────────────────────────────────────
+    let adWatchedToday = 0;
+    let premiumUnlocked = false;
+    let pendingPremiumExercise = null;
+    let isAdWatching = false;
+
+    // Load ad count from localStorage
+    function loadAdCount() {
+      const today = new Date().toDateString();
+      const saved = localStorage.getItem('gym_ad_data');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.date === today) {
+            adWatchedToday = data.count || 0;
+          } else {
+            adWatchedToday = 0;
+            localStorage.setItem('gym_ad_data', JSON.stringify({ date: today, count: 0 }));
+          }
+        } catch (e) {
+          adWatchedToday = 0;
+        }
+      } else {
+        adWatchedToday = 0;
+        localStorage.setItem('gym_ad_data', JSON.stringify({ date: today, count: 0 }));
+      }
+      updatePremiumUI();
+    }
+
+    function saveAdCount() {
+      const today = new Date().toDateString();
+      localStorage.setItem('gym_ad_data', JSON.stringify({ date: today, count: adWatchedToday }));
+      updatePremiumUI();
+    }
+
+    function updatePremiumUI() {
+      // Update premium status bar
+      const statusEl = document.getElementById('premiumStatus');
+      if (adWatchedToday >= ADS_REQUIRED) {
+        premiumUnlocked = true;
+        statusEl.style.display = 'flex';
+        document.getElementById('premiumCount').textContent = '✅ UNLOCKED';
+        document.querySelectorAll('#premiumDots .dot').forEach(d => d.classList.add('filled'));
+        showToast('🎉 Premium workouts unlocked for today!', 'premium');
+      } else {
+        premiumUnlocked = false;
+        statusEl.style.display = 'flex';
+        document.getElementById('premiumCount').textContent = `${adWatchedToday}/${ADS_REQUIRED}`;
+        document.querySelectorAll('#premiumDots .dot').forEach((d, i) => {
+          d.classList.toggle('filled', i < adWatchedToday);
+        });
+      }
+
+      // Update ad modal progress
+      document.querySelectorAll('#adProgress .dot').forEach((d, i) => {
+        d.classList.toggle('filled', i < adWatchedToday);
+      });
+      document.getElementById('adCountDisplay').textContent = adWatchedToday;
+
+      // Update exercise items
+      document.querySelectorAll('.exercise-item').forEach(el => {
+        const isPremium = el.dataset.premium === 'true';
+        if (isPremium) {
+          if (premiumUnlocked) {
+            el.classList.remove('premium-locked');
+            el.classList.add('premium-unlocked');
+            const badge = el.querySelector('.ex-badge');
+            if (badge) {
+              badge.textContent = '⭐ Unlocked';
+              badge.className = 'ex-badge premium';
+            }
+          } else {
+            el.classList.add('premium-locked');
+            el.classList.remove('premium-unlocked');
+            const badge = el.querySelector('.ex-badge');
+            if (badge) {
+              badge.textContent = '🔒 Premium';
+              badge.className = 'ex-badge locked';
+            }
+          }
+        }
+      });
+
+      // Update demo section if current exercise is premium
+      const currentEx = EXERCISE_DB[selectedExercise];
+      if (currentEx?.premium) {
+        const tag = document.getElementById('demoPremiumTag');
+        tag.style.display = premiumUnlocked ? 'none' : 'inline';
+        document.getElementById('demoUnlockBtn').style.display = premiumUnlocked ? 'none' : 'flex';
+        if (!premiumUnlocked) {
+          document.getElementById('startBtn').disabled = true;
+        } else {
+          document.getElementById('startBtn').disabled = false;
+        }
+      } else {
+        document.getElementById('demoPremiumTag').style.display = 'none';
+        document.getElementById('demoUnlockBtn').style.display = 'none';
+        if (document.getElementById('startBtn')) {
+          document.getElementById('startBtn').disabled = false;
+        }
+      }
+    }
+
+    // ─── Watch Ad Function ──────────────────────────────────────
+    async function watchAd() {
+      if (isAdWatching) return;
+      if (adWatchedToday >= ADS_REQUIRED) {
+        showToast('✅ Premium already unlocked for today!', 'premium');
+        return;
+      }
+
+      isAdWatching = true;
+      const btn = document.getElementById('adWatchBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading ad...';
+
+      try {
+        // Use the libtl.com ad SDK
+        if (typeof show_11190061 === 'function') {
+          // Rewarded interstitial
+          await show_11190061();
+          // User watched the ad
+          adWatchedToday++;
+          saveAdCount();
+          showToast(`✅ Ad watched! ${adWatchedToday}/${ADS_REQUIRED}`, 'premium');
+
+          if (adWatchedToday >= ADS_REQUIRED) {
+            premiumUnlocked = true;
+            updatePremiumUI();
+            showToast('🎉 All premium workouts unlocked for today!', 'premium');
+            // Close modal
+            document.getElementById('adModal').classList.remove('active');
+            // Update the exercise we were trying to unlock
+            if (pendingPremiumExercise) {
+              selectExercise(pendingPremiumExercise);
+              pendingPremiumExercise = null;
+            }
+          } else {
+            updatePremiumUI();
+          }
+        } else {
+          // Fallback: simulate ad watch
+          showToast('📺 Simulating ad... (SDK not loaded)', 'info');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          adWatchedToday++;
+          saveAdCount();
+          showToast(`✅ Ad watched! ${adWatchedToday}/${ADS_REQUIRED}`, 'premium');
+          if (adWatchedToday >= ADS_REQUIRED) {
+            premiumUnlocked = true;
+            updatePremiumUI();
+            showToast('🎉 All premium workouts unlocked for today!', 'premium');
+            document.getElementById('adModal').classList.remove('active');
+            if (pendingPremiumExercise) {
+              selectExercise(pendingPremiumExercise);
+              pendingPremiumExercise = null;
+            }
+          } else {
+            updatePremiumUI();
+          }
+        }
+      } catch (error) {
+        console.error('Ad error:', error);
+        showToast('⚠️ Ad error, please try again', 'error');
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-play"></i> Watch Ad';
+      isAdWatching = false;
+    }
+
+    // ─── Open Ad Modal ──────────────────────────────────────────
+    function openAdModal(exerciseId) {
+      pendingPremiumExercise = exerciseId;
+      const ex = EXERCISE_DB[exerciseId];
+      document.getElementById('adWorkoutName').textContent = `Watch ads to unlock "${ex.name}"!`;
+      document.getElementById('adModal').classList.add('active');
+      updatePremiumUI();
+    }
+
+    // ─── Ad Modal Events ────────────────────────────────────────
+    document.getElementById('adWatchBtn').addEventListener('click', watchAd);
+
+    document.getElementById('adSkipBtn').addEventListener('click', () => {
+      document.getElementById('adModal').classList.remove('active');
+      pendingPremiumExercise = null;
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  WORKOUT STYLES & SCHEDULES
+    // ──────────────────────────────────────────────────────────────
+    const WORKOUT_STYLES = {
+      push_pull_legs: {
+        name: 'Push/Pull/Legs',
+        schedule: {
+          'Monday': { name: 'Push Day', exercises: ['BENCH_PRESS', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'LATERAL_RAISE'] },
+          'Tuesday': { name: 'Pull Day', exercises: ['DEADLIFT', 'ROW', 'BICEP_CURL', 'FACE_PULL'] },
+          'Wednesday': { name: 'Legs Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+          'Thursday': { name: 'Push Day', exercises: ['PUSHUP', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'LATERAL_RAISE'] },
+          'Friday': { name: 'Pull Day', exercises: ['DEADLIFT', 'ROW', 'BICEP_CURL', 'FACE_PULL'] },
+          'Saturday': { name: 'Legs Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+          'Sunday': { name: 'Rest Day', exercises: [] }
+        }
+      },
+      full_body: {
+        name: 'Full Body',
+        schedule: {
+          'Monday': { name: 'Full Body A', exercises: ['SQUAT', 'BENCH_PRESS', 'ROW', 'SHOULDER_PRESS', 'PLANK'] },
+          'Tuesday': { name: 'Rest', exercises: [] },
+          'Wednesday': { name: 'Full Body B', exercises: ['DEADLIFT', 'PUSHUP', 'LUNGE', 'BICEP_CURL', 'CRUNCH'] },
+          'Thursday': { name: 'Rest', exercises: [] },
+          'Friday': { name: 'Full Body C', exercises: ['SQUAT', 'ROW', 'SHOULDER_PRESS', 'TRICEP_EXTENSION', 'PLANK'] },
+          'Saturday': { name: 'Rest', exercises: [] },
+          'Sunday': { name: 'Rest', exercises: [] }
+        }
+      },
+      upper_lower: {
+        name: 'Upper/Lower',
+        schedule: {
+          'Monday': { name: 'Upper A', exercises: ['BENCH_PRESS', 'ROW', 'SHOULDER_PRESS', 'BICEP_CURL', 'TRICEP_EXTENSION'] },
+          'Tuesday': { name: 'Lower A', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+          'Wednesday': { name: 'Rest', exercises: [] },
+          'Thursday': { name: 'Upper B', exercises: ['PUSHUP', 'DEADLIFT', 'LATERAL_RAISE', 'BICEP_CURL', 'TRICEP_EXTENSION'] },
+          'Friday': { name: 'Lower B', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+          'Saturday': { name: 'Rest', exercises: [] },
+          'Sunday': { name: 'Rest', exercises: [] }
+        }
+      },
+      bro_split: {
+        name: 'Bro Split',
+        schedule: {
+          'Monday': { name: 'Chest Day', exercises: ['BENCH_PRESS', 'PUSHUP', 'CHEST_FLY', 'DIPS'] },
+          'Tuesday': { name: 'Back Day', exercises: ['DEADLIFT', 'ROW', 'PULLUP', 'FACE_PULL'] },
+          'Wednesday': { name: 'Shoulder Day', exercises: ['SHOULDER_PRESS', 'LATERAL_RAISE', 'FRONT_RAISE', 'REAR_FLY'] },
+          'Thursday': { name: 'Leg Day', exercises: ['SQUAT', 'LUNGE', 'LEG_CURL', 'CALF_RAISE'] },
+          'Friday': { name: 'Arm Day', exercises: ['BICEP_CURL', 'TRICEP_EXTENSION', 'HAMMER_CURL', 'SKULL_CRUSHER'] },
+          'Saturday': { name: 'Core Day', exercises: ['PLANK', 'CRUNCH', 'RUSSIAN_TWIST', 'LEG_RAISE'] },
+          'Sunday': { name: 'Rest Day', exercises: [] }
+        }
+      },
+      custom: {
+        name: 'Custom',
+        schedule: {
+          'Monday': { name: 'Custom Day 1', exercises: ['PUSHUP', 'SQUAT', 'ROW'] },
+          'Tuesday': { name: 'Custom Day 2', exercises: ['PLANK', 'LUNGE', 'BICEP_CURL'] },
+          'Wednesday': { name: 'Custom Day 3', exercises: ['DEADLIFT', 'SHOULDER_PRESS', 'CRUNCH'] },
+          'Thursday': { name: 'Custom Day 4', exercises: ['PUSHUP', 'SQUAT', 'ROW'] },
+          'Friday': { name: 'Custom Day 5', exercises: ['PLANK', 'LUNGE', 'BICEP_CURL'] },
+          'Saturday': { name: 'Custom Day 6', exercises: ['DEADLIFT', 'SHOULDER_PRESS', 'CRUNCH'] },
+          'Sunday': { name: 'Rest Day', exercises: [] }
+        }
+      }
+    };
+
+    // ──────────────────────────────────────────────────────────────
+    //  EXERCISE DATABASE
+    // ──────────────────────────────────────────────────────────────
+    const EXERCISE_DB = {
+      PUSHUP: {
+        id: 'PUSHUP',
+        name: 'Push-up',
+        icon: '💪',
+        demo: '🧍',
+        muscle: 'Chest',
+        desc: 'Keep back straight, lower chest to ground',
+        tip: 'Keep elbows at 45°',
+        defaultReps: 12,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4',
+        premium: false
+      },
+      SQUAT: {
+        id: 'SQUAT',
+        name: 'Squat',
+        icon: '🦵',
+        demo: '🏋️',
+        muscle: 'Legs',
+        desc: 'Keep chest up, go to parallel',
+        tip: 'Knees track over toes',
+        defaultReps: 15,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U',
+        premium: false
+      },
+      BICEP_CURL: {
+        id: 'BICEP_CURL',
+        name: 'Bicep Curl',
+        icon: '💪',
+        demo: '🏋️',
+        muscle: 'Biceps',
+        desc: 'Curl up, squeeze bicep',
+        tip: 'Elbows pinned to sides',
+        defaultReps: 10,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo',
+        premium: false
+      },
+      SHOULDER_PRESS: {
+        id: 'SHOULDER_PRESS',
+        name: 'Shoulder Press',
+        icon: '🏋️',
+        demo: '🏋️',
+        muscle: 'Shoulders',
+        desc: 'Press overhead, core tight',
+        tip: "Don't arch back",
+        defaultReps: 10,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog',
+        premium: false
+      },
+      PLANK: {
+        id: 'PLANK',
+        name: 'Plank',
+        icon: '🧘',
+        demo: '🧘',
+        muscle: 'Abs',
+        desc: 'Straight line from head to heels',
+        tip: "Don't sag hips",
+        defaultReps: 3,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw',
+        premium: false
+      },
+      LUNGE: {
+        id: 'LUNGE',
+        name: 'Lunge',
+        icon: '🚶',
+        demo: '🚶',
+        muscle: 'Legs',
+        desc: 'Front knee 90°, back knee hovers',
+        tip: 'Keep torso upright',
+        defaultReps: 12,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U',
+        premium: false
+      },
+      CRUNCH: {
+        id: 'CRUNCH',
+        name: 'Crunch',
+        icon: '🔥',
+        demo: '🔥',
+        muscle: 'Abs',
+        desc: 'Curl shoulders off ground',
+        tip: 'Keep neck relaxed',
+        defaultReps: 20,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU',
+        premium: false
+      },
+      ROW: {
+        id: 'ROW',
+        name: 'Bent-over Row',
+        icon: '🔙',
+        demo: '🔙',
+        muscle: 'Back',
+        desc: 'Pull elbows back, squeeze blades',
+        tip: 'Keep back straight',
+        defaultReps: 10,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw',
+        premium: false
+      },
+      DEADLIFT: {
+        id: 'DEADLIFT',
+        name: 'Deadlift',
+        icon: '🏋️',
+        demo: '🏋️',
+        muscle: 'Back/Legs',
+        desc: 'Hinge at hips, back straight',
+        tip: 'Drive through heels',
+        defaultReps: 8,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE',
+        premium: false
+      },
+      LATERAL_RAISE: {
+        id: 'LATERAL_RAISE',
+        name: 'Lateral Raise',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Shoulders',
+        desc: 'Raise arms to sides',
+        tip: 'Slight bend in elbows',
+        defaultReps: 12,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw',
+        premium: false
+      },
+      TRICEP_EXTENSION: {
+        id: 'TRICEP_EXTENSION',
+        name: 'Tricep Extension',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Triceps',
+        desc: 'Extend overhead, lower behind head',
+        tip: 'Keep elbows pointing forward',
+        defaultReps: 12,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME',
+        premium: false
+      },
+      GLUTE_BRIDGE: {
+        id: 'GLUTE_BRIDGE',
+        name: 'Glute Bridge',
+        icon: '🦵',
+        demo: '🦵',
+        muscle: 'Glutes',
+        desc: 'Lift hips up, squeeze glutes',
+        tip: "Don't overextend lower back",
+        defaultReps: 15,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE',
+        premium: false
+      },
+      // ---- PREMIUM EXERCISES (require 5 ads) ----
+      BENCH_PRESS: {
+        id: 'BENCH_PRESS',
+        name: 'Bench Press',
+        icon: '🏋️',
+        demo: '🏋️',
+        muscle: 'Chest',
+        desc: 'Lower bar to chest, press up',
+        tip: 'Keep shoulders packed',
+        defaultReps: 10,
+        defaultSets: 4,
+        videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y',
+        premium: true
+      },
+      PULLUP: {
+        id: 'PULLUP',
+        name: 'Pull-up',
+        icon: '💪',
+        demo: '🧍',
+        muscle: 'Back',
+        desc: 'Pull chin above bar, controlled descent',
+        tip: 'Engage lats, don\'t swing',
+        defaultReps: 8,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g',
+        premium: true
+      },
+      DIPS: {
+        id: 'DIPS',
+        name: 'Dips',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Chest/Triceps',
+        desc: 'Lower body until shoulders below elbows',
+        tip: 'Lean forward for chest focus',
+        defaultReps: 10,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As',
+        premium: true
+      },
+      FACE_PULL: {
+        id: 'FACE_PULL',
+        name: 'Face Pull',
+        icon: '🔙',
+        demo: '🔙',
+        muscle: 'Rear Delts',
+        desc: 'Pull rope to face, squeeze shoulder blades',
+        tip: 'Keep elbows high',
+        defaultReps: 15,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/HZSTx1OmeDU',
+        premium: true
+      },
+      LEG_CURL: {
+        id: 'LEG_CURL',
+        name: 'Leg Curl',
+        icon: '🦵',
+        demo: '🦵',
+        muscle: 'Hamstrings',
+        desc: 'Curl weight towards glutes',
+        tip: 'Control the negative',
+        defaultReps: 12,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/1Tq3Qd2u4t8',
+        premium: true
+      },
+      CALF_RAISE: {
+        id: 'CALF_RAISE',
+        name: 'Calf Raise',
+        icon: '🦵',
+        demo: '🦵',
+        muscle: 'Calves',
+        desc: 'Rise onto toes, squeeze calves',
+        tip: 'Full range of motion',
+        defaultReps: 20,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/-M4-G8p8fmc',
+        premium: true
+      },
+      CHEST_FLY: {
+        id: 'CHEST_FLY',
+        name: 'Chest Fly',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Chest',
+        desc: 'Open arms wide, squeeze together',
+        tip: 'Keep a slight bend in elbows',
+        defaultReps: 12,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
+        premium: true
+      },
+      FRONT_RAISE: {
+        id: 'FRONT_RAISE',
+        name: 'Front Raise',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Shoulders',
+        desc: 'Raise arms to shoulder height',
+        tip: 'Control the movement',
+        defaultReps: 12,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
+        premium: true
+      },
+      REAR_FLY: {
+        id: 'REAR_FLY',
+        name: 'Rear Delt Fly',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Rear Delts',
+        desc: 'Open arms back, squeeze shoulder blades',
+        tip: 'Keep back straight',
+        defaultReps: 15,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
+        premium: true
+      },
+      HAMMER_CURL: {
+        id: 'HAMMER_CURL',
+        name: 'Hammer Curl',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Biceps/Brachialis',
+        desc: 'Curl with neutral grip',
+        tip: 'Keep elbows stable',
+        defaultReps: 10,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
+        premium: true
+      },
+      SKULL_CRUSHER: {
+        id: 'SKULL_CRUSHER',
+        name: 'Skull Crusher',
+        icon: '💪',
+        demo: '💪',
+        muscle: 'Triceps',
+        desc: 'Lower bar to forehead, extend up',
+        tip: 'Keep elbows fixed',
+        defaultReps: 10,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
+        premium: true
+      },
+      RUSSIAN_TWIST: {
+        id: 'RUSSIAN_TWIST',
+        name: 'Russian Twist',
+        icon: '🔥',
+        demo: '🔥',
+        muscle: 'Obliques',
+        desc: 'Rotate torso side to side',
+        tip: 'Keep core engaged',
+        defaultReps: 20,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
+        premium: true
+      },
+      LEG_RAISE: {
+        id: 'LEG_RAISE',
+        name: 'Leg Raise',
+        icon: '🔥',
+        demo: '🔥',
+        muscle: 'Lower Abs',
+        desc: 'Raise legs to 90°, lower slowly',
+        tip: 'Keep lower back pressed',
+        defaultReps: 15,
+        defaultSets: 3,
+        videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c',
+        premium: true
+      }
+    };
+
+    // ──────────────────────────────────────────────────────────────
+    //  STATE
+    // ──────────────────────────────────────────────────────────────
+    let currentStyle = 'push_pull_legs';
+    let selectedExercise = 'PUSHUP';
+    let isRecording = false;
+    let currentExerciseData = null;
+
+    // ──────────────────────────────────────────────────────────────
+    //  BACKEND CONNECTION
     // ──────────────────────────────────────────────────────────────
     async function checkBackend() {
       const statusText = document.getElementById('statusText');
       const statusDot = document.getElementById('statusDot');
-
       try {
-        const response = await fetch(`${BACKEND_URL}/api/health`);
-        if (response.ok) {
-          const data = await response.json();
-          statusText.textContent = `🟢 Connected (${data.bot ? 'Bot online' : 'Bot offline'})`;
+        const res = await fetch(`${BACKEND_URL}/api/health`);
+        if (res.ok) {
+          statusText.textContent = '🟢 Connected';
           statusDot.className = 'dot online';
           return true;
         } else {
@@ -1391,73 +2340,60 @@
           return false;
         }
       } catch (err) {
-        statusText.textContent = '🔴 Cannot connect to server';
+        statusText.textContent = '🔴 Offline';
         statusDot.className = 'dot offline';
-        showToast('⚠️ Cannot connect to server. Please check your connection.', 'error');
         return false;
       }
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  ONBOARDING
+    //  PROFILE
     // ──────────────────────────────────────────────────────────────
-    const weightInput = document.getElementById('weightInput');
-    const heightInput = document.getElementById('heightInput');
-    const proteinInput = document.getElementById('proteinInput');
-    const caloriesInput = document.getElementById('caloriesInput');
-    const goalInput = document.getElementById('goalInput');
-
-    // Load saved profile
     async function loadProfile() {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/profile/${USER_ID}`);
-        if (response.ok) {
-          const data = await response.json();
+        const res = await fetch(`${BACKEND_URL}/api/profile/${USER_ID}`);
+        if (res.ok) {
+          const data = await res.json();
           if (data.profile) {
-            weightInput.value = data.profile.weight;
-            heightInput.value = data.profile.height;
-            proteinInput.value = data.profile.protein || '';
-            caloriesInput.value = data.profile.calories || '';
-            goalInput.value = data.profile.goal || 'muscle_gain';
-
+            document.getElementById('weightInput').value = data.profile.weight;
+            document.getElementById('heightInput').value = data.profile.height;
+            document.getElementById('proteinInput').value = data.profile.protein || '';
+            document.getElementById('caloriesInput').value = data.profile.calories || '';
+            document.getElementById('goalInput').value = data.profile.goal || 'muscle_gain';
+            if (data.profile.style) {
+              currentStyle = data.profile.style;
+              document.querySelectorAll('.style-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.style === currentStyle);
+              });
+            }
             document.getElementById('onboardingCard').style.display = 'none';
             document.getElementById('scheduleCard').style.display = 'block';
             document.getElementById('cameraWrapper').style.display = 'block';
             document.getElementById('demoSection').style.display = 'flex';
             document.getElementById('feedbackPanel').style.display = 'flex';
             document.getElementById('startBtn').disabled = false;
-
-            renderSchedule(data.schedule);
-            showToast('✅ Profile loaded! Ready to train!', 'success');
+            renderSchedule();
             return true;
           }
         }
         return false;
-      } catch (err) {
-        return false;
-      }
+      } catch (err) { return false; }
     }
 
-    // Save profile
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-      const weight = parseFloat(weightInput.value);
-      const height = parseFloat(heightInput.value);
-      const protein = parseFloat(proteinInput.value);
-      const calories = parseFloat(caloriesInput.value);
-      const goal = goalInput.value;
+      const weight = parseFloat(document.getElementById('weightInput').value);
+      const height = parseFloat(document.getElementById('heightInput').value);
+      const protein = parseFloat(document.getElementById('proteinInput').value);
+      const calories = parseFloat(document.getElementById('caloriesInput').value);
+      const goal = document.getElementById('goalInput').value;
 
-      if (!weight || !height) {
-        showToast('⚠️ Please enter at least weight and height', 'error');
-        return;
-      }
-
-      if (weight < 30 || weight > 300 || height < 100 || height > 250) {
-        showToast('⚠️ Invalid values (weight: 30-300, height: 100-250)', 'error');
+      if (!weight || !height || weight < 30 || weight > 300 || height < 100 || height > 250) {
+        showToast('⚠️ Please enter valid weight (30-300kg) and height (100-250cm)', 'error');
         return;
       }
 
       try {
-        const response = await fetch(`${BACKEND_URL}/api/profile`, {
+        const res = await fetch(`${BACKEND_URL}/api/profile`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1466,156 +2402,166 @@
             height,
             protein: protein || weight * 1.8,
             calories: calories || 2000,
-            goal
+            goal,
+            style: currentStyle
           })
         });
-
-        if (response.ok) {
-          const data = await response.json();
+        if (res.ok) {
           document.getElementById('onboardingCard').style.display = 'none';
           document.getElementById('scheduleCard').style.display = 'block';
           document.getElementById('cameraWrapper').style.display = 'block';
           document.getElementById('demoSection').style.display = 'flex';
           document.getElementById('feedbackPanel').style.display = 'flex';
           document.getElementById('startBtn').disabled = false;
-
-          renderSchedule(data.schedule);
-          showToast('✅ Profile saved! Check your schedule below!', 'success');
-          tg.showAlert('🎉 Profile saved! Your personalized workout plan is ready!');
+          renderSchedule();
+          showToast('✅ Profile saved!', 'success');
+          tg.showAlert('🎉 Profile saved! Your workout plan is ready!');
         } else {
           showToast('❌ Failed to save profile', 'error');
         }
-      } catch (err) {
-        showToast('❌ Network error', 'error');
-      }
+      } catch (err) { showToast('❌ Network error', 'error'); }
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  SCHEDULE
+    //  STYLE SELECTOR
     // ──────────────────────────────────────────────────────────────
-    const scheduleList = document.getElementById('scheduleList');
-    let selectedExercise = 'PUSHUP';
-    let currentExercises = [];
+    document.querySelectorAll('.style-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentStyle = this.dataset.style;
+        renderSchedule();
+        showToast(`🔄 Switched to ${this.textContent.trim()}`, 'info');
+      });
+    });
 
-    function renderSchedule(scheduleData) {
+    // ──────────────────────────────────────────────────────────────
+    //  RENDER SCHEDULE
+    // ──────────────────────────────────────────────────────────────
+    function renderSchedule() {
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
       document.getElementById('dayBadge').textContent = today.toUpperCase();
 
-      scheduleList.innerHTML = '';
-
-      if (!scheduleData) return;
+      const schedule = WORKOUT_STYLES[currentStyle]?.schedule || WORKOUT_STYLES.push_pull_legs.schedule;
+      const list = document.getElementById('scheduleList');
+      list.innerHTML = '';
 
       const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-      // If scheduleData is an object with day keys
-      const schedule = scheduleData.schedule || scheduleData;
-
       days.forEach(day => {
-        const exercises = schedule[day] || [];
-        const exNames = Array.isArray(exercises) ?
-          exercises.map(ex => typeof ex === 'string' ? ex : ex.id || ex.name).join(', ') :
-          'Rest';
+        const dayData = schedule[day] || { name: 'Rest', exercises: [] };
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'schedule-day';
 
-        const div = document.createElement('div');
-        div.className = 'schedule-item' + (day === today ? ' today' : '');
-        div.innerHTML = `
-          <span class="day">${day}</span>
-          <span class="workout">${exNames || '😴 Rest'}</span>
-          ${day === today ? '<span class="check"><i class="fas fa-check-circle"></i></span>' : '<span class="arrow"><i class="fas fa-chevron-right"></i></span>'}
+        const isToday = day === today;
+
+        const header = document.createElement('div');
+        header.className = 'day-header' + (isToday ? ' today' : '');
+        header.innerHTML = `
+          <span class="day-name">${day}</span>
+          <span class="day-workout">${dayData.name} (${dayData.exercises.length} exercises)</span>
         `;
+        header.addEventListener('click', () => {
+          const exContainer = dayDiv.querySelector('.day-exercises');
+          exContainer.classList.toggle('open');
+        });
 
-        if (day === today && exercises.length > 0) {
-          div.style.cursor = 'pointer';
-          div.addEventListener('click', () => {
-            const firstEx = Array.isArray(exercises) ? (typeof exercises[0] === 'string' ? exercises[0] : exercises[0].id) :
-              'PUSHUP';
-            if (firstEx) {
-              selectedExercise = firstEx;
-              loadExerciseDetails(firstEx);
-              document.getElementById('startBtn').disabled = false;
-              showToast(`🎯 Selected: ${firstEx}`, 'info');
+        dayDiv.appendChild(header);
+
+        const exContainer = document.createElement('div');
+        exContainer.className = 'day-exercises' + (isToday ? ' open' : '');
+
+        dayData.exercises.forEach(exId => {
+          const ex = EXERCISE_DB[exId];
+          if (!ex) return;
+
+          const item = document.createElement('div');
+          item.className = 'exercise-item';
+          item.dataset.premium = ex.premium ? 'true' : 'false';
+
+          if (ex.premium && !premiumUnlocked) {
+            item.classList.add('premium-locked');
+          } else if (ex.premium && premiumUnlocked) {
+            item.classList.add('premium-unlocked');
+          }
+
+          const badgeText = ex.premium ? (premiumUnlocked ? '⭐ Unlocked' : '🔒 Premium') : 'Free';
+          const badgeClass = ex.premium ? (premiumUnlocked ? 'premium' : 'locked') : 'free';
+
+          item.innerHTML = `
+            <span class="ex-icon">${ex.icon}</span>
+            <div class="ex-info">
+              <div class="ex-name">${ex.name}</div>
+              <div class="ex-detail">${ex.muscle} • ${ex.defaultSets}×${ex.defaultReps}</div>
+            </div>
+            <span class="ex-badge ${badgeClass}">${badgeText}</span>
+            ${ex.premium && !premiumUnlocked ? '<span class="ex-lock"><i class="fas fa-lock"></i></span>' : ''}
+          `;
+
+          item.addEventListener('click', () => {
+            if (ex.premium && !premiumUnlocked) {
+              // Show ad modal to unlock
+              openAdModal(exId);
+              return;
             }
+            selectedExercise = exId;
+            selectExercise(exId);
           });
-        }
-        scheduleList.appendChild(div);
+
+          exContainer.appendChild(item);
+        });
+
+        dayDiv.appendChild(exContainer);
+        list.appendChild(dayDiv);
       });
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  EXERCISE DETAILS
+    //  SELECT EXERCISE
     // ──────────────────────────────────────────────────────────────
-    async function loadExerciseDetails(exerciseId) {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/exercises/${exerciseId}`);
-        if (response.ok) {
-          const ex = await response.json();
-          updateDemo(ex);
-        } else {
-          // Fallback to local
-          const localEx = LOCAL_EXERCISES[exerciseId];
-          if (localEx) updateDemo(localEx);
-        }
-      } catch (err) {
-        const localEx = LOCAL_EXERCISES[exerciseId];
-        if (localEx) updateDemo(localEx);
+    function selectExercise(exId) {
+      const ex = EXERCISE_DB[exId];
+      if (!ex) return;
+
+      currentExerciseData = ex;
+
+      // Check if premium and locked
+      if (ex.premium && !premiumUnlocked) {
+        document.getElementById('demoMan').textContent = '🔒';
+        document.getElementById('demoName').textContent = ex.name;
+        document.getElementById('demoMuscle').textContent = ex.muscle;
+        document.getElementById('demoDesc').textContent = 'Premium workout - watch 5 ads to unlock!';
+        document.getElementById('demoTip').innerHTML = '<i class="fas fa-star"></i> ⭐ Premium Exercise';
+        document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps}</strong> reps`;
+        document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets}</strong> sets`;
+        document.getElementById('demoPremiumTag').style.display = 'inline';
+        document.getElementById('demoUnlockBtn').style.display = 'flex';
+        document.getElementById('demoUnlockBtn').onclick = () => openAdModal(exId);
+        document.getElementById('feedbackText').textContent = '🔒 Locked';
+        document.getElementById('feedbackMsg').className = 'feedback-msg waiting';
+        document.getElementById('startBtn').disabled = true;
+        return;
       }
-    }
 
-    const LOCAL_EXERCISES = {
-      PUSHUP: { name: 'Push-up', icon: '💪', demo: '🧍', muscle: 'Chest', desc: 'Keep back straight, lower chest to ground',
-        tip: 'Keep elbows at 45°', defaultReps: 12, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4' },
-      SQUAT: { name: 'Squat', icon: '🦵', demo: '🏋️', muscle: 'Legs', desc: 'Keep chest up, go to parallel',
-        tip: 'Knees track over toes', defaultReps: 15, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U' },
-      BICEP_CURL: { name: 'Bicep Curl', icon: '💪', demo: '🏋️', muscle: 'Biceps', desc: 'Curl up, squeeze bicep',
-        tip: 'Elbows pinned to sides', defaultReps: 10, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo' },
-      SHOULDER_PRESS: { name: 'Shoulder Press', icon: '🏋️', demo: '🏋️', muscle: 'Shoulders',
-        desc: 'Press overhead, core tight', tip: "Don't arch back", defaultReps: 10, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog' },
-      PLANK: { name: 'Plank', icon: '🧘', demo: '🧘', muscle: 'Abs', desc: 'Straight line from head to heels',
-        tip: "Don't sag hips", defaultReps: 3, defaultSets: 3, videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw' },
-      LUNGE: { name: 'Lunge', icon: '🚶', demo: '🚶', muscle: 'Legs', desc: 'Front knee 90°, back knee hovers',
-        tip: 'Keep torso upright', defaultReps: 12, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U' },
-      CRUNCH: { name: 'Crunch', icon: '🔥', demo: '🔥', muscle: 'Abs', desc: 'Curl shoulders off ground',
-        tip: 'Keep neck relaxed', defaultReps: 20, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU' },
-      ROW: { name: 'Bent-over Row', icon: '🔙', demo: '🔙', muscle: 'Back', desc: 'Pull elbows back, squeeze blades',
-        tip: 'Keep back straight', defaultReps: 10, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw' },
-      DEADLIFT: { name: 'Deadlift', icon: '🏋️', demo: '🏋️', muscle: 'Back/Legs', desc: 'Hinge at hips, back straight',
-        tip: 'Drive through heels', defaultReps: 8, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE' },
-      LATERAL_RAISE: { name: 'Lateral Raise', icon: '💪', demo: '💪', muscle: 'Shoulders',
-        desc: 'Raise arms to sides', tip: 'Slight bend in elbows', defaultReps: 12, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/3VcKaXpzqHw' },
-      TRICEP_EXTENSION: { name: 'Tricep Extension', icon: '💪', demo: '💪', muscle: 'Triceps',
-        desc: 'Extend overhead, lower behind head', tip: 'Keep elbows pointing forward', defaultReps: 12, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/vB5OHsJ3EME' },
-      GLUTE_BRIDGE: { name: 'Glute Bridge', icon: '🦵', demo: '🦵', muscle: 'Glutes', desc: 'Lift hips up, squeeze glutes',
-        tip: "Don't overextend lower back", defaultReps: 15, defaultSets: 3,
-        videoUrl: 'https://www.youtube.com/embed/Zp26q4BYWHE' }
-    };
-
-    function updateDemo(ex) {
       document.getElementById('demoMan').textContent = ex.demo || '🧍';
       document.getElementById('demoName').textContent = ex.name;
-      document.getElementById('demoMuscle').textContent = ex.muscle || 'General';
+      document.getElementById('demoMuscle').textContent = ex.muscle;
       document.getElementById('demoDesc').textContent = ex.desc || 'Keep proper form';
       document.getElementById('demoTip').innerHTML = `<i class="fas fa-lightbulb"></i> ${ex.tip || 'Focus on form'}`;
-      document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps || 10}</strong> reps`;
-      document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets || 3}</strong> sets`;
+      document.getElementById('demoReps').innerHTML = `🔁 <strong>${ex.defaultReps}</strong> reps`;
+      document.getElementById('demoSets').innerHTML = `📋 <strong>${ex.defaultSets}</strong> sets`;
+      document.getElementById('demoPremiumTag').style.display = ex.premium ? 'inline' : 'none';
+      document.getElementById('demoUnlockBtn').style.display = 'none';
       document.getElementById('feedbackText').textContent = ex.name;
       document.getElementById('feedbackMsg').className = 'feedback-msg waiting';
+      document.getElementById('startBtn').disabled = false;
 
       // Video button
-      const videoBtn = document.getElementById('demoVideoBtn');
       if (ex.videoUrl) {
-        videoBtn.style.display = 'flex';
-        videoBtn.onclick = () => openVideo(ex.videoUrl);
+        document.getElementById('demoVideoBtn').style.display = 'flex';
+        document.getElementById('demoVideoBtn').onclick = () => openVideo(ex.videoUrl);
       } else {
-        videoBtn.style.display = 'none';
+        document.getElementById('demoVideoBtn').style.display = 'none';
       }
     }
 
@@ -1643,17 +2589,15 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  MEDIAPIPE SETUP (simplified for demo)
+    //  MEDIAPIPE SETUP (simplified)
     // ──────────────────────────────────────────────────────────────
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    let currentExerciseKey = 'PUSHUP';
     let pose = null;
     let frameLoop = null;
     let facingMode = 'environment';
-    let isRecording = false;
 
     function onResults(results) {
       canvas.width = video.videoWidth || 640;
@@ -1667,15 +2611,13 @@
       }
 
       try {
-        // Draw skeleton if available
         if (typeof drawConnectors !== 'undefined' && typeof drawLandmarks !== 'undefined') {
           drawConnectors(ctx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#4ade80', lineWidth: 2 });
           drawLandmarks(ctx, results.poseLandmarks, { color: '#f87171', lineWidth: 2, radius: 4 });
         }
       } catch (e) {}
 
-      // Evaluate
-      const fb = evaluateExercise(results.poseLandmarks, currentExerciseKey);
+      const fb = evaluateExercise(results.poseLandmarks);
       document.getElementById('feedbackText').textContent = fb.msg;
       document.getElementById('feedbackAngle').textContent = `Angle: ${fb.angle}`;
       document.getElementById('feedbackMsg').className = 'feedback-msg ' + fb.status;
@@ -1688,11 +2630,11 @@
       return angle;
     }
 
-    function evaluateExercise(lm, mode) {
+    function evaluateExercise(lm) {
       const rand = Math.random();
       let msg, status, angle;
 
-      if (mode === 'PLANK') {
+      if (selectedExercise === 'PLANK') {
         const hipY = (lm[23].y + lm[24].y) / 2;
         const shY = (lm[11].y + lm[12].y) / 2;
         const diff = hipY - shY;
@@ -1733,7 +2675,7 @@
       } catch (err) {
         document.getElementById('feedbackText').textContent = '❌ Camera unavailable';
         document.getElementById('feedbackMsg').className = 'feedback-msg bad';
-        showToast('⚠️ Please allow camera access to use the trainer!', 'error');
+        showToast('⚠️ Please allow camera access', 'error');
       }
     }
 
@@ -1747,7 +2689,6 @@
     // ──────────────────────────────────────────────────────────────
     function initializePose() {
       if (typeof Pose === 'undefined') {
-        // Load MediaPipe scripts if not loaded
         loadMediaPipe();
         return;
       }
@@ -1786,14 +2727,12 @@
         };
         document.head.appendChild(script);
       });
-      // Fallback: if scripts don't load, use demo mode after 5 seconds
       setTimeout(() => {
         if (!pose) {
           console.log('Using demo mode for pose detection');
           startCamera();
-          // Simulate feedback
           setInterval(() => {
-            const fb = evaluateExercise({}, currentExerciseKey);
+            const fb = evaluateExercise({});
             document.getElementById('feedbackText').textContent = fb.msg;
             document.getElementById('feedbackAngle').textContent = `Angle: ${fb.angle}`;
             document.getElementById('feedbackMsg').className = 'feedback-msg ' + fb.status;
@@ -1825,36 +2764,38 @@
         btn.classList.add('recording');
         ind.classList.add('active');
         showToast('🔴 Recording started!', 'info');
-        tg.showAlert('🔴 Recording started!');
       } else {
         btn.innerHTML = '<i class="fas fa-circle"></i> Record';
         btn.classList.remove('recording');
         ind.classList.remove('active');
         showToast('✅ Recording saved!', 'success');
-        tg.showAlert('✅ Recording saved!');
       }
     });
 
     document.getElementById('startBtn').addEventListener('click', () => {
-      tg.showAlert(`🏋️ Starting ${selectedExercise} workout!\nFollow the demo and record your form.`);
+      if (currentExerciseData?.premium && !premiumUnlocked) {
+        openAdModal(selectedExercise);
+        return;
+      }
+      tg.showAlert(`🏋️ Starting ${selectedExercise} workout!`);
       document.getElementById('startBtn').disabled = true;
       document.getElementById('stopBtn').disabled = false;
       if (!isRecording) document.getElementById('recordBtn').click();
-      showToast(`🎯 ${selectedExercise} workout started!`, 'info');
+      showToast(`🎯 ${selectedExercise} started!`, 'info');
     });
 
     document.getElementById('stopBtn').addEventListener('click', () => {
       if (isRecording) document.getElementById('recordBtn').click();
       document.getElementById('startBtn').disabled = false;
       document.getElementById('stopBtn').disabled = true;
-      showToast('⏹ Workout finished! Keep it up! 💪', 'success');
-      tg.showAlert('⏹ Workout finished! Keep it up! 💪');
+      showToast('⏹ Workout finished! 💪', 'success');
     });
 
     // ──────────────────────────────────────────────────────────────
     //  INIT
     // ──────────────────────────────────────────────────────────────
     async function init() {
+      loadAdCount();
       await checkBackend();
       const hasProfile = await loadProfile();
 
@@ -1866,10 +2807,10 @@
         document.getElementById('feedbackPanel').style.display = 'none';
       }
 
-      // Load default exercise details
-      loadExerciseDetails('PUSHUP');
+      // Load default exercise
+      selectExercise('PUSHUP');
 
-      // Start camera if available
+      // Start camera
       if (navigator.mediaDevices?.getUserMedia) {
         setTimeout(loadMediaPipe, 1000);
       } else {
@@ -1877,20 +2818,19 @@
         document.getElementById('feedbackMsg').className = 'feedback-msg bad';
       }
 
-      // Keyboard shortcut
+      // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
         if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click();
       });
 
-      // Check backend every 30 seconds
       setInterval(checkBackend, 30000);
 
       console.log('🏋️ AI Gym Trainer Pro loaded!');
       console.log(`🔗 Backend: ${BACKEND_URL}`);
       console.log(`👤 User: ${user?.first_name || 'Guest'}`);
+      console.log(`📺 Ads watched today: ${adWatchedToday}/${ADS_REQUIRED}`);
     }
 
-    // Start the app
     init();
   </script>
 </body>
