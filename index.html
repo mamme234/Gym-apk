@@ -63,8 +63,20 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 14, 23, 0.92);
-      z-index: -1;
+      background: url('background.png') center/cover no-repeat fixed;
+      opacity: 0.15;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 14, 23, 0.88);
+      z-index: 0;
     }
 
     .app { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; animation: fadeUp 0.6s ease; }
@@ -75,7 +87,6 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes pulse-logo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     @keyframes fade-text { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-    @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
 
     /* LOADING */
     #loadingScreen {
@@ -88,6 +99,9 @@
       width: 120px; height: 120px; object-fit: contain; margin-bottom: 30px;
       animation: pulse-logo 1.5s ease-in-out infinite;
       border-radius: 50%; background: rgba(249, 176, 66, 0.1); padding: 10px;
+    }
+    #loadingScreen .logo-img img {
+      width: 100%; height: 100%; object-fit: contain; border-radius: 50%;
     }
     #loadingScreen .spinner {
       width: 50px; height: 50px;
@@ -203,18 +217,6 @@
     .schedule-day .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .schedule-day .day-name { font-weight: 700; font-size: 0.9rem; }
     .schedule-day .day-date { font-size: 0.7rem; color: var(--tg-hint); }
-    .schedule-day .day-workouts { display: flex; gap: 6px; flex-wrap: wrap; }
-    .schedule-day .day-workout-tag {
-      font-size: 0.6rem; padding: 3px 10px; border-radius: 20px;
-      background: rgba(249, 176, 66, 0.1); color: var(--accent);
-      border: 1px solid rgba(249, 176, 66, 0.1); cursor: pointer;
-      transition: var(--transition);
-    }
-    .schedule-day .day-workout-tag:hover { background: rgba(249, 176, 66, 0.2); transform: scale(1.05); }
-    .schedule-day .day-workout-tag.completed { background: rgba(74, 222, 128, 0.15); color: var(--green); border-color: rgba(74, 222, 128, 0.2); }
-    .schedule-day .day-workout-tag.premium { background: rgba(245, 158, 11, 0.15); color: var(--gold); border-color: rgba(245, 158, 11, 0.2); }
-    .schedule-day .day-workout-tag i { margin-right: 4px; }
-    .schedule-day .day-duration { font-size: 0.6rem; color: var(--tg-hint); margin-top: 4px; }
     .schedule-day .day-progress {
       margin-top: 6px; height: 2px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;
     }
@@ -265,6 +267,19 @@
       border: 1px solid rgba(255,255,255,0.06);
     }
     .close-workout-list:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* START WORKOUT BUTTON IN LIST */
+    .start-workout-list-btn {
+      width: 100%; padding: 14px; border-radius: var(--radius-sm); border: none;
+      background: linear-gradient(135deg, var(--green), #22c55e);
+      color: #0a0e17; font-weight: 700; font-size: 1rem;
+      cursor: pointer; transition: var(--transition); font-family: inherit;
+      margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 24px var(--green-glow);
+    }
+    .start-workout-list-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow); }
+    .start-workout-list-btn:active { transform: scale(0.97); }
+    .start-workout-list-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     /* DASHBOARD */
     .dashboard-container { display: none; animation: slideUp 0.5s ease-out; }
@@ -383,7 +398,7 @@
     .cam-btn.record.recording { background: #4b5563; border-color: #4b5563; animation: pulse-record 1.5s infinite; }
     @keyframes pulse-record { 0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.3); } 50% { box-shadow: 0 0 0 12px rgba(248,113,113,0); } }
 
-    /* FORM CORRECTION - FOR ALL EXERCISES */
+    /* FORM CORRECTION */
     .form-correction {
       position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
       z-index: 10; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
@@ -500,7 +515,9 @@
 
   <!-- LOADING -->
   <div id="loadingScreen">
-    <div class="logo-img" style="display:flex;align-items:center;justify-content:center;font-size:3.5rem;background:linear-gradient(135deg,var(--accent),#f59e0b);color:#0a0e17;">🏋️</div>
+    <div class="logo-img">
+      <img src="background.png" alt="Logo" />
+    </div>
     <div class="spinner"></div>
     <p class="loading-text">Loading Pro Max 100...</p>
     <div class="loading-progress"><div class="loading-progress-bar" id="loadingProgressBar"></div></div>
@@ -530,6 +547,12 @@
       <div class="modal-title"><i class="fas fa-list"></i> <span id="workoutListDay">Today's Workouts</span></div>
       <div class="modal-sub" id="workoutListSub">Tap any workout to open dashboard</div>
       <div id="workoutListItems"></div>
+      
+      <!-- START WORKOUT BUTTON IN LIST -->
+      <button class="start-workout-list-btn" id="startWorkoutListBtn">
+        <i class="fas fa-play"></i> Start Full Workout
+      </button>
+      
       <button class="close-workout-list" id="closeWorkoutList"><i class="fas fa-arrow-left"></i> Back to Schedule</button>
     </div>
   </div>
@@ -647,7 +670,7 @@
         </div>
       </div>
 
-      <!-- NEW: Dashboard Action Buttons -->
+      <!-- Dashboard Action Buttons -->
       <div class="dash-actions">
         <button class="action-btn secondary" id="dashBackToList">
           <i class="fas fa-arrow-left"></i> Back to List
@@ -667,7 +690,7 @@
       </div>
     </div>
 
-          </div><script>
+  </div><script>
     // ──────────────────────────────────────────────────────────────
     //  TELEGRAM INIT
     // ──────────────────────────────────────────────────────────────
@@ -996,6 +1019,7 @@
     let completedExercises = [];
     let workoutStreak = 0;
     let lastWorkoutDate = null;
+    let isFullWorkoutActive = false;
 
     // ──────────────────────────────────────────────────────────────
     //  LOCAL STORAGE
@@ -1031,7 +1055,7 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  HIDE LOADING - FIXED WITH PROGRESS
+    //  HIDE LOADING WITH PROGRESS
     // ──────────────────────────────────────────────────────────────
     function updateLoadingProgress(percent) {
       const bar = document.getElementById('loadingProgressBar');
@@ -1066,7 +1090,6 @@
       userName.textContent = name || USER_FULL_NAME || 'Athlete';
       userStatus.textContent = `💪 ${userData.style || 'Full Body'} • ${userData.weight || 75}kg`;
       
-      // Update streak
       if (userData.lastWorkoutDate) {
         const lastDate = new Date(userData.lastWorkoutDate);
         const today = new Date();
@@ -1220,7 +1243,12 @@
             <div style="font-size:0.8rem;">Take time to recover! 💪</div>
           </div>
         `;
+        document.getElementById('startWorkoutListBtn').style.display = 'none';
       } else {
+        document.getElementById('startWorkoutListBtn').style.display = 'flex';
+        document.getElementById('startWorkoutListBtn').disabled = false;
+        document.getElementById('startWorkoutListBtn').innerHTML = '<i class="fas fa-play"></i> Start Full Workout';
+        
         day.exercises.forEach((ex, index) => {
           const item = document.createElement('div');
           item.className = 'workout-list-item';
@@ -1250,6 +1278,51 @@
     }
 
     // ──────────────────────────────────────────────────────────────
+    //  START FULL WORKOUT FROM LIST
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('startWorkoutListBtn').addEventListener('click', function() {
+      if (!selectedDayData || selectedDayData.exercises.length === 0) {
+        showToast('⚠️ No exercises for today!', 'error');
+        return;
+      }
+      
+      if (isFullWorkoutActive) {
+        showToast('⚠️ Workout already active!', 'info');
+        return;
+      }
+      
+      isFullWorkoutActive = true;
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+      
+      // Auto-start the first exercise
+      const firstExercise = selectedDayData.exercises[0];
+      if (firstExercise) {
+        document.getElementById('workoutListModal').classList.remove('active');
+        if (firstExercise.premium) {
+          showPremiumAd().then(() => { 
+            openDashboard(selectedDayData, currentSchedule, firstExercise.id);
+            // Auto-start workout
+            setTimeout(() => {
+              document.getElementById('startWorkoutBtn').click();
+            }, 500);
+          });
+        } else {
+          openDashboard(selectedDayData, currentSchedule, firstExercise.id);
+          setTimeout(() => {
+            document.getElementById('startWorkoutBtn').click();
+          }, 500);
+        }
+        showToast('🏋️ Full workout started!', 'success');
+      }
+      
+      setTimeout(() => {
+        this.disabled = false;
+        this.innerHTML = '<i class="fas fa-play"></i> Start Full Workout';
+      }, 2000);
+    });
+
+    // ──────────────────────────────────────────────────────────────
     //  CLOSE WORKOUT LIST
     // ──────────────────────────────────────────────────────────────
     document.getElementById('closeWorkoutList').addEventListener('click', () => {
@@ -1257,7 +1330,7 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  OPEN DASHBOARD - WITH REPS & SETS
+    //  OPEN DASHBOARD - WITH REPS & SETS FIXED
     // ──────────────────────────────────────────────────────────────
     function openDashboard(day, schedule, exerciseId = null) {
       selectedExerciseId = exerciseId;
@@ -1289,15 +1362,15 @@
       if (focusExercise) {
         stats = [
           { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: focusExercise.benefit || 'Builds strength' },
-          { icon: '🔥', value: `${calories}`, label: 'Calories', benefit: 'Daily target' },
-          { icon: '🥩', value: `${protein}g`, label: 'Protein', benefit: 'Muscle recovery' },
+          { icon: '🔥', value: `${Math.round(calories/4.5)}`, label: 'Calories', benefit: 'Per workout' },
+          { icon: '🥩', value: `${Math.round(protein/3)}g`, label: 'Protein', benefit: 'Muscle recovery' },
           { icon: '⚠️', value: '🚫', label: 'Avoid', benefit: focusExercise.reduce || 'Use proper form' }
         ];
       } else {
         stats = [
           { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: 'Progress tracking' },
-          { icon: '🔥', value: `${calories}`, label: 'Calories', benefit: 'Daily target' },
-          { icon: '🥩', value: `${protein}g`, label: 'Protein', benefit: 'Muscle recovery' },
+          { icon: '🔥', value: `${Math.round(calories/4.5)}`, label: 'Calories', benefit: 'Per workout' },
+          { icon: '🥩', value: `${Math.round(protein/3)}g`, label: 'Protein', benefit: 'Muscle recovery' },
           { icon: '💪', value: `${day.exercises.length}`, label: 'Exercises', benefit: 'Today\'s workout' }
         ];
       }
@@ -1314,7 +1387,7 @@
         statsContainer.appendChild(statEl);
       });
 
-      // Details - SHOW REPS & SETS
+      // Details - SHOW REPS & SETS (FIXED)
       const detailsContainer = document.getElementById('dashDetails');
       detailsContainer.innerHTML = '';
 
@@ -1324,7 +1397,10 @@
           <div class="detail-row"><span class="detail-label">🎯 Target</span><span class="detail-value">${focusExercise.muscle}</span></div>
           <div class="detail-row"><span class="detail-label">📝 Description</span><span class="detail-value">${focusExercise.desc}</span></div>
           <div class="detail-row"><span class="detail-label">💡 Tip</span><span class="detail-value good">${focusExercise.tip}</span></div>
-          <div class="detail-row" style="background:rgba(249,176,66,0.08); padding:6px 0; border-radius:4px; margin:2px 0;"><span class="detail-label" style="font-weight:700;">📊 Sets & Reps</span><span class="detail-value" style="font-size:1rem; font-weight:800; color:var(--accent);">${focusExercise.sets} sets × ${focusExercise.reps} reps</span></div>
+          <div class="detail-row" style="background:rgba(249,176,66,0.08); padding:6px 0; border-radius:4px; margin:2px 0;">
+            <span class="detail-label" style="font-weight:700;">📊 Sets & Reps</span>
+            <span class="detail-value" style="font-size:1rem; font-weight:800; color:var(--accent);">${focusExercise.sets} sets × ${focusExercise.reps} reps</span>
+          </div>
           <div class="detail-row"><span class="detail-label">✅ Benefit</span><span class="detail-value good">${focusExercise.benefit || 'Builds strength & muscle'}</span></div>
           <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${focusExercise.reduce || 'Avoid using momentum'}</span></div>
           ${focusExercise.videoUrl ? `<div class="detail-row"><span class="detail-label">📹 Video</span><span class="detail-value" style="color:var(--accent);cursor:pointer;" onclick="openVideo('${focusExercise.videoUrl}')"><i class="fas fa-play-circle"></i> Watch Tutorial</span></div>` : ''}
@@ -1343,10 +1419,10 @@
       const nutritionContainer = document.getElementById('dashNutritionGrid');
       nutritionContainer.innerHTML = '';
       const duration = userData.duration || 45;
-      const caloriesNeeded = Math.round((userData.calories || 2500) / 3);
+      const caloriesNeeded = Math.round((userData.calories || 2500) / 4.5);
       const proteinNeeded = Math.round((userData.protein || 150) / 3);
-      const carbsNeeded = Math.round((userData.weight || 75) * 1.5);
-      const fatsNeeded = Math.round((userData.weight || 75) * 0.5);
+      const carbsNeeded = Math.round((userData.weight || 75) * 1.3);
+      const fatsNeeded = Math.round((userData.weight || 75) * 0.45);
       const waterNeeded = Math.round((userData.weight || 75) * 35 + duration * 10);
 
       let muscleGroup = focusExercise ? focusExercise.muscle : 'Full Body';
@@ -1388,12 +1464,13 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  BACK TO SCHEDULE - WITH CONFIRMATION
+    //  BACK TO SCHEDULE - WITH CONFIRMATION IF WORKOUT ACTIVE
     // ──────────────────────────────────────────────────────────────
     document.getElementById('dashboardBack').addEventListener('click', () => {
-      if (isWorkoutActive) {
-        if (confirm('⚠️ You have an active workout! Are you sure you want to leave?')) {
+      if (isWorkoutActive || isFullWorkoutActive) {
+        if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
           stopWorkout();
+          isFullWorkoutActive = false;
           document.getElementById('dashboardContainer').classList.remove('active');
           document.getElementById('scheduleContainer').classList.add('active');
           const schedule = generateSchedule(true);
@@ -1413,9 +1490,10 @@
     //  BACK TO WORKOUT LIST - WITH CONFIRMATION
     // ──────────────────────────────────────────────────────────────
     document.getElementById('dashBackToList').addEventListener('click', () => {
-      if (isWorkoutActive) {
-        if (confirm('⚠️ You have an active workout! Are you sure you want to leave?')) {
+      if (isWorkoutActive || isFullWorkoutActive) {
+        if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
           stopWorkout();
+          isFullWorkoutActive = false;
           document.getElementById('dashboardContainer').classList.remove('active');
           if (selectedDayData) {
             openWorkoutList(selectedDayData);
@@ -1449,7 +1527,6 @@
         document.getElementById('dashFinishBtn').disabled = true;
         document.getElementById('dashFinishBtn').innerHTML = '<i class="fas fa-check"></i> Done!';
         
-        // Update streak
         const today = new Date().toDateString();
         if (lastWorkoutDate !== today) {
           lastWorkoutDate = today;
@@ -1467,7 +1544,6 @@
           }, 800);
         }
         
-        // Update schedule progress
         if (currentSchedule) {
           renderSchedule(currentSchedule);
         }
@@ -1505,6 +1581,7 @@
     // ──────────────────────────────────────────────────────────────
     function stopWorkout() {
       isWorkoutActive = false;
+      isFullWorkoutActive = false;
       clearInterval(timerInterval);
       timerInterval = null;
       if (isRecording) document.getElementById('recordBtn').click();
@@ -1527,6 +1604,7 @@
       if (!isRecording) document.getElementById('recordBtn').click();
       seconds = 0;
       isWorkoutActive = true;
+      isFullWorkoutActive = true;
       timerInterval = setInterval(() => {
         seconds++;
         document.getElementById('startWorkoutBtn').innerHTML = `<i class="fas fa-clock"></i> ${formatTime(seconds)}`;
@@ -1691,7 +1769,7 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  INIT - FIXED WITH PROPER LOADING
+    //  INIT
     // ──────────────────────────────────────────────────────────────
     async function init() {
       try {
@@ -1735,10 +1813,9 @@
         console.log('🏋️ AI Gym Trainer Pro Max 100 loaded!');
         console.log(`💪 Exercises loaded: ${Object.keys(EXERCISE_DB).length}`);
         console.log('👤 Developed by Muhammad Ilyas');
-        console.log('🚀 PRO MAX version with all fixes!');
+        console.log('🚀 PRO MAX version with background.png!');
 
         updateLoadingProgress(100);
-        // HIDE LOADING AFTER 1 SECOND WITH SAFETY
         setTimeout(function() {
           try {
             hideLoading();
@@ -1750,7 +1827,6 @@
         
       } catch (error) {
         console.error('Init error:', error);
-        // Force hide loading on error
         setTimeout(function() {
           document.getElementById('loadingScreen').style.display = 'none';
         }, 2000);
