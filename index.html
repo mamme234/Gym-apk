@@ -63,9 +63,10 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: url('background.png') center/cover no-repeat fixed;
-      opacity: 0.15;
-      z-index: 0;
+      background: url('background.png') center center / cover no-repeat;
+      opacity: 0.12;
+      z-index: -1;
+      pointer-events: none;
     }
 
     body::after {
@@ -76,7 +77,8 @@
       width: 100%;
       height: 100%;
       background: rgba(10, 14, 23, 0.88);
-      z-index: 0;
+      z-index: -1;
+      pointer-events: none;
     }
 
     .app { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; animation: fadeUp 0.6s ease; }
@@ -87,6 +89,7 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes pulse-logo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     @keyframes fade-text { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes progress-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
     /* LOADING */
     #loadingScreen {
@@ -98,10 +101,14 @@
     #loadingScreen .logo-img {
       width: 120px; height: 120px; object-fit: contain; margin-bottom: 30px;
       animation: pulse-logo 1.5s ease-in-out infinite;
-      border-radius: 50%; background: rgba(249, 176, 66, 0.1); padding: 10px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(249, 176, 66, 0.3);
+      box-shadow: 0 0 40px rgba(249, 176, 66, 0.2);
     }
     #loadingScreen .logo-img img {
-      width: 100%; height: 100%; object-fit: contain; border-radius: 50%;
+      width: 100%; height: 100%; object-fit: cover;
+      display: block;
     }
     #loadingScreen .spinner {
       width: 50px; height: 50px;
@@ -126,9 +133,11 @@
     /* USER PROFILE */
     .user-profile {
       display: flex; align-items: center; gap: 12px;
-      background: var(--tg-secondary); border-radius: var(--radius-sm);
+      background: rgba(19, 27, 38, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-sm);
       padding: 10px 14px; margin-bottom: 14px;
-      border: 1px solid rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
     }
     .user-profile .avatar {
       width: 44px; height: 44px; border-radius: 50%;
@@ -153,7 +162,9 @@
 
     /* ONBOARDING */
     .onboarding-card {
-      background: var(--tg-secondary); border-radius: var(--radius);
+      background: rgba(19, 27, 38, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
       padding: 24px 20px; margin-bottom: 14px;
       border: 1px solid rgba(255,255,255,0.05); box-shadow: var(--shadow);
       animation: slideUp 0.6s ease-out;
@@ -163,7 +174,9 @@
     .onboarding-card .sub { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 18px; }
     .onboarding-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .onboarding-field {
-      background: var(--tg-bg); border-radius: var(--radius-sm);
+      background: rgba(10, 14, 23, 0.6);
+      backdrop-filter: blur(4px);
+      border-radius: var(--radius-sm);
       padding: 10px 14px; border: 1px solid rgba(255,255,255,0.04);
       transition: var(--transition);
     }
@@ -209,7 +222,9 @@
     .schedule-grid::-webkit-scrollbar { width: 3px; }
     .schedule-grid::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     .schedule-day {
-      background: var(--tg-secondary); border-radius: var(--radius-sm);
+      background: rgba(19, 27, 38, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-sm);
       padding: 14px 16px; border: 1px solid rgba(255,255,255,0.05);
       cursor: pointer; transition: var(--transition);
     }
@@ -234,7 +249,9 @@
     }
     .workout-list-modal.active { display: flex; }
     .workout-list-modal .modal-content {
-      background: var(--tg-secondary); border-radius: var(--radius);
+      background: rgba(19, 27, 38, 0.92);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius);
       max-width: 460px; width: 100%; padding: 24px;
       border: 1px solid rgba(255,255,255,0.06); box-shadow: var(--shadow);
       max-height: 85vh; overflow-y: auto;
@@ -245,7 +262,9 @@
     .workout-list-modal .modal-title i { color: var(--accent); }
     .workout-list-modal .modal-sub { color: var(--tg-hint); font-size: 0.8rem; margin-bottom: 16px; }
     .workout-list-item {
-      background: var(--tg-bg); border-radius: var(--radius-xs);
+      background: rgba(10, 14, 23, 0.6);
+      backdrop-filter: blur(4px);
+      border-radius: var(--radius-xs);
       padding: 12px 16px; margin-bottom: 8px;
       border: 1px solid rgba(255,255,255,0.04); cursor: pointer;
       transition: var(--transition); display: flex; align-items: center; gap: 12px;
@@ -261,7 +280,8 @@
     .workout-list-item .wli-status.done { background: rgba(74,222,128,0.15); color: var(--green); }
     .close-workout-list {
       width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none;
-      background: var(--tg-bg); color: var(--tg-text);
+      background: rgba(10, 14, 23, 0.6);
+      color: var(--tg-text);
       font-weight: 600; cursor: pointer; transition: var(--transition);
       font-family: inherit; margin-top: 8px;
       border: 1px solid rgba(255,255,255,0.06);
@@ -284,16 +304,35 @@
     /* DASHBOARD */
     .dashboard-container { display: none; animation: slideUp 0.5s ease-out; }
     .dashboard-container.active { display: block; }
+    
+    .dashboard-top-btns {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .dashboard-top-btns .top-btn {
+      flex: 1; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(10, 14, 23, 0.6);
+      color: var(--tg-text); font-size: 0.7rem; font-weight: 600;
+      cursor: pointer; transition: var(--transition); font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .dashboard-top-btns .top-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .dashboard-top-btns .top-btn i { font-size: 0.8rem; }
+
     .dashboard-back {
-      background: var(--tg-secondary); border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(19, 27, 38, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.05);
       color: var(--tg-text); padding: 8px 16px; border-radius: var(--radius-sm);
       cursor: pointer; font-family: inherit; font-size: 0.8rem;
       margin-bottom: 12px; transition: var(--transition);
       display: flex; align-items: center; gap: 6px;
     }
     .dashboard-back:hover { border-color: var(--accent); color: var(--accent); }
+
     .dashboard-card {
-      background: var(--tg-secondary); border-radius: var(--radius);
+      background: rgba(19, 27, 38, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
       padding: 20px; border: 1px solid rgba(255,255,255,0.05);
       box-shadow: var(--shadow); margin-bottom: 14px;
     }
@@ -302,7 +341,9 @@
     .dashboard-card .dash-sub { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 14px; }
     .dashboard-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .dash-stat {
-      background: var(--tg-bg); border-radius: var(--radius-xs);
+      background: rgba(10, 14, 23, 0.6);
+      backdrop-filter: blur(4px);
+      border-radius: var(--radius-xs);
       padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.04);
     }
     .dash-stat .stat-icon { font-size: 1.5rem; margin-bottom: 4px; }
@@ -311,7 +352,9 @@
     .dash-stat .stat-benefit { font-size: 0.65rem; color: var(--green); margin-top: 2px; }
     .dash-stat .stat-reduce { font-size: 0.65rem; color: var(--red); margin-top: 2px; }
     .dash-details {
-      background: var(--tg-bg); border-radius: var(--radius-xs);
+      background: rgba(10, 14, 23, 0.6);
+      backdrop-filter: blur(4px);
+      border-radius: var(--radius-xs);
       padding: 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.04);
     }
     .dash-details .detail-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
@@ -321,8 +364,11 @@
     .dash-details .detail-value.good { color: var(--green); }
     .dash-details .detail-value.warning { color: var(--accent); }
     .dash-details .detail-value.danger { color: var(--red); }
+    
     .dash-nutrition {
-      background: var(--tg-bg); border-radius: var(--radius-xs);
+      background: rgba(10, 14, 23, 0.6);
+      backdrop-filter: blur(4px);
+      border-radius: var(--radius-xs);
       padding: 14px; border: 1px solid rgba(255,255,255,0.04);
     }
     .dash-nutrition .nut-title { font-weight: 700; font-size: 0.8rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
@@ -332,17 +378,52 @@
     .dash-nutrition-item .nut-label { color: var(--tg-hint); font-size: 0.65rem; }
     .dash-nutrition-item .nut-value { font-weight: 600; font-size: 0.7rem; }
 
+    /* VIDEO EMBED */
+    .video-embed {
+      margin: 12px 0;
+      border-radius: var(--radius-xs);
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .video-embed iframe {
+      width: 100%; height: 100%; border: none;
+    }
+
+    /* WORKOUT PROGRESS */
+    .workout-progress {
+      display: flex; align-items: center; gap: 12px; margin: 12px 0;
+      padding: 10px 14px; background: rgba(10, 14, 23, 0.6); border-radius: var(--radius-xs);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .workout-progress .progress-text {
+      font-size: 0.75rem; color: var(--tg-hint); flex: 1;
+    }
+    .workout-progress .progress-text strong {
+      color: var(--accent); font-size: 0.9rem;
+    }
+    .workout-progress .progress-bar-track {
+      width: 80px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;
+    }
+    .workout-progress .progress-bar-track .fill {
+      height: 100%; background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: 10px; transition: width 0.5s ease;
+    }
+
+    /* DASHBOARD ACTION BUTTONS */
     .dash-actions {
       display: flex; gap: 8px; margin-bottom: 12px;
     }
     .dash-actions .action-btn {
-      flex: 1; padding: 10px 14px; border-radius: var(--radius-sm); border: none;
-      font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: var(--transition);
-      font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px;
+      flex: 1; padding: 12px 14px; border-radius: var(--radius-sm); border: none;
+      font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: var(--transition);
+      font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .dash-actions .action-btn:active { transform: scale(0.96); }
     .dash-actions .action-btn.secondary {
-      background: var(--tg-bg); color: var(--tg-text); border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(10, 14, 23, 0.6);
+      color: var(--tg-text); border: 1px solid rgba(255,255,255,0.08);
     }
     .dash-actions .action-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
     .dash-actions .action-btn.primary {
@@ -351,6 +432,11 @@
     }
     .dash-actions .action-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px var(--accent-glow); }
     .dash-actions .action-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .dash-actions .action-btn.finish-btn {
+      background: linear-gradient(135deg, var(--green), #22c55e);
+      color: #0a0e17; box-shadow: 0 4px 24px var(--green-glow);
+    }
+    .dash-actions .action-btn.finish-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow); }
 
     /* CAMERA */
     .camera-wrapper {
@@ -415,10 +501,12 @@
     /* TOAST */
     .toast {
       position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
-      background: var(--tg-secondary); color: var(--tg-text);
+      background: rgba(19, 27, 38, 0.9);
+      backdrop-filter: blur(20px);
+      color: var(--tg-text);
       padding: 10px 20px; border-radius: 40px; font-size: 0.75rem;
       font-weight: 500; border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: var(--shadow); backdrop-filter: blur(20px);
+      box-shadow: var(--shadow);
       z-index: 200; animation: fadeUp 0.3s ease-out;
       display: none; max-width: 90%; text-align: center;
     }
@@ -432,8 +520,10 @@
     .action-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       padding: 10px 14px; padding-bottom: max(10px, env(safe-area-inset-bottom));
-      background: var(--tg-secondary); border-top: 1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(24px); display: flex; gap: 8px;
+      background: rgba(19, 27, 38, 0.9);
+      backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; gap: 8px;
       z-index: 100; box-shadow: 0 -4px 40px rgba(0,0,0,0.5);
     }
     .action-btn {
@@ -449,7 +539,7 @@
     }
     .action-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px var(--accent-glow); }
     .action-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-    .action-btn.secondary { background: var(--tg-bg); color: var(--tg-text); border: 1px solid rgba(255,255,255,0.08); }
+    .action-btn.secondary { background: rgba(10, 14, 23, 0.6); color: var(--tg-text); border: 1px solid rgba(255,255,255,0.08); }
     .action-btn.secondary:hover { border-color: var(--tg-hint); }
     .action-btn.secondary:disabled { opacity: 0.3; cursor: not-allowed; }
 
@@ -462,7 +552,9 @@
     }
     .results-modal.active { display: flex; }
     .results-modal .modal-content {
-      background: var(--tg-secondary); border-radius: var(--radius);
+      background: rgba(19, 27, 38, 0.92);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius);
       max-width: 460px; width: 100%; padding: 30px 24px;
       border: 1px solid rgba(255,255,255,0.06); box-shadow: var(--shadow);
       max-height: 90vh; overflow-y: auto;
@@ -478,10 +570,10 @@
       font-size: 4rem; border: 3px solid var(--green);
     }
     .results-modal .result-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-    .results-modal .result-stat { background: var(--tg-bg); border-radius: var(--radius-xs); padding: 10px; text-align: center; }
+    .results-modal .result-stat { background: rgba(10, 14, 23, 0.6); backdrop-filter: blur(4px); border-radius: var(--radius-xs); padding: 10px; text-align: center; }
     .results-modal .result-stat .rs-value { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
     .results-modal .result-stat .rs-label { font-size: 0.55rem; color: var(--tg-hint); text-transform: uppercase; }
-    .results-modal .result-message { background: var(--tg-bg); border-radius: var(--radius-xs); padding: 14px; margin-bottom: 16px; text-align: center; border: 1px solid rgba(74,222,128,0.1); }
+    .results-modal .result-message { background: rgba(10, 14, 23, 0.6); backdrop-filter: blur(4px); border-radius: var(--radius-xs); padding: 14px; margin-bottom: 16px; text-align: center; border: 1px solid rgba(74,222,128,0.1); }
     .results-modal .result-message .msg { font-size: 0.9rem; font-weight: 600; color: var(--green); }
     .results-modal .result-message .sub-msg { font-size: 0.7rem; color: var(--tg-hint); margin-top: 4px; }
     .close-results {
@@ -545,12 +637,11 @@
   <div class="workout-list-modal" id="workoutListModal">
     <div class="modal-content">
       <div class="modal-title"><i class="fas fa-list"></i> <span id="workoutListDay">Today's Workouts</span></div>
-      <div class="modal-sub" id="workoutListSub">Tap any workout to open dashboard</div>
+      <div class="modal-sub" id="workoutListSub">Tap "Start Workout" to begin</div>
       <div id="workoutListItems"></div>
       
-      <!-- START WORKOUT BUTTON IN LIST -->
       <button class="start-workout-list-btn" id="startWorkoutListBtn">
-        <i class="fas fa-play"></i> Start Full Workout
+        <i class="fas fa-play"></i> Start Workout
       </button>
       
       <button class="close-workout-list" id="closeWorkoutList"><i class="fas fa-arrow-left"></i> Back to Schedule</button>
@@ -643,13 +734,33 @@
 
     <!-- DASHBOARD -->
     <div class="dashboard-container" id="dashboardContainer">
+      
+      <!-- TOP BUTTONS: Challenge & Height Increase -->
+      <div class="dashboard-top-btns">
+        <button class="top-btn" id="challengeBtn"><i class="fas fa-trophy"></i> Challenge</button>
+        <button class="top-btn" id="heightIncreaseBtn"><i class="fas fa-arrow-up"></i> Height +</button>
+        <button class="top-btn" id="dashBackToList"><i class="fas fa-arrow-left"></i> List</button>
+      </div>
+      
       <button class="dashboard-back" id="dashboardBack">
         <i class="fas fa-arrow-left"></i> Back to Schedule
       </button>
 
+      <!-- WORKOUT PROGRESS -->
+      <div class="workout-progress" id="workoutProgress">
+        <div class="progress-text">Progress: <strong id="progressText">0/0</strong></div>
+        <div class="progress-bar-track"><div class="fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
       <div class="dashboard-card">
         <div class="dash-title" id="dashTitle"><i class="fas fa-dumbbell"></i> Workout</div>
         <div class="dash-sub" id="dashSub">Workout details & analysis</div>
+        
+        <!-- VIDEO EMBED - Auto shows for current workout -->
+        <div class="video-embed" id="videoEmbed">
+          <iframe id="videoIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        
         <div class="dashboard-stats" id="dashStats"></div>
         <div class="dash-details" id="dashDetails"></div>
         <div class="dash-nutrition" id="dashNutrition">
@@ -670,22 +781,19 @@
         </div>
       </div>
 
-      <!-- Dashboard Action Buttons -->
-      <div class="dash-actions">
-        <button class="action-btn secondary" id="dashBackToList">
-          <i class="fas fa-arrow-left"></i> Back to List
+      <!-- DASHBOARD ACTION BUTTONS -->
+      <div class="dash-actions" id="dashActions">
+        <button class="action-btn secondary" id="startWorkoutBtn">
+          <i class="fas fa-play"></i> Start
         </button>
-        <button class="action-btn primary" id="dashFinishBtn">
-          <i class="fas fa-check"></i> Finish
-        </button>
-      </div>
-
-      <div style="display:flex; gap:8px;">
-        <button class="action-btn primary" id="startWorkoutBtn" style="flex:1;">
-          <i class="fas fa-play"></i> Start Workout
-        </button>
-        <button class="action-btn secondary" id="stopWorkoutBtn" disabled style="flex:1;">
+        <button class="action-btn secondary" id="stopWorkoutBtn" disabled>
           <i class="fas fa-stop"></i> Stop
+        </button>
+        <button class="action-btn primary" id="nextExerciseBtn">
+          <i class="fas fa-forward"></i> Next
+        </button>
+        <button class="action-btn finish-btn" id="finishWorkoutBtn" style="display:none;">
+          <i class="fas fa-flag-checkered"></i> Finish
         </button>
       </div>
     </div>
@@ -740,10 +848,9 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  EXERCISE DATABASE - 140 EXERCISES (20 per muscle group)
+    //  EXERCISE DATABASE - 140 EXERCISES
     // ──────────────────────────────────────────────────────────────
     const EXERCISE_DB = {
-      // CHEST (20 exercises)
       CHEST_01: { id: 'CHEST_01', name: 'Barbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y', premium: true, desc: 'Lie on bench, grip bar slightly wider than shoulders', tip: 'Keep shoulders pinned back, feet planted', defaultReps: 10, defaultSets: 3, benefit: 'Builds upper body strength & chest mass', reduce: 'Avoid bouncing bar off chest' },
       CHEST_02: { id: 'CHEST_02', name: 'Dumbbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/VmB1G1K7v94', premium: false, desc: 'Press dumbbells up from chest level', tip: 'Keep wrists straight, control the descent', defaultReps: 10, defaultSets: 3, benefit: 'Improves chest symmetry & stability', reduce: 'Avoid arching back too much' },
       CHEST_03: { id: 'CHEST_03', name: 'Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', premium: false, desc: 'Lower chest to ground, push back up', tip: 'Keep core tight, body in straight line', defaultReps: 15, defaultSets: 3, benefit: 'Builds functional chest strength', reduce: 'Avoid sagging hips' },
@@ -765,7 +872,6 @@
       CHEST_19: { id: 'CHEST_19', name: 'Wide Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Wide hand placement for outer chest', tip: 'Lower chest deeper for stretch', defaultReps: 12, defaultSets: 3, benefit: 'Outer chest development', reduce: 'Avoid going too deep' },
       CHEST_20: { id: 'CHEST_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Press barbell from landmine station', tip: 'Great for shoulder health', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder-friendly chest press', reduce: 'Avoid pressing too far forward' },
 
-      // BACK (20 exercises)
       BACK_01: { id: 'BACK_01', name: 'Pull-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', premium: true, desc: 'Pull body up to bar, lower controlled', tip: 'Keep core tight, use full range', defaultReps: 8, defaultSets: 3, benefit: 'Builds wide back & grip strength', reduce: 'Avoid swinging body' },
       BACK_02: { id: 'BACK_02', name: 'Chin-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Underhand grip pull-ups', tip: 'Focus on bicep engagement', defaultReps: 8, defaultSets: 3, benefit: 'Targets lats & biceps', reduce: 'Avoid using momentum' },
       BACK_03: { id: 'BACK_03', name: 'Bent-Over Barbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw', premium: false, desc: 'Bend at hips, row bar to chest', tip: 'Keep back straight, pull to belly button', defaultReps: 10, defaultSets: 3, benefit: 'Builds back thickness', reduce: 'Avoid rounding back' },
@@ -787,7 +893,6 @@
       BACK_19: { id: 'BACK_19', name: 'Farmers Walk', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Walk carrying heavy weight', tip: 'Keep shoulders back, core tight', defaultReps: 3, defaultSets: 3, benefit: 'Grip & back strength', reduce: 'Avoid leaning forward' },
       BACK_20: { id: 'BACK_20', name: 'Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Row cable handles to belly', tip: 'Controlled movement with squeeze', defaultReps: 12, defaultSets: 3, benefit: 'Back thickness', reduce: 'Avoid using momentum' },
 
-      // SHOULDERS (20 exercises)
       SHOULDER_01: { id: 'SHOULDER_01', name: 'Overhead Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog', premium: false, desc: 'Press bar overhead from shoulders', tip: 'Keep core tight, don\'t lean back', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder strength & size', reduce: 'Avoid arching back' },
       SHOULDER_02: { id: 'SHOULDER_02', name: 'Dumbbell Shoulder Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Press dumbbells overhead', tip: 'Keep wrists straight, control descent', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder stability', reduce: 'Avoid using too heavy weight' },
       SHOULDER_03: { id: 'SHOULDER_03', name: 'Arnold Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Rotate dumbbells from front to overhead', tip: 'Works all three delt heads', defaultReps: 10, defaultSets: 3, benefit: 'Full shoulder development', reduce: 'Avoid rotating too fast' },
@@ -809,7 +914,6 @@
       SHOULDER_19: { id: 'SHOULDER_19', name: 'YTW Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Shoulder health exercises', tip: 'Focus on posture and control', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder health', reduce: 'Avoid using heavy weight' },
       SHOULDER_20: { id: 'SHOULDER_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Angled press from landmine', tip: 'Great for shoulder health', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder-friendly press', reduce: 'Avoid pressing too far forward' },
 
-      // BICEPS (20 exercises)
       BICEPS_01: { id: 'BICEPS_01', name: 'Barbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo', premium: false, desc: 'Curl barbell up to shoulders', tip: 'Keep elbows pinned to sides', defaultReps: 10, defaultSets: 3, benefit: 'Bicep mass builder', reduce: 'Avoid using momentum' },
       BICEPS_02: { id: 'BICEPS_02', name: 'Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Curl dumbbells alternately or together', tip: 'Full range of motion', defaultReps: 10, defaultSets: 3, benefit: 'Bicep peak development', reduce: 'Avoid swinging' },
       BICEPS_03: { id: 'BICEPS_03', name: 'Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Neutral grip curl', tip: 'Works brachialis and biceps', defaultReps: 10, defaultSets: 3, benefit: 'Brachialis development', reduce: 'Avoid using too heavy weight' },
@@ -831,7 +935,6 @@
       BICEPS_19: { id: 'BICEPS_19', name: 'Towel Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Curl with rolled towel', tip: 'Grip strength builder', defaultReps: 10, defaultSets: 3, benefit: 'Grip & bicep strength', reduce: 'Avoid using too thick towel' },
       BICEPS_20: { id: 'BICEPS_20', name: 'Cable Curl (Variation)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Various cable curl variations', tip: 'Constant tension throughout', defaultReps: 12, defaultSets: 3, benefit: 'Bicep variation', reduce: 'Avoid using momentum' },
 
-      // TRICEPS (20 exercises)
       TRICEPS_01: { id: 'TRICEPS_01', name: 'Tricep Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Push cable bar down to thighs', tip: 'Keep elbows locked at sides', defaultReps: 12, defaultSets: 3, benefit: 'Tricep development', reduce: 'Avoid using momentum' },
       TRICEPS_02: { id: 'TRICEPS_02', name: 'Close-Grip Bench Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Press with close grip', tip: 'Focus on tricep drive', defaultReps: 10, defaultSets: 3, benefit: 'Tricep strength', reduce: 'Avoid using too heavy weight' },
       TRICEPS_03: { id: 'TRICEPS_03', name: 'Tricep Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true, desc: 'Dip between parallel bars', tip: 'Keep body upright for triceps focus', defaultReps: 12, defaultSets: 3, benefit: 'Tricep mass builder', reduce: 'Avoid going too deep' },
@@ -853,7 +956,6 @@
       TRICEPS_19: { id: 'TRICEPS_19', name: 'Band Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Push band down with constant tension', tip: 'Great for home', defaultReps: 15, defaultSets: 3, benefit: 'Tricep endurance', reduce: 'Avoid using too light band' },
       TRICEPS_20: { id: 'TRICEPS_20', name: 'Tricep Hold Extensions', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Hold and extend for burn', tip: 'Isometric focus', defaultReps: 10, defaultSets: 3, benefit: 'Tricep endurance', reduce: 'Avoid holding too long' },
 
-      // LEGS (20 exercises)
       LEGS_01: { id: 'LEGS_01', name: 'Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', premium: false, desc: 'Squat with barbell or bodyweight', tip: 'Keep chest up, knees tracking toes', defaultReps: 15, defaultSets: 3, benefit: 'Full leg development', reduce: 'Avoid leaning forward' },
       LEGS_02: { id: 'LEGS_02', name: 'Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false, desc: 'Lift barbell from ground', tip: 'Hinge at hips, keep back neutral', defaultReps: 8, defaultSets: 3, benefit: 'Full body strength', reduce: 'Avoid rounding back' },
       LEGS_03: { id: 'LEGS_03', name: 'Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', premium: false, desc: 'Step forward and lunge down', tip: 'Keep front knee behind toes', defaultReps: 12, defaultSets: 3, benefit: 'Leg stability & strength', reduce: 'Avoid leaning forward' },
@@ -875,7 +977,6 @@
       LEGS_19: { id: 'LEGS_19', name: 'Side-Lying Leg Lifts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Lift leg while lying on side', tip: 'Glute medius focus', defaultReps: 12, defaultSets: 3, benefit: 'Glute medius development', reduce: 'Avoid using momentum' },
       LEGS_20: { id: 'LEGS_20', name: 'Resistance Band Walks', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Walk with band around ankles', tip: 'Great for glute activation', defaultReps: 10, defaultSets: 3, benefit: 'Glute activation', reduce: 'Avoid stepping too wide' },
 
-      // CORE (20 exercises)
       CORE_01: { id: 'CORE_01', name: 'Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU', premium: false, desc: 'Curl upper body up', tip: 'Keep neck relaxed', defaultReps: 20, defaultSets: 3, benefit: 'Upper abs development', reduce: 'Avoid pulling on neck' },
       CORE_02: { id: 'CORE_02', name: 'Leg Raises', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Raise legs up and down', tip: 'Keep lower back pressed down', defaultReps: 15, defaultSets: 3, benefit: 'Lower abs development', reduce: 'Avoid swinging legs' },
       CORE_03: { id: 'CORE_03', name: 'Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', premium: false, desc: 'Hold push-up position', tip: 'Keep body in straight line', defaultReps: 3, defaultSets: 3, benefit: 'Full core stability', reduce: 'Avoid sagging hips' },
@@ -899,7 +1000,7 @@
     };
 
     // ──────────────────────────────────────────────────────────────
-    //  WORKOUT STYLES - 10+ exercises per day, 30+ per week
+    //  WORKOUT STYLES
     // ──────────────────────────────────────────────────────────────
     const WORKOUT_STYLES = {
       'Push/Pull/Legs': {
@@ -1013,13 +1114,15 @@
     let timerInterval = null;
     let seconds = 0;
     let facingMode = 'environment';
-    let selectedExerciseId = null;
-    let selectedDay = null;
     let selectedDayData = null;
     let completedExercises = [];
     let workoutStreak = 0;
     let lastWorkoutDate = null;
-    let isFullWorkoutActive = false;
+    let currentExerciseIndex = 0;
+    let dayExercises = [];
+    let isWorkoutStarted = false;
+    let totalExercises = 0;
+    let completedCount = 0;
 
     // ──────────────────────────────────────────────────────────────
     //  LOCAL STORAGE
@@ -1230,7 +1333,7 @@
       selectedDayData = day;
       const modal = document.getElementById('workoutListModal');
       document.getElementById('workoutListDay').textContent = `${day.day}'s Workouts`;
-      document.getElementById('workoutListSub').textContent = `${day.exercises.length} exercises • Tap to start`;
+      document.getElementById('workoutListSub').textContent = `${day.exercises.length} exercises • Tap "Start Workout" to begin`;
 
       const container = document.getElementById('workoutListItems');
       container.innerHTML = '';
@@ -1247,7 +1350,7 @@
       } else {
         document.getElementById('startWorkoutListBtn').style.display = 'flex';
         document.getElementById('startWorkoutListBtn').disabled = false;
-        document.getElementById('startWorkoutListBtn').innerHTML = '<i class="fas fa-play"></i> Start Full Workout';
+        document.getElementById('startWorkoutListBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
         
         day.exercises.forEach((ex, index) => {
           const item = document.createElement('div');
@@ -1264,11 +1367,9 @@
           `;
           item.addEventListener('click', () => {
             modal.classList.remove('active');
-            if (ex.premium) {
-              showPremiumAd().then(() => { openDashboard(day, currentSchedule, ex.id); });
-            } else {
-              openDashboard(day, currentSchedule, ex.id);
-            }
+            // Start from this exercise
+            currentExerciseIndex = index;
+            startWorkoutFlow(day);
           });
           container.appendChild(item);
         });
@@ -1278,103 +1379,76 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  START FULL WORKOUT FROM LIST
+    //  START WORKOUT FLOW
     // ──────────────────────────────────────────────────────────────
-    document.getElementById('startWorkoutListBtn').addEventListener('click', function() {
-      if (!selectedDayData || selectedDayData.exercises.length === 0) {
-        showToast('⚠️ No exercises for today!', 'error');
-        return;
-      }
+    function startWorkoutFlow(day) {
+      dayExercises = day.exercises;
+      totalExercises = dayExercises.length;
+      completedCount = 0;
       
-      if (isFullWorkoutActive) {
-        showToast('⚠️ Workout already active!', 'info');
-        return;
-      }
+      // Reset completed for this session
+      dayExercises.forEach(ex => {
+        const idx = completedExercises.indexOf(ex.id);
+        if (idx > -1) completedExercises.splice(idx, 1);
+      });
       
-      isFullWorkoutActive = true;
-      this.disabled = true;
-      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
-      
-      // Auto-start the first exercise
-      const firstExercise = selectedDayData.exercises[0];
-      if (firstExercise) {
-        document.getElementById('workoutListModal').classList.remove('active');
-        if (firstExercise.premium) {
-          showPremiumAd().then(() => { 
-            openDashboard(selectedDayData, currentSchedule, firstExercise.id);
-            // Auto-start workout
-            setTimeout(() => {
-              document.getElementById('startWorkoutBtn').click();
-            }, 500);
-          });
-        } else {
-          openDashboard(selectedDayData, currentSchedule, firstExercise.id);
-          setTimeout(() => {
-            document.getElementById('startWorkoutBtn').click();
-          }, 500);
-        }
-        showToast('🏋️ Full workout started!', 'success');
-      }
-      
-      setTimeout(() => {
-        this.disabled = false;
-        this.innerHTML = '<i class="fas fa-play"></i> Start Full Workout';
-      }, 2000);
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  CLOSE WORKOUT LIST
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('closeWorkoutList').addEventListener('click', () => {
-      document.getElementById('workoutListModal').classList.remove('active');
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  OPEN DASHBOARD - WITH REPS & SETS FIXED
-    // ──────────────────────────────────────────────────────────────
-    function openDashboard(day, schedule, exerciseId = null) {
-      selectedExerciseId = exerciseId;
-      selectedDay = day;
-
       document.getElementById('workoutListModal').classList.remove('active');
       document.getElementById('scheduleContainer').classList.remove('active');
       document.getElementById('dashboardContainer').classList.add('active');
+      
+      isWorkoutStarted = true;
+      showExercise(currentExerciseIndex);
+      showToast(`🏋️ Starting ${day.day}'s workout!`, 'success');
+    }
 
-      let focusExercise = null;
-      if (exerciseId) {
-        focusExercise = EXERCISE_DB[exerciseId];
+    // ──────────────────────────────────────────────────────────────
+    //  SHOW EXERCISE
+    // ──────────────────────────────────────────────────────────────
+    function showExercise(index) {
+      if (index >= totalExercises) {
+        // All done!
+        finishWorkout();
+        return;
       }
-
-      const title = focusExercise ? focusExercise.name : `${day.day}'s Workout`;
-      document.getElementById('dashTitle').innerHTML = `<i class="fas fa-dumbbell"></i> ${title}`;
-      document.getElementById('dashSub').textContent = focusExercise ? 
-        `${focusExercise.muscle} • ${focusExercise.desc}` : 
-        `${day.exercises.length} exercises • ${userData.duration} min`;
-
-      // Stats
+      
+      const ex = dayExercises[index];
+      if (!ex) {
+        finishWorkout();
+        return;
+      }
+      
+      currentExerciseIndex = index;
+      selectedExerciseId = ex.id;
+      
+      // Update progress
+      updateProgress();
+      
+      // Update title
+      document.getElementById('dashTitle').innerHTML = `<i class="fas fa-dumbbell"></i> ${ex.icon} ${ex.name}`;
+      document.getElementById('dashSub').textContent = `${ex.muscle} • ${ex.sets} sets × ${ex.reps} reps`;
+      
+      // Show video automatically
+      const videoIframe = document.getElementById('videoIframe');
+      if (ex.videoUrl) {
+        videoIframe.src = ex.videoUrl + '?autoplay=1&rel=0';
+      } else {
+        videoIframe.src = '';
+      }
+      
+      // Update stats
       const statsContainer = document.getElementById('dashStats');
       statsContainer.innerHTML = '';
       const weight = userData.weight || 75;
       const calories = userData.calories || 2500;
       const protein = userData.protein || 150;
-
-      let stats = [];
-      if (focusExercise) {
-        stats = [
-          { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: focusExercise.benefit || 'Builds strength' },
-          { icon: '🔥', value: `${Math.round(calories/4.5)}`, label: 'Calories', benefit: 'Per workout' },
-          { icon: '🥩', value: `${Math.round(protein/3)}g`, label: 'Protein', benefit: 'Muscle recovery' },
-          { icon: '⚠️', value: '🚫', label: 'Avoid', benefit: focusExercise.reduce || 'Use proper form' }
-        ];
-      } else {
-        stats = [
-          { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: 'Progress tracking' },
-          { icon: '🔥', value: `${Math.round(calories/4.5)}`, label: 'Calories', benefit: 'Per workout' },
-          { icon: '🥩', value: `${Math.round(protein/3)}g`, label: 'Protein', benefit: 'Muscle recovery' },
-          { icon: '💪', value: `${day.exercises.length}`, label: 'Exercises', benefit: 'Today\'s workout' }
-        ];
-      }
-
+      
+      const stats = [
+        { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: ex.benefit || 'Builds strength' },
+        { icon: '🔥', value: `${Math.round(calories/4.5)}`, label: 'Calories', benefit: 'Per workout' },
+        { icon: '🥩', value: `${Math.round(protein/3)}g`, label: 'Protein', benefit: 'Muscle recovery' },
+        { icon: '🎯', value: `${ex.sets}×${ex.reps}`, label: 'Sets × Reps', benefit: ex.muscle }
+      ];
+      
       stats.forEach(stat => {
         const statEl = document.createElement('div');
         statEl.className = 'dash-stat';
@@ -1386,36 +1460,23 @@
         `;
         statsContainer.appendChild(statEl);
       });
-
-      // Details - SHOW REPS & SETS (FIXED)
+      
+      // Update details
       const detailsContainer = document.getElementById('dashDetails');
-      detailsContainer.innerHTML = '';
-
-      if (focusExercise) {
-        detailsContainer.innerHTML = `
-          <div class="detail-row"><span class="detail-label">🏋️ Exercise</span><span class="detail-value">${focusExercise.icon} ${focusExercise.name} ${focusExercise.premium ? '⭐' : ''}</span></div>
-          <div class="detail-row"><span class="detail-label">🎯 Target</span><span class="detail-value">${focusExercise.muscle}</span></div>
-          <div class="detail-row"><span class="detail-label">📝 Description</span><span class="detail-value">${focusExercise.desc}</span></div>
-          <div class="detail-row"><span class="detail-label">💡 Tip</span><span class="detail-value good">${focusExercise.tip}</span></div>
-          <div class="detail-row" style="background:rgba(249,176,66,0.08); padding:6px 0; border-radius:4px; margin:2px 0;">
-            <span class="detail-label" style="font-weight:700;">📊 Sets & Reps</span>
-            <span class="detail-value" style="font-size:1rem; font-weight:800; color:var(--accent);">${focusExercise.sets} sets × ${focusExercise.reps} reps</span>
-          </div>
-          <div class="detail-row"><span class="detail-label">✅ Benefit</span><span class="detail-value good">${focusExercise.benefit || 'Builds strength & muscle'}</span></div>
-          <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${focusExercise.reduce || 'Avoid using momentum'}</span></div>
-          ${focusExercise.videoUrl ? `<div class="detail-row"><span class="detail-label">📹 Video</span><span class="detail-value" style="color:var(--accent);cursor:pointer;" onclick="openVideo('${focusExercise.videoUrl}')"><i class="fas fa-play-circle"></i> Watch Tutorial</span></div>` : ''}
-        `;
-      } else {
-        detailsContainer.innerHTML = `
-          <div class="detail-row"><span class="detail-label">📅 Day</span><span class="detail-value">${day.day}</span></div>
-          <div class="detail-row"><span class="detail-label">⏱️ Duration</span><span class="detail-value">${userData.duration || 45} minutes</span></div>
-          <div class="detail-row"><span class="detail-label">🏋️ Exercises</span><span class="detail-value">${day.exercises.length}</span></div>
-          <div class="detail-row"><span class="detail-label">🎯 Focus</span><span class="detail-value">${day.exercises.map(e => e.muscle).filter((v,i,a) => a.indexOf(v) === i).join(', ')}</span></div>
-          <div class="detail-row"><span class="detail-label">💪 Total Volume</span><span class="detail-value good">${day.exercises.reduce((sum, e) => sum + (e.sets * e.reps), 0)} reps</span></div>
-        `;
-      }
-
-      // Nutrition
+      detailsContainer.innerHTML = `
+        <div class="detail-row"><span class="detail-label">🏋️ Exercise</span><span class="detail-value">${ex.icon} ${ex.name} ${ex.premium ? '⭐' : ''}</span></div>
+        <div class="detail-row"><span class="detail-label">🎯 Target</span><span class="detail-value">${ex.muscle}</span></div>
+        <div class="detail-row"><span class="detail-label">📝 Description</span><span class="detail-value">${ex.desc}</span></div>
+        <div class="detail-row"><span class="detail-label">💡 Tip</span><span class="detail-value good">${ex.tip}</span></div>
+        <div class="detail-row" style="background:rgba(249,176,66,0.08); padding:6px 0; border-radius:4px; margin:2px 0;">
+          <span class="detail-label" style="font-weight:700;">📊 Sets & Reps</span>
+          <span class="detail-value" style="font-size:1rem; font-weight:800; color:var(--accent);">${ex.sets} sets × ${ex.reps} reps</span>
+        </div>
+        <div class="detail-row"><span class="detail-label">✅ Benefit</span><span class="detail-value good">${ex.benefit || 'Builds strength & muscle'}</span></div>
+        <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${ex.reduce || 'Avoid using momentum'}</span></div>
+      `;
+      
+      // Update nutrition
       const nutritionContainer = document.getElementById('dashNutritionGrid');
       nutritionContainer.innerHTML = '';
       const duration = userData.duration || 45;
@@ -1424,17 +1485,16 @@
       const carbsNeeded = Math.round((userData.weight || 75) * 1.3);
       const fatsNeeded = Math.round((userData.weight || 75) * 0.45);
       const waterNeeded = Math.round((userData.weight || 75) * 35 + duration * 10);
-
-      let muscleGroup = focusExercise ? focusExercise.muscle : 'Full Body';
+      
       let specificFoods = [];
-      if (muscleGroup === 'Chest') specificFoods = ['🥩 Chicken Breast', '🍚 Brown Rice', '🥦 Broccoli'];
-      else if (muscleGroup === 'Back') specificFoods = ['🐟 Salmon', '🍠 Sweet Potato', '🥗 Spinach'];
-      else if (muscleGroup === 'Legs') specificFoods = ['🥩 Lean Beef', '🍝 Quinoa', '🥬 Kale'];
-      else if (muscleGroup === 'Shoulders') specificFoods = ['🍗 Turkey', '🍚 Oats', '🥑 Avocado'];
-      else if (muscleGroup === 'Biceps' || muscleGroup === 'Triceps') specificFoods = ['🥚 Eggs', '🍌 Banana', '🥜 Almonds'];
-      else if (muscleGroup === 'Core') specificFoods = ['🐟 Tuna', '🍞 Whole Grain', '🥒 Cucumber'];
+      if (ex.muscle === 'Chest') specificFoods = ['🥩 Chicken Breast', '🍚 Brown Rice', '🥦 Broccoli'];
+      else if (ex.muscle === 'Back') specificFoods = ['🐟 Salmon', '🍠 Sweet Potato', '🥗 Spinach'];
+      else if (ex.muscle === 'Legs') specificFoods = ['🥩 Lean Beef', '🍝 Quinoa', '🥬 Kale'];
+      else if (ex.muscle === 'Shoulders') specificFoods = ['🍗 Turkey', '🍚 Oats', '🥑 Avocado'];
+      else if (ex.muscle === 'Biceps' || ex.muscle === 'Triceps') specificFoods = ['🥚 Eggs', '🍌 Banana', '🥜 Almonds'];
+      else if (ex.muscle === 'Core') specificFoods = ['🐟 Tuna', '🍞 Whole Grain', '🥒 Cucumber'];
       else specificFoods = ['🥩 Protein Source', '🍚 Complex Carbs', '🥗 Vegetables'];
-
+      
       const nutritionItems = [
         { label: '🔥 Calories', value: caloriesNeeded, unit: 'kcal', primary: true },
         { label: '🥩 Protein', value: proteinNeeded, unit: 'g', primary: true },
@@ -1443,34 +1503,254 @@
         { label: '💧 Water', value: waterNeeded, unit: 'ml', primary: false },
         { label: '🍽️ Meals', value: specificFoods.join(' • '), unit: '', primary: false }
       ];
-
+      
       nutritionItems.forEach(item => {
         const el = document.createElement('div');
         el.className = `dash-nutrition-item${item.primary ? ' primary' : ''}`;
         el.innerHTML = `<span class="nut-label">${item.label}</span><span class="nut-value">${item.value} ${item.unit}</span>`;
         nutritionContainer.appendChild(el);
       });
-
-      document.getElementById('formCorrection').textContent = '🎯 Ready to start!';
+      
+      // Update buttons - Show Next or Finish
+      const nextBtn = document.getElementById('nextExerciseBtn');
+      const finishBtn = document.getElementById('finishWorkoutBtn');
+      const startBtn = document.getElementById('startWorkoutBtn');
+      const stopBtn = document.getElementById('stopWorkoutBtn');
+      
+      if (index === totalExercises - 1) {
+        // Last exercise - show Finish button
+        nextBtn.style.display = 'none';
+        finishBtn.style.display = 'flex';
+        finishBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish';
+        finishBtn.disabled = false;
+      } else {
+        nextBtn.style.display = 'flex';
+        finishBtn.style.display = 'none';
+        nextBtn.innerHTML = '<i class="fas fa-forward"></i> Next';
+        nextBtn.disabled = false;
+      }
+      
+      // Reset workout buttons
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+      stopBtn.disabled = true;
+      isWorkoutActive = false;
+      
+      // Reset timer if active
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      seconds = 0;
+      
+      document.getElementById('formCorrection').textContent = `🎯 Ready for ${ex.name}`;
       document.getElementById('formCorrection').className = 'form-correction active waiting';
-      document.getElementById('startWorkoutBtn').disabled = false;
-      document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
-      document.getElementById('stopWorkoutBtn').disabled = true;
-      document.getElementById('dashFinishBtn').disabled = false;
-      document.getElementById('dashFinishBtn').innerHTML = '<i class="fas fa-check"></i> Finish';
-
-      startCamera();
-      showToast('📊 Dashboard ready!', 'info');
+      
+      showToast(`💪 Exercise ${index + 1}/${totalExercises}: ${ex.name}`, 'info');
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  BACK TO SCHEDULE - WITH CONFIRMATION IF WORKOUT ACTIVE
+    //  UPDATE PROGRESS
+    // ──────────────────────────────────────────────────────────────
+    function updateProgress() {
+      const progress = totalExercises > 0 ? ((currentExerciseIndex) / totalExercises) * 100 : 0;
+      document.getElementById('progressText').textContent = `${currentExerciseIndex + 1}/${totalExercises}`;
+      document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  NEXT EXERCISE
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('nextExerciseBtn').addEventListener('click', function() {
+      if (isWorkoutActive) {
+        showToast('⚠️ Please stop current workout first!', 'error');
+        return;
+      }
+      
+      // Mark current as completed
+      const currentEx = dayExercises[currentExerciseIndex];
+      if (currentEx && !completedExercises.includes(currentEx.id)) {
+        completedExercises.push(currentEx.id);
+        completedCount++;
+      }
+      
+      // Move to next
+      currentExerciseIndex++;
+      if (currentExerciseIndex < totalExercises) {
+        showExercise(currentExerciseIndex);
+      } else {
+        finishWorkout();
+      }
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  FINISH WORKOUT
+    // ──────────────────────────────────────────────────────────────
+    function finishWorkout() {
+      // Mark all remaining as completed
+      for (let i = currentExerciseIndex; i < totalExercises; i++) {
+        const ex = dayExercises[i];
+        if (ex && !completedExercises.includes(ex.id)) {
+          completedExercises.push(ex.id);
+        }
+      }
+      
+      // Update streak
+      const today = new Date().toDateString();
+      if (lastWorkoutDate !== today) {
+        lastWorkoutDate = today;
+        workoutStreak += 1;
+        userData.streak = workoutStreak;
+        userData.lastWorkoutDate = today;
+        saveUserData({ ...userData, timestamp: Date.now() });
+        document.getElementById('userStreak').textContent = `🔥 ${workoutStreak} day streak`;
+      }
+      
+      // Update schedule
+      if (currentSchedule) {
+        renderSchedule(currentSchedule);
+      }
+      
+      // Show results
+      showToast('🎉 All exercises completed!', 'success');
+      setTimeout(() => {
+        showResultsModal(seconds || 300);
+      }, 500);
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  FINISH BUTTON (in dashboard)
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('finishWorkoutBtn').addEventListener('click', function() {
+      if (isWorkoutActive) {
+        showToast('⚠️ Please stop your workout first!', 'error');
+        return;
+      }
+      
+      if (confirm('🎯 Finish all exercises? Great job!')) {
+        finishWorkout();
+      }
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  START WORKOUT BUTTON (in dashboard)
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('startWorkoutBtn').addEventListener('click', function() {
+      if (isWorkoutActive) return;
+      
+      const currentEx = dayExercises[currentExerciseIndex];
+      if (!currentEx) {
+        showToast('⚠️ No exercise to start!', 'error');
+        return;
+      }
+      
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+      
+      if (currentEx.premium) {
+        showPremiumAd().then(() => {
+          startExerciseTimer();
+        });
+      } else {
+        startExerciseTimer();
+      }
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  START EXERCISE TIMER
+    // ──────────────────────────────────────────────────────────────
+    function startExerciseTimer() {
+      isWorkoutActive = true;
+      const startBtn = document.getElementById('startWorkoutBtn');
+      const stopBtn = document.getElementById('stopWorkoutBtn');
+      
+      startBtn.disabled = true;
+      startBtn.innerHTML = '<i class="fas fa-clock"></i> 00:00:00';
+      stopBtn.disabled = false;
+      
+      seconds = 0;
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        seconds++;
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        startBtn.innerHTML = `<i class="fas fa-clock"></i> ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }, 1000);
+      
+      document.getElementById('formCorrection').textContent = '⏱️ Workout in progress... Keep going! 💪';
+      document.getElementById('formCorrection').className = 'form-correction active good';
+      
+      showToast('🎯 Workout started!', 'info');
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  STOP WORKOUT BUTTON
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('stopWorkoutBtn').addEventListener('click', function() {
+      if (!isWorkoutActive) return;
+      
+      isWorkoutActive = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      
+      const startBtn = document.getElementById('startWorkoutBtn');
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+      this.disabled = true;
+      
+      document.getElementById('formCorrection').textContent = '⏹️ Workout stopped. Ready to continue!';
+      document.getElementById('formCorrection').className = 'form-correction active waiting';
+      
+      showToast(`⏹️ Workout stopped at ${formatTime(seconds)}`, 'info');
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  FORMAT TIME
+    // ──────────────────────────────────────────────────────────────
+    function formatTime(secs) {
+      const hrs = Math.floor(secs / 3600);
+      const mins = Math.floor((secs % 3600) / 60);
+      const secsRem = secs % 60;
+      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secsRem).padStart(2, '0')}`;
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  CLOSE WORKOUT LIST
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('closeWorkoutList').addEventListener('click', () => {
+      document.getElementById('workoutListModal').classList.remove('active');
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  START WORKOUT FROM LIST
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('startWorkoutListBtn').addEventListener('click', function() {
+      if (!selectedDayData || selectedDayData.exercises.length === 0) {
+        showToast('⚠️ No exercises for today!', 'error');
+        return;
+      }
+      
+      if (isWorkoutStarted) {
+        showToast('⚠️ Workout already in progress!', 'info');
+        return;
+      }
+      
+      currentExerciseIndex = 0;
+      startWorkoutFlow(selectedDayData);
+      this.disabled = true;
+      setTimeout(() => { this.disabled = false; }, 1000);
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  BACK TO SCHEDULE - WITH CONFIRMATION
     // ──────────────────────────────────────────────────────────────
     document.getElementById('dashboardBack').addEventListener('click', () => {
-      if (isWorkoutActive || isFullWorkoutActive) {
+      if (isWorkoutActive || isWorkoutStarted) {
         if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
-          stopWorkout();
-          isFullWorkoutActive = false;
+          resetWorkoutState();
           document.getElementById('dashboardContainer').classList.remove('active');
           document.getElementById('scheduleContainer').classList.add('active');
           const schedule = generateSchedule(true);
@@ -1487,13 +1767,12 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  BACK TO WORKOUT LIST - WITH CONFIRMATION
+    //  BACK TO LIST
     // ──────────────────────────────────────────────────────────────
     document.getElementById('dashBackToList').addEventListener('click', () => {
-      if (isWorkoutActive || isFullWorkoutActive) {
+      if (isWorkoutActive || isWorkoutStarted) {
         if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
-          stopWorkout();
-          isFullWorkoutActive = false;
+          resetWorkoutState();
           document.getElementById('dashboardContainer').classList.remove('active');
           if (selectedDayData) {
             openWorkoutList(selectedDayData);
@@ -1514,113 +1793,54 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  FINISH BUTTON - Mark exercise as done
+    //  RESET WORKOUT STATE
     // ──────────────────────────────────────────────────────────────
-    document.getElementById('dashFinishBtn').addEventListener('click', () => {
-      if (isWorkoutActive) {
-        alert('⚠️ Please stop your workout first!');
-        return;
-      }
-      if (selectedExerciseId && !completedExercises.includes(selectedExerciseId)) {
-        completedExercises.push(selectedExerciseId);
-        showToast(`✅ ${EXERCISE_DB[selectedExerciseId]?.name || 'Exercise'} completed!`, 'success');
-        document.getElementById('dashFinishBtn').disabled = true;
-        document.getElementById('dashFinishBtn').innerHTML = '<i class="fas fa-check"></i> Done!';
-        
-        const today = new Date().toDateString();
-        if (lastWorkoutDate !== today) {
-          lastWorkoutDate = today;
-          workoutStreak += 1;
-          userData.streak = workoutStreak;
-          userData.lastWorkoutDate = today;
-          saveUserData({ ...userData, timestamp: Date.now() });
-          document.getElementById('userStreak').textContent = `🔥 ${workoutStreak} day streak`;
-        }
-        
-        if (selectedDayData && completedExercises.length === selectedDayData.exercises.length) {
-          setTimeout(() => {
-            alert('🎉 All exercises completed! Showing results!');
-            showResultsModal(seconds || 300);
-          }, 800);
-        }
-        
-        if (currentSchedule) {
-          renderSchedule(currentSchedule);
-        }
-      } else if (completedExercises.includes(selectedExerciseId)) {
-        showToast('⚠️ Already completed!', 'info');
-      } else {
-        showToast('⚠️ No exercise selected', 'error');
-      }
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  VIDEO MODAL
-    // ──────────────────────────────────────────────────────────────
-    function openVideo(url) {
-      const modal = document.createElement('div');
-      modal.className = 'video-modal active';
-      modal.style.cssText = `
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        z-index: 999; background: rgba(0,0,0,0.92); backdrop-filter: blur(20px);
-        display: flex; align-items: center; justify-content: center; padding: 20px;
-        animation: fadeUp 0.3s ease-out;
-      `;
-      modal.innerHTML = `
-        <div style="max-width:560px;width:100%;background:var(--tg-secondary);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);position:relative;">
-          <iframe src="${url}?autoplay=1" style="width:100%;aspect-ratio:16/9;border:none;display:block;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          <button onclick="this.closest('.video-modal').remove()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
-        </div>
-      `;
-      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-      document.body.appendChild(modal);
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  STOP WORKOUT HELPER
-    // ──────────────────────────────────────────────────────────────
-    function stopWorkout() {
+    function resetWorkoutState() {
       isWorkoutActive = false;
-      isFullWorkoutActive = false;
-      clearInterval(timerInterval);
-      timerInterval = null;
-      if (isRecording) document.getElementById('recordBtn').click();
-      document.getElementById('startWorkoutBtn').disabled = false;
-      document.getElementById('startWorkoutBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
+      isWorkoutStarted = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      const startBtn = document.getElementById('startWorkoutBtn');
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
       document.getElementById('stopWorkoutBtn').disabled = true;
-      document.getElementById('formCorrection').textContent = '✅ Workout complete! Great job! 💪';
-      document.getElementById('formCorrection').className = 'form-correction active good';
+      document.getElementById('nextExerciseBtn').style.display = 'flex';
+      document.getElementById('finishWorkoutBtn').style.display = 'none';
+      document.getElementById('formCorrection').textContent = '⏹️ Workout stopped';
+      document.getElementById('formCorrection').className = 'form-correction active waiting';
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  START WORKOUT
+    //  CHALLENGE BUTTON
     // ──────────────────────────────────────────────────────────────
-    document.getElementById('startWorkoutBtn').addEventListener('click', () => {
-      if (isWorkoutActive) return;
-      const exName = selectedExerciseId ? EXERCISE_DB[selectedExerciseId]?.name : 'Workout';
-      alert(`🏋️ Starting ${exName || 'Workout'}!`);
-      document.getElementById('startWorkoutBtn').disabled = true;
-      document.getElementById('stopWorkoutBtn').disabled = false;
-      if (!isRecording) document.getElementById('recordBtn').click();
-      seconds = 0;
-      isWorkoutActive = true;
-      isFullWorkoutActive = true;
-      timerInterval = setInterval(() => {
-        seconds++;
-        document.getElementById('startWorkoutBtn').innerHTML = `<i class="fas fa-clock"></i> ${formatTime(seconds)}`;
-      }, 1000);
-      document.getElementById('formCorrection').textContent = '⏱️ Workout in progress...';
-      document.getElementById('formCorrection').className = 'form-correction active waiting';
-      showToast('🎯 Workout started!', 'info');
+    document.getElementById('challengeBtn').addEventListener('click', function() {
+      const challenges = [
+        '🔥 Challenge: Do 50 push-ups without stopping!',
+        '💪 Challenge: Hold a plank for 2 minutes!',
+        '🏋️ Challenge: Squat for 3 sets of 20 reps!',
+        '⚡ Challenge: Run 1km in under 5 minutes!',
+        '🎯 Challenge: Complete 100 jumping jacks!',
+        '🚀 Challenge: Do 10 pull-ups in a row!',
+        '💯 Challenge: 50 lunges each leg!',
+        '🏆 Challenge: 5km cycling sprint!'
+      ];
+      const random = challenges[Math.floor(Math.random() * challenges.length)];
+      alert('🏆 ' + random);
+      showToast('🏆 Challenge accepted!', 'premium');
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  STOP WORKOUT
+    //  HEIGHT INCREASE BUTTON
     // ──────────────────────────────────────────────────────────────
-    document.getElementById('stopWorkoutBtn').addEventListener('click', () => {
-      if (!isWorkoutActive) return;
-      stopWorkout();
-      showToast(`🎉 Workout complete! Duration: ${formatTime(seconds)}`, 'success');
+    document.getElementById('heightIncreaseBtn').addEventListener('click', function() {
+      const currentHeight = userData.height || 175;
+      const newHeight = currentHeight + 1;
+      userData.height = newHeight;
+      saveUserData({ ...userData, timestamp: Date.now() });
+      document.getElementById('heightInput').value = newHeight;
+      showToast(`📏 Height increased to ${newHeight}cm!`, 'success');
     });
 
     // ──────────────────────────────────────────────────────────────
@@ -1632,7 +1852,7 @@
       const secs = durationSeconds % 60;
       const timeStr = `${minutes}m ${secs}s`;
 
-      const ex = selectedExerciseId ? EXERCISE_DB[selectedExerciseId] : null;
+      const ex = dayExercises.length > 0 ? dayExercises[0] : null;
       const exName = ex ? ex.name : 'Workout';
       const muscleGroup = ex ? ex.muscle : 'Full Body';
 
@@ -1653,23 +1873,20 @@
         <div class="result-stat"><div class="rs-value">${timeStr}</div><div class="rs-label">⏱️ Duration</div></div>
         <div class="result-stat"><div class="rs-value">${caloriesBurned} kcal</div><div class="rs-label">🔥 Calories Burned</div></div>
         <div class="result-stat"><div class="rs-value">${proteinNeeded}g</div><div class="rs-label">🥩 Protein Needed</div></div>
-        <div class="result-stat"><div class="rs-value">${exName}</div><div class="rs-label">🏋️ Exercise</div></div>
+        <div class="result-stat"><div class="rs-value">${dayExercises.length}</div><div class="rs-label">🏋️ Exercises Done</div></div>
       `;
 
       document.getElementById('resultBodyImg').textContent = bodyEmoji;
-      document.getElementById('resultTitle').textContent = `🎉 ${exName} Complete!`;
-      document.getElementById('resultSub').textContent = `You crushed ${muscleGroup} workout! 💪`;
+      document.getElementById('resultTitle').textContent = `🎉 ${dayExercises.length} Exercises Complete!`;
+      document.getElementById('resultSub').textContent = `You crushed ${dayExercises.length} exercises! 💪`;
       document.getElementById('resultMsg').textContent = randomMsg;
       document.getElementById('resultSubMsg').textContent = randomSub;
 
       modal.classList.add('active');
-
-      if (ex && ex.premium) {
-        showRewardedPopup().then(() => {
-          document.getElementById('resultMsg').textContent = '⭐ Premium Workout Complete! +50 Bonus Points! ⭐';
-          showToast('🎁 Bonus points awarded!', 'premium');
-        });
-      }
+      
+      // Reset workout state
+      resetWorkoutState();
+      isWorkoutStarted = false;
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -1698,16 +1915,6 @@
       showToast('📅 Schedule generated!', 'success');
       alert('🎉 Your personalized workout schedule is ready!');
     });
-
-    // ──────────────────────────────────────────────────────────────
-    //  FORMAT TIME
-    // ──────────────────────────────────────────────────────────────
-    function formatTime(secs) {
-      const hrs = Math.floor(secs / 3600);
-      const mins = Math.floor((secs % 3600) / 60);
-      const secsRem = secs % 60;
-      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secsRem).padStart(2, '0')}`;
-    }
 
     // ──────────────────────────────────────────────────────────────
     //  CAMERA
@@ -1812,8 +2019,7 @@
         updateLoadingProgress(90);
         console.log('🏋️ AI Gym Trainer Pro Max 100 loaded!');
         console.log(`💪 Exercises loaded: ${Object.keys(EXERCISE_DB).length}`);
-        console.log('👤 Developed by Muhammad Ilyas');
-        console.log('🚀 PRO MAX version with background.png!');
+        console.log('🚀 PRO MAX with step-by-step workout flow!');
 
         updateLoadingProgress(100);
         setTimeout(function() {
@@ -1838,4 +2044,4 @@
     init();
   </script>
 </body>
-  </html>
+          </html>
