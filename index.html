@@ -94,6 +94,18 @@
 
     .app { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
 
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse-dot { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+    @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    @keyframes floatUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes shimmerBtn { 0%, 100% { transform: translate(-10%, -10%); } 50% { transform: translate(10%, 10%); } }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes pulseLogo { 0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(249, 176, 66, 0.15); } 50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(249, 176, 66, 0.3); } }
+    @keyframes shimmer { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+    @keyframes gradientMove { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    @keyframes pulse-record { 0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.3); } 50% { box-shadow: 0 0 0 12px rgba(248,113,113,0); } }
+
     /* Loading Screen */
     #loadingScreen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -110,10 +122,6 @@
       border: 3px solid rgba(249, 176, 66, 0.3);
       box-shadow: 0 0 60px rgba(249, 176, 66, 0.15), inset 0 0 60px rgba(249, 176, 66, 0.05);
     }
-    @keyframes pulseLogo {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(249, 176, 66, 0.15); }
-      50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(249, 176, 66, 0.3); }
-    }
     #loadingScreen .logo-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     #loadingScreen .spinner {
       width: 50px; height: 50px;
@@ -123,7 +131,6 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     #loadingScreen .loading-text {
       background: linear-gradient(135deg, var(--accent), var(--purple));
       -webkit-background-clip: text;
@@ -131,10 +138,6 @@
       font-size: 1rem; margin-top: 20px;
       font-weight: 700; letter-spacing: 2px;
       animation: shimmer 2s ease-in-out infinite;
-    }
-    @keyframes shimmer {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; }
     }
     #loadingScreen .loading-progress {
       width: 250px; height: 4px;
@@ -150,23 +153,7 @@
     }
     #loadingScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pulse-dot { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
-    @keyframes bounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
-    @keyframes floatUp {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
-    }
-    @keyframes shimmerBtn {
-      0%, 100% { transform: translate(-10%, -10%); }
-      50% { transform: translate(10%, 10%); }
-    }
-
-    /* User Profile - Premium Glass */
+    /* User Profile */
     .user-profile {
       display: flex; align-items: center; gap: 14px;
       background: rgba(19, 27, 38, 0.7);
@@ -254,10 +241,6 @@
       margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px;
       animation: gradientMove 3s ease-in-out infinite;
       box-shadow: 0 4px 30px var(--accent-glow);
-    }
-    @keyframes gradientMove {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
     }
     .onboarding-btn:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 40px var(--accent-glow); }
     .onboarding-btn:active { transform: scale(0.97); }
@@ -532,7 +515,7 @@
     .dash-nutrition-item .nut-label { color: var(--tg-hint); font-size: 0.65rem; }
     .dash-nutrition-item .nut-value { font-weight: 600; font-size: 0.75rem; color: var(--accent); }
 
-    /* Video Embed - FIXED */
+    /* Video Embed - Fixed YouTube */
     .video-embed {
       margin: 12px 0;
       border-radius: var(--radius-xs);
@@ -626,72 +609,211 @@
     .dash-actions .action-btn.finish-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow); }
     .dash-actions .action-btn.finish-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    /* Camera */
+    /* PRO CAMERA - Premium */
     .camera-wrapper {
       position: relative; background: #080b12; border-radius: var(--radius);
       overflow: hidden; aspect-ratio: 4/3;
       border: 1px solid rgba(255,255,255,0.06); box-shadow: var(--shadow);
       margin-bottom: 12px;
     }
+    .camera-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.3) 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
     #video { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; background: #0a0e17; }
     #canvas { position: absolute; top: 0; left: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
-    .cam-status {
-      position: absolute; top: 10px; left: 10px; z-index: 5;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-      padding: 4px 12px; border-radius: 30px; font-size: 0.55rem;
-      font-weight: 600; border: 1px solid rgba(255,255,255,0.06);
-      display: flex; align-items: center; gap: 6px; color: var(--tg-hint);
-      text-transform: uppercase; letter-spacing: 0.3px;
+    
+    /* Camera Overlay Grid - Professional */
+    .cam-overlay-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      pointer-events: none;
     }
-    .cam-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse-dot 1.5s infinite; }
+    .cam-overlay-grid .grid-line {
+      position: absolute;
+      background: rgba(255,255,255,0.06);
+    }
+    .cam-overlay-grid .grid-line.horizontal {
+      width: 100%;
+      height: 1px;
+    }
+    .cam-overlay-grid .grid-line.horizontal:nth-child(1) { top: 33.33%; }
+    .cam-overlay-grid .grid-line.horizontal:nth-child(2) { top: 66.66%; }
+    .cam-overlay-grid .grid-line.vertical {
+      height: 100%;
+      width: 1px;
+    }
+    .cam-overlay-grid .grid-line.vertical:nth-child(3) { left: 33.33%; }
+    .cam-overlay-grid .grid-line.vertical:nth-child(4) { left: 66.66%; }
+    
+    /* Center Crosshair */
+    .cam-crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.3;
+    }
+    .cam-crosshair::before,
+    .cam-crosshair::after {
+      content: '';
+      position: absolute;
+      background: var(--accent);
+    }
+    .cam-crosshair::before {
+      width: 2px;
+      height: 30px;
+      top: -15px;
+      left: -1px;
+    }
+    .cam-crosshair::after {
+      width: 30px;
+      height: 2px;
+      top: -1px;
+      left: -15px;
+    }
+    .cam-crosshair .circle {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(249, 176, 66, 0.2);
+      border-radius: 50%;
+      position: absolute;
+      top: -20px;
+      left: -20px;
+    }
+
+    .cam-status {
+      position: absolute; top: 12px; left: 12px; z-index: 5;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(16px);
+      padding: 6px 14px; border-radius: 30px; font-size: 0.55rem;
+      font-weight: 600; border: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 8px; color: var(--tg-hint);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .cam-status .dot { 
+      width: 8px; height: 8px; border-radius: 50%; 
+      background: var(--green); 
+      animation: pulse-dot 1.5s infinite;
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+    }
+    .cam-status .fps {
+      font-size: 0.5rem;
+      color: var(--accent);
+      background: rgba(249, 176, 66, 0.1);
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+    
     .rec-indicator {
-      position: absolute; top: 10px; right: 10px; z-index: 5;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(12px);
-      padding: 4px 12px 4px 8px; border-radius: 30px;
-      display: none; align-items: center; gap: 6px; font-size: 0.55rem;
+      position: absolute; top: 12px; right: 12px; z-index: 5;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(16px);
+      padding: 6px 14px 6px 10px; border-radius: 30px;
+      display: none; align-items: center; gap: 8px; font-size: 0.55rem;
       font-weight: 700; border: 1px solid var(--red); color: var(--red);
       text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .rec-indicator .red-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse-dot 1s infinite; }
+    .rec-indicator .red-dot { 
+      width: 10px; height: 10px; background: var(--red); border-radius: 50%; 
+      animation: pulse-dot 1s infinite;
+      box-shadow: 0 0 15px rgba(248, 113, 113, 0.5);
+    }
+    .rec-indicator .timer {
+      font-family: 'Courier New', monospace;
+      font-size: 0.6rem;
+      background: rgba(248, 113, 113, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
     .rec-indicator.active { display: flex; }
+    
     .cam-controls {
-      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-      z-index: 5; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 5; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
     }
     .cam-btn {
-      background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(16px);
       border: 1px solid rgba(255,255,255,0.08); color: var(--tg-text);
-      padding: 6px 14px; border-radius: 40px; font-size: 0.65rem;
-      font-weight: 500; cursor: pointer; transition: var(--transition);
-      display: flex; align-items: center; gap: 4px; font-family: inherit;
+      padding: 8px 18px; border-radius: 40px; font-size: 0.7rem;
+      font-weight: 600; cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 6px; font-family: inherit;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
-    .cam-btn:hover { background: rgba(30,37,48,0.9); border-color: var(--accent); transform: scale(1.03); }
+    .cam-btn:hover { background: rgba(30,37,48,0.9); border-color: var(--accent); transform: scale(1.05); }
     .cam-btn:active { transform: scale(0.95); }
-    .cam-btn.record { background: var(--red); border-color: var(--red); color: white; font-weight: 700; }
+    .cam-btn.record { 
+      background: var(--red); border-color: var(--red); color: white; font-weight: 700;
+      box-shadow: 0 4px 30px rgba(248, 113, 113, 0.3);
+    }
     .cam-btn.record:hover { background: #ef4444; border-color: #ef4444; }
-    .cam-btn.record.recording { background: #4b5563; border-color: #4b5563; animation: pulse-record 1.5s infinite; }
-    @keyframes pulse-record { 0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.3); } 50% { box-shadow: 0 0 0 12px rgba(248,113,113,0); } }
+    .cam-btn.record.recording { 
+      background: #4b5563; border-color: #4b5563; 
+      animation: pulse-record 1.5s infinite;
+    }
+    .cam-btn.flash {
+      background: rgba(249, 176, 66, 0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .cam-btn.flash:hover { background: rgba(249, 176, 66, 0.3); }
 
+    /* Form Correction - Pro */
     .form-correction {
-      position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
-      z-index: 10; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
-      padding: 8px 16px; border-radius: 30px; font-size: 0.75rem;
-      font-weight: 600; border: 1px solid rgba(255,255,255,0.06);
-      text-align: center; max-width: 90%; transition: var(--transition);
+      position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+      z-index: 10; 
+      background: rgba(0,0,0,0.9); backdrop-filter: blur(20px);
+      padding: 10px 20px; border-radius: 30px; font-size: 0.8rem;
+      font-weight: 700; border: 1px solid rgba(255,255,255,0.06);
+      text-align: center; max-width: 92%; transition: var(--transition);
       display: none;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
     }
     .form-correction.active { display: block; animation: slideUp 0.3s ease-out; }
-    .form-correction.good { border-color: var(--green); color: var(--green); }
-    .form-correction.bad { border-color: var(--red); color: var(--red); }
-    .form-correction.waiting { border-color: var(--accent); color: var(--accent); }
+    .form-correction.good { 
+      border-color: var(--green); 
+      color: var(--green);
+      box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
+    }
+    .form-correction.bad { 
+      border-color: var(--red); 
+      color: var(--red);
+      box-shadow: 0 0 30px rgba(248, 113, 113, 0.1);
+    }
+    .form-correction.waiting { 
+      border-color: var(--accent); 
+      color: var(--accent);
+      box-shadow: 0 0 30px rgba(249, 176, 66, 0.1);
+    }
+    .form-correction .correction-icon {
+      margin-right: 8px;
+    }
+    .form-correction .correction-detail {
+      font-size: 0.6rem;
+      opacity: 0.7;
+      font-weight: 400;
+      display: block;
+      margin-top: 2px;
+    }
 
     /* Toast */
     .toast {
       position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
-      background: rgba(19, 27, 38, 0.9);
+      background: rgba(19, 27, 38, 0.95);
       backdrop-filter: blur(20px);
       color: var(--tg-text);
-      padding: 10px 20px; border-radius: 40px; font-size: 0.75rem;
+      padding: 12px 24px; border-radius: 40px; font-size: 0.8rem;
       font-weight: 500; border: 1px solid rgba(255,255,255,0.06);
       box-shadow: var(--shadow);
       z-index: 200; animation: fadeUp 0.3s ease-out;
@@ -712,7 +834,7 @@
     }
     .results-modal.active { display: flex; }
     .results-modal .modal-content {
-      background: rgba(19, 27, 38, 0.92);
+      background: rgba(19, 27, 38, 0.95);
       backdrop-filter: blur(16px);
       border-radius: var(--radius);
       max-width: 460px; width: 100%; padding: 30px 24px;
@@ -750,10 +872,14 @@
       .dash-nutrition-grid { grid-template-columns: 1fr 1fr; }
       .results-modal .result-stats { grid-template-columns: 1fr; }
       .user-profile .user-name { font-size: 0.8rem; }
+      .dashboard-top-btns .top-btn { font-size: 0.6rem; padding: 8px 10px; }
+      .cam-controls .cam-btn { font-size: 0.6rem; padding: 6px 12px; }
     }
     @media (max-width: 360px) {
       .dashboard-stats { grid-template-columns: 1fr; }
       .dash-nutrition-grid { grid-template-columns: 1fr; }
+      .dashboard-top-btns { flex-wrap: wrap; }
+      .dashboard-top-btns .top-btn { flex: 1 1 30%; }
     }
   </style>
 </head>
@@ -889,7 +1015,7 @@
     <!-- DASHBOARD -->
     <div class="dashboard-container" id="dashboardContainer">
       
-      <!-- TOP BUTTONS: Challenge & Height Increase (RED CIRCLE AREA) -->
+      <!-- 🔴 RED CIRCLE AREA: Challenge & Height Increase Buttons -->
       <div class="dashboard-top-btns">
         <button class="top-btn challenge-btn" id="challengeBtn">
           <i class="fas fa-trophy"></i> Challenge
@@ -916,7 +1042,7 @@
         <div class="dash-title" id="dashTitle"><i class="fas fa-dumbbell"></i> Workout</div>
         <div class="dash-sub" id="dashSub">Workout details & analysis</div>
         
-        <!-- VIDEO EMBED - FIXED -->
+        <!-- VIDEO EMBED -->
         <div class="video-embed" id="videoEmbed">
           <div class="video-placeholder" id="videoPlaceholder">
             <i class="fas fa-video"></i>
@@ -933,14 +1059,37 @@
         </div>
       </div>
 
+      <!-- 🔴 PRO CAMERA - Professional Quality -->
       <div class="camera-wrapper" id="cameraWrapper">
         <video id="video" playsinline></video>
         <canvas id="canvas"></canvas>
-        <div class="cam-status"><span class="dot"></span> LIVE</div>
-        <div class="rec-indicator" id="recIndicator"><span class="red-dot"></span> REC</div>
-        <div class="form-correction" id="formCorrection">✅ Perfect form!</div>
+        
+        <!-- Professional Camera Overlay Grid -->
+        <div class="cam-overlay-grid">
+          <div class="grid-line horizontal"></div>
+          <div class="grid-line horizontal"></div>
+          <div class="grid-line vertical"></div>
+          <div class="grid-line vertical"></div>
+        </div>
+        <div class="cam-crosshair">
+          <div class="circle"></div>
+        </div>
+        
+        <div class="cam-status">
+          <span class="dot"></span> LIVE 
+          <span class="fps">30 FPS</span>
+        </div>
+        <div class="rec-indicator" id="recIndicator">
+          <span class="red-dot"></span> REC 
+          <span class="timer" id="recTimer">00:00</span>
+        </div>
+        <div class="form-correction" id="formCorrection">
+          <span class="correction-icon">✅</span> Perfect form!
+          <span class="correction-detail">Keep it up!</span>
+        </div>
         <div class="cam-controls">
           <button class="cam-btn" id="camToggle"><i class="fas fa-sync-alt"></i> Switch</button>
+          <button class="cam-btn flash" id="flashToggle"><i class="fas fa-lightbulb"></i> Flash</button>
           <button class="cam-btn record" id="recordBtn"><i class="fas fa-circle"></i> Record</button>
         </div>
       </div>
