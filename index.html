@@ -1184,38 +1184,866 @@
     </div>
 
   </div>
-  <script>
-    // ──────────────────────────────────────────────────────────────
-    //  BACKEND CONNECTION
-    // ──────────────────────────────────────────────────────────────
-    const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
+  <!-- END OF APP DIV - PART 1 COMPLETE --><!-- PART 2A: JAVASCRIPT - CORE FUNCTIONS -->
+<script>
+  // ──────────────────────────────────────────────────────────────
+  //  BACKEND CONNECTION
+  // ──────────────────────────────────────────────────────────────
+  const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
 
-    // ──────────────────────────────────────────────────────────────
-    //  TELEGRAM INIT
-    // ──────────────────────────────────────────────────────────────
-    const tg = window.Telegram?.WebApp || { 
-      ready: () => {}, 
-      expand: () => {}, 
-      showAlert: (msg, options, callback) => {
-        if (typeof msg === 'string') {
-          alert(msg);
-          if (callback) callback('0');
-        } else {
-          const result = confirm(msg.text || msg);
-          if (callback) callback(result ? '0' : '1');
-        }
+  // ──────────────────────────────────────────────────────────────
+  //  TELEGRAM INIT
+  // ──────────────────────────────────────────────────────────────
+  const tg = window.Telegram?.WebApp || { 
+    ready: () => {}, 
+    expand: () => {}, 
+    showAlert: (msg, options, callback) => {
+      if (typeof msg === 'string') {
+        alert(msg);
+        if (callback) callback('0');
+      } else {
+        const result = confirm(msg.text || msg);
+        if (callback) callback(result ? '0' : '1');
       }
-    };
-    tg.ready();
-    tg.expand();
+    }
+  };
+  tg.ready();
+  tg.expand();
 
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || null;
-    const USER_ID = tgUser?.id ? `tg_${tgUser.id}` : 'guest_' + Date.now();
-    const USER_NAME = tgUser?.first_name || 'Guest';
-    const USER_LAST_NAME = tgUser?.last_name || '';
-    const USER_FULL_NAME = `${USER_NAME} ${USER_LAST_NAME}`.trim();
-    const USER_PHOTO = tgUser?.photo_url || null;
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  const USER_ID = tgUser?.id ? `tg_${tgUser.id}` : 'guest_' + Date.now();
+  const USER_NAME = tgUser?.first_name || 'Guest';
+  const USER_LAST_NAME = tgUser?.last_name || '';
+  const USER_FULL_NAME = `${USER_NAME} ${USER_LAST_NAME}`.trim();
+  const USER_PHOTO = tgUser?.photo_url || null;
 
+  // ──────────────────────────────────────────────────────────────
+  //  STATE
+  // ──────────────────────────────────────────────────────────────
+  let userData = {};
+  let currentSchedule = [];
+  let isWorkoutActive = false;
+  let isRecording = false;
+  let timerInterval = null;
+  let seconds = 0;
+  let facingMode = 'environment';
+  let selectedDayData = null;
+  let completedExercises = [];
+  let workoutStreak = 0;
+  let lastWorkoutDate = null;
+  let currentExerciseIndex = 0;
+  let dayExercises = [];
+  let isWorkoutStarted = false;
+  let totalExercises = 0;
+  let completedCount = 0;
+  let selectedExerciseId = null;
+  let isChallengeMode = false;
+  let isHeightMode = false;
+  let flashEnabled = false;
+  let recSeconds = 0;
+  let recInterval = null;
+
+  // ──────────────────────────────────────────────────────────────
+  //  LOCAL STORAGE
+  // ──────────────────────────────────────────────────────────────
+  const STORAGE_KEY = 'ai_gym_trainer_data';
+
+  function saveUserData(data) {
+    try { 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      syncToBackend(data);
+    } catch (e) {}
+  }
+
+  function loadUserData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.timestamp && (Date.now() - data.timestamp < 30 * 24 * 60 * 60 * 1000)) return data;
+      }
+      return null;
+    } catch (e) { return null; }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  BACKEND SYNC
+  // ──────────────────────────────────────────────────────────────
+  async function syncToBackend(data) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/save-progress`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: USER_ID, data: { ...data, timestamp: Date.now() } })
+      });
+      const result = await response.json();
+      if (result.success) console.log('✅ Data synced to backend');
+    } catch (e) { console.log('⚠️ Backend sync failed'); }
+  }
+
+  async function loadFromBackend() {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/load-progress/${USER_ID}`);
+      const result = await response.json();
+      if (result.success && result.data) return result.data;
+      return null;
+    } catch (e) { return null; }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  TOAST
+  // ──────────────────────────────────────────────────────────────
+  let toastTimeout;
+
+  function showToast(msg, type = 'info') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  HIDE LOADING
+  // ──────────────────────────────────────────────────────────────
+  function updateLoadingProgress(percent) {
+    const bar = document.getElementById('loadingProgressBar');
+    if (bar) bar.style.width = Math.min(percent, 100) + '%';
+  }
+
+  function hideLoading() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    updateLoadingProgress(100);
+    loadingScreen.classList.add('hidden');
+    setTimeout(() => { loadingScreen.style.display = 'none'; }, 800);
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  SETUP USER PROFILE
+  // ──────────────────────────────────────────────────────────────
+  function setupUserProfile(name) {
+    const profile = document.getElementById('userProfile');
+    const avatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const userStatus = document.getElementById('userStatus');
+    const streakEl = document.getElementById('userStreak');
+
+    profile.style.display = 'flex';
+    if (USER_PHOTO) {
+      avatar.innerHTML = `<img src="${USER_PHOTO}" alt="Profile" />`;
+    } else {
+      avatar.textContent = name.charAt(0).toUpperCase() || '👤';
+    }
+    userName.textContent = name || USER_FULL_NAME || 'Athlete';
+    userStatus.textContent = `💪 ${userData.style || 'Full Body'} • ${userData.weight || 75}kg`;
+    
+    if (userData.lastWorkoutDate) {
+      const lastDate = new Date(userData.lastWorkoutDate);
+      const today = new Date();
+      const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+      if (diffDays === 0) workoutStreak = userData.streak || 1;
+      else if (diffDays === 1) workoutStreak = (userData.streak || 0) + 1;
+      else workoutStreak = 0;
+    } else workoutStreak = 0;
+    streakEl.textContent = `🔥 ${workoutStreak} day streak`;
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  GET EXERCISES FOR DAY
+  // ──────────────────────────────────────────────────────────────
+  function getExercisesForDay(day, style) {
+    const styleMap = WORKOUT_STYLES[style] || WORKOUT_STYLES['Full Body'];
+    const exerciseIds = styleMap[day.toLowerCase()] || [];
+    return exerciseIds.map(id => {
+      const ex = EXERCISE_DB[id];
+      if (!ex) return null;
+      return {
+        id: ex.id,
+        name: ex.name,
+        icon: ex.icon,
+        muscle: ex.muscle,
+        videoUrl: ex.videoUrl,
+        desc: ex.desc,
+        tip: ex.tip,
+        reps: ex.defaultReps,
+        sets: ex.defaultSets,
+        premium: ex.premium || false,
+        benefit: ex.benefit,
+        reduce: ex.reduce
+      };
+    }).filter(ex => ex !== null);
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  GENERATE SCHEDULE
+  // ──────────────────────────────────────────────────────────────
+  function generateSchedule(useStored = false) {
+    let name, style, weight, height, protein, calories, startTime, duration;
+
+    if (useStored && userData.name) {
+      name = userData.name;
+      style = userData.style;
+      weight = userData.weight;
+      height = userData.height;
+      protein = userData.protein;
+      calories = userData.calories;
+      startTime = userData.startTime;
+      duration = userData.duration;
+    } else {
+      name = document.getElementById('userNameInput').value || USER_FULL_NAME || 'Athlete';
+      style = document.getElementById('styleInput').value;
+      weight = parseFloat(document.getElementById('weightInput').value) || 75;
+      height = parseFloat(document.getElementById('heightInput').value) || 175;
+      protein = parseFloat(document.getElementById('proteinInput').value) || 150;
+      calories = parseFloat(document.getElementById('caloriesInput').value) || 2500;
+      startTime = document.getElementById('startTimeInput').value || '06:00';
+      duration = parseInt(document.getElementById('durationInput').value) || 45;
+    }
+
+    if (!name) {
+      showToast('⚠️ Please enter your name', 'error');
+      return null;
+    }
+
+    userData = { name, style, weight, height, protein, calories, startTime, duration, userId: USER_ID, streak: workoutStreak };
+    saveUserData({ ...userData, timestamp: Date.now() });
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const schedule = [];
+
+    days.forEach((day, index) => {
+      const exercises = getExercisesForDay(day, style);
+      schedule.push({
+        day: day,
+        date: new Date(Date.now() + index * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        exercises: exercises,
+        completed: false,
+        progress: 0
+      });
+    });
+
+    return schedule;
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  RENDER SCHEDULE
+  // ──────────────────────────────────────────────────────────────
+  function renderSchedule(schedule) {
+    const grid = document.getElementById('scheduleGrid');
+    grid.innerHTML = '';
+
+    schedule.forEach((day) => {
+      const completedCount = day.exercises.filter(e => completedExercises.includes(e.id)).length;
+      const totalCount = day.exercises.length;
+      const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+      
+      const dayEl = document.createElement('div');
+      dayEl.className = 'schedule-day';
+      dayEl.innerHTML = `
+        <div class="day-header">
+          <span class="day-name">${day.day}</span>
+          <span class="day-date">${day.date}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <span style="font-size:0.7rem; color:var(--tg-hint);">
+            ${day.exercises.length} exercises • ${userData.duration || 45} min
+            ${completedCount > 0 ? ` • ✅ ${completedCount}/${totalCount} done` : ''}
+          </span>
+          <span style="font-size:0.6rem; color:var(--accent);">
+            <i class="fas fa-chevron-right"></i> Tap to view
+          </span>
+        </div>
+        <div class="day-progress">
+          <div class="bar" style="width:${progress}%;"></div>
+        </div>
+      `;
+      dayEl.addEventListener('click', () => { openWorkoutList(day); });
+      grid.appendChild(dayEl);
+    });
+
+    document.getElementById('scheduleBadge').textContent = `${schedule.length} Days`;
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  OPEN WORKOUT LIST
+  // ──────────────────────────────────────────────────────────────
+  function openWorkoutList(day) {
+    selectedDayData = day;
+    const modal = document.getElementById('workoutListModal');
+    document.getElementById('workoutListDay').textContent = `${day.day}'s Workouts`;
+    document.getElementById('workoutListSub').textContent = `${day.exercises.length} exercises • Tap "Start Workout" to begin`;
+
+    const container = document.getElementById('workoutListItems');
+    container.innerHTML = '';
+
+    if (day.exercises.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:30px 0; color:var(--tg-hint);">
+          <div style="font-size:3rem; margin-bottom:10px;">😴</div>
+          <div style="font-weight:600;">Rest Day</div>
+          <div style="font-size:0.8rem;">Take time to recover! 💪</div>
+        </div>
+      `;
+      document.getElementById('startWorkoutListBtn').style.display = 'none';
+    } else {
+      document.getElementById('startWorkoutListBtn').style.display = 'flex';
+      document.getElementById('startWorkoutListBtn').disabled = false;
+      document.getElementById('startWorkoutListBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
+      
+      day.exercises.forEach((ex, index) => {
+        const item = document.createElement('div');
+        item.className = 'workout-list-item';
+        const isDone = completedExercises.includes(ex.id);
+        item.innerHTML = `
+          <div class="wli-icon">${ex.icon}</div>
+          <div class="wli-info">
+            <div class="wli-name">${ex.name} ${ex.premium ? '<span class="wli-premium">⭐</span>' : ''}</div>
+            <div class="wli-muscle">${ex.muscle} • ${ex.sets}×${ex.reps} reps</div>
+          </div>
+          <span class="wli-status ${isDone ? 'done' : ''}">${isDone ? '✅ Done' : `${index + 1}`}</span>
+          <div class="wli-arrow"><i class="fas fa-chevron-right"></i></div>
+        `;
+        item.addEventListener('click', () => {
+          modal.classList.remove('active');
+          currentExerciseIndex = index;
+          startWorkoutFlow(day);
+        });
+        container.appendChild(item);
+      });
+    }
+
+    modal.classList.add('active');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  START WORKOUT FLOW
+  // ──────────────────────────────────────────────────────────────
+  function startWorkoutFlow(day) {
+    isChallengeMode = false;
+    isHeightMode = false;
+    dayExercises = day.exercises;
+    totalExercises = dayExercises.length;
+    completedCount = 0;
+    
+    dayExercises.forEach(ex => {
+      const idx = completedExercises.indexOf(ex.id);
+      if (idx > -1) completedExercises.splice(idx, 1);
+    });
+    
+    document.getElementById('workoutListModal').classList.remove('active');
+    document.getElementById('scheduleContainer').classList.remove('active');
+    document.getElementById('dashboardContainer').classList.add('active');
+    
+    isWorkoutStarted = true;
+    showExercise(currentExerciseIndex);
+    showToast(`🏋️ Starting ${day.day}'s workout!`, 'success');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  SHOW EXERCISE
+  // ──────────────────────────────────────────────────────────────
+  function showExercise(index) {
+    if (index >= totalExercises) {
+      finishWorkout();
+      return;
+    }
+    
+    const ex = dayExercises[index];
+    if (!ex) {
+      finishWorkout();
+      return;
+    }
+    
+    currentExerciseIndex = index;
+    selectedExerciseId = ex.id;
+    
+    updateProgress();
+    
+    // Set title
+    if (isChallengeMode) {
+      document.getElementById('dashTitle').innerHTML = `<i class="fas fa-trophy" style="color:var(--gold);"></i> 🏆 ${ex.icon} ${ex.name}`;
+    } else if (isHeightMode) {
+      document.getElementById('dashTitle').innerHTML = `<i class="fas fa-arrow-up" style="color:var(--blue);"></i> 📏 ${ex.icon} ${ex.name}`;
+    } else {
+      document.getElementById('dashTitle').innerHTML = `<i class="fas fa-dumbbell"></i> ${ex.icon} ${ex.name}`;
+    }
+    document.getElementById('dashSub').textContent = `${ex.muscle} • ${ex.sets} sets × ${ex.reps} reps`;
+    
+    // VIDEO - Auto plays when exercise is shown
+    const videoIframe = document.getElementById('videoIframe');
+    const placeholder = document.getElementById('videoPlaceholder');
+    if (ex.videoUrl && ex.videoUrl.includes('youtube.com/embed/')) {
+      videoIframe.src = ex.videoUrl + '?autoplay=1&rel=0&modestbranding=1';
+      videoIframe.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      videoIframe.src = '';
+      videoIframe.style.display = 'none';
+      placeholder.style.display = 'flex';
+    }
+    
+    // Stats
+    const statsContainer = document.getElementById('dashStats');
+    statsContainer.innerHTML = '';
+    const weight = userData.weight || 75;
+    const calories = userData.calories || 2500;
+    const protein = userData.protein || 150;
+    
+    const stats = [
+      { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: ex.benefit || 'Builds strength' },
+      { icon: '🔥', value: `${Math.round(calories/4.5)}`, label: 'Calories', benefit: 'Per workout' },
+      { icon: '🥩', value: `${Math.round(protein/3)}g`, label: 'Protein', benefit: 'Muscle recovery' },
+      { icon: '🎯', value: `${ex.sets}×${ex.reps}`, label: 'Sets × Reps', benefit: ex.muscle }
+    ];
+    
+    stats.forEach(stat => {
+      const statEl = document.createElement('div');
+      statEl.className = 'dash-stat';
+      statEl.innerHTML = `
+        <div class="stat-icon">${stat.icon}</div>
+        <div class="stat-value">${stat.value}</div>
+        <div class="stat-label">${stat.label}</div>
+        <div class="${stat.benefit.includes('Avoid') ? 'stat-reduce' : 'stat-benefit'}">${stat.benefit}</div>
+      `;
+      statsContainer.appendChild(statEl);
+    });
+    
+    // Details
+    const detailsContainer = document.getElementById('dashDetails');
+    detailsContainer.innerHTML = `
+      <div class="detail-row"><span class="detail-label">🏋️ Exercise</span><span class="detail-value">${ex.icon} ${ex.name} ${ex.premium ? '⭐' : ''}</span></div>
+      <div class="detail-row"><span class="detail-label">🎯 Target</span><span class="detail-value">${ex.muscle}</span></div>
+      <div class="detail-row"><span class="detail-label">📝 Description</span><span class="detail-value">${ex.desc}</span></div>
+      <div class="detail-row"><span class="detail-label">💡 Tip</span><span class="detail-value good">${ex.tip}</span></div>
+      <div class="detail-row" style="background:rgba(249,176,66,0.08); padding:6px 0; border-radius:4px; margin:2px 0;">
+        <span class="detail-label" style="font-weight:700;">📊 Sets & Reps</span>
+        <span class="detail-value" style="font-size:1rem; font-weight:800; color:var(--accent);">${ex.sets} sets × ${ex.reps} reps</span>
+      </div>
+      <div class="detail-row"><span class="detail-label">✅ Benefit</span><span class="detail-value good">${ex.benefit || 'Builds strength & muscle'}</span></div>
+      <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${ex.reduce || 'Avoid using momentum'}</span></div>
+    `;
+    
+    // Nutrition
+    const nutritionContainer = document.getElementById('dashNutritionGrid');
+    nutritionContainer.innerHTML = '';
+    
+    if (isChallengeMode) {
+      nutritionContainer.innerHTML = `
+        <div class="dash-nutrition-item"><span class="nut-label">🔥 Pre-Workout</span><span class="nut-value">Coffee/Green Tea</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">⚡ Energy</span><span class="nut-value">Complex Carbs</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🥩 Protein</span><span class="nut-value">${Math.round((userData.protein || 150) * 1.2)}g</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">💧 Hydration</span><span class="nut-value">2.5L Water</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🥗 Recovery</span><span class="nut-value">Banana + Protein</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🎯 Focus</span><span class="nut-value">BCAA/EAA</span></div>
+        <div class="dash-nutrition-item" style="grid-column:1/-1; border-bottom:none; padding-top:8px; text-align:center; color:var(--gold);">
+          🏆 Challenge Mode: Push your limits! 💪
+        </div>
+      `;
+    } else if (isHeightMode) {
+      nutritionContainer.innerHTML = `
+        <div class="dash-nutrition-item"><span class="nut-label">🥛 Calcium</span><span class="nut-value">1200mg</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">💊 Vitamin D</span><span class="nut-value">800 IU</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🥩 Protein</span><span class="nut-value">${Math.round((userData.protein || 150) * 1.2)}g</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🌾 Zinc</span><span class="nut-value">15mg</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🥑 Healthy Fats</span><span class="nut-value">30g</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">💧 Water</span><span class="nut-value">3L</span></div>
+        <div class="dash-nutrition-item" style="grid-column:1/-1; border-bottom:none; padding-top:8px; text-align:center; color:var(--blue);">
+          🌟 Foods: Milk, Eggs, Salmon, Nuts, Leafy Greens, Oranges
+        </div>
+      `;
+    } else {
+      const duration = userData.duration || 45;
+      const caloriesNeeded = Math.round((userData.calories || 2500) / 4.5);
+      const proteinNeeded = Math.round((userData.protein || 150) / 3);
+      const carbsNeeded = Math.round((userData.weight || 75) * 1.3);
+      const fatsNeeded = Math.round((userData.weight || 75) * 0.45);
+      const waterNeeded = Math.round((userData.weight || 75) * 35 + duration * 10);
+      
+      let specificFoods = [];
+      if (ex.muscle === 'Chest') specificFoods = ['🥩 Chicken Breast', '🍚 Brown Rice', '🥦 Broccoli'];
+      else if (ex.muscle === 'Back') specificFoods = ['🐟 Salmon', '🍠 Sweet Potato', '🥗 Spinach'];
+      else if (ex.muscle === 'Legs') specificFoods = ['🥩 Lean Beef', '🍝 Quinoa', '🥬 Kale'];
+      else if (ex.muscle === 'Shoulders') specificFoods = ['🍗 Turkey', '🍚 Oats', '🥑 Avocado'];
+      else if (ex.muscle === 'Biceps' || ex.muscle === 'Triceps') specificFoods = ['🥚 Eggs', '🍌 Banana', '🥜 Almonds'];
+      else if (ex.muscle === 'Core') specificFoods = ['🐟 Tuna', '🍞 Whole Grain', '🥒 Cucumber'];
+      else specificFoods = ['🥩 Protein Source', '🍚 Complex Carbs', '🥗 Vegetables'];
+      
+      const nutritionItems = [
+        { label: '🔥 Calories', value: caloriesNeeded, unit: 'kcal', primary: true },
+        { label: '🥩 Protein', value: proteinNeeded, unit: 'g', primary: true },
+        { label: '🌾 Carbs', value: carbsNeeded, unit: 'g', primary: false },
+        { label: '🥑 Fats', value: fatsNeeded, unit: 'g', primary: false },
+        { label: '💧 Water', value: waterNeeded, unit: 'ml', primary: false },
+        { label: '🍽️ Meals', value: specificFoods.join(' • '), unit: '', primary: false }
+      ];
+      
+      nutritionItems.forEach(item => {
+        const el = document.createElement('div');
+        el.className = `dash-nutrition-item${item.primary ? ' primary' : ''}`;
+        el.innerHTML = `<span class="nut-label">${item.label}</span><span class="nut-value">${item.value} ${item.unit}</span>`;
+        nutritionContainer.appendChild(el);
+      });
+    }
+    
+    // BUTTONS: Show Next or Finish
+    const nextBtn = document.getElementById('nextExerciseBtn');
+    const finishBtn = document.getElementById('finishWorkoutBtn');
+    const startBtn = document.getElementById('startWorkoutBtn');
+    const stopBtn = document.getElementById('stopWorkoutBtn');
+    
+    if (index === totalExercises - 1) {
+      nextBtn.style.display = 'none';
+      finishBtn.style.display = 'flex';
+      finishBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish';
+      finishBtn.disabled = false;
+    } else {
+      nextBtn.style.display = 'flex';
+      finishBtn.style.display = 'none';
+      nextBtn.innerHTML = '<i class="fas fa-forward"></i> Next';
+      nextBtn.disabled = false;
+    }
+    
+    startBtn.disabled = false;
+    startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+    stopBtn.disabled = true;
+    isWorkoutActive = false;
+    
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    seconds = 0;
+    
+    document.getElementById('formCorrection').textContent = `🎯 Ready for ${ex.name}`;
+    document.getElementById('formCorrection').className = 'form-correction active waiting';
+    
+    showToast(`💪 Exercise ${index + 1}/${totalExercises}: ${ex.name}`, 'info');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  UPDATE PROGRESS
+  // ──────────────────────────────────────────────────────────────
+  function updateProgress() {
+    const progress = totalExercises > 0 ? ((currentExerciseIndex) / totalExercises) * 100 : 0;
+    document.getElementById('progressText').textContent = `${currentExerciseIndex + 1}/${totalExercises}`;
+    document.getElementById('progressFill').style.width = progress + '%';
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  NEXT EXERCISE BUTTON
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('nextExerciseBtn').addEventListener('click', function() {
+    if (isWorkoutActive) {
+      showToast('⚠️ Please stop current workout first!', 'error');
+      return;
+    }
+    
+    const currentEx = dayExercises[currentExerciseIndex];
+    if (currentEx && !completedExercises.includes(currentEx.id)) {
+      completedExercises.push(currentEx.id);
+      completedCount++;
+    }
+    
+    currentExerciseIndex++;
+    if (currentExerciseIndex < totalExercises) {
+      showExercise(currentExerciseIndex);
+    } else {
+      finishWorkout();
+    }
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  FINISH WORKOUT
+  // ──────────────────────────────────────────────────────────────
+  function finishWorkout() {
+    for (let i = currentExerciseIndex; i < totalExercises; i++) {
+      const ex = dayExercises[i];
+      if (ex && !completedExercises.includes(ex.id)) {
+        completedExercises.push(ex.id);
+      }
+    }
+    
+    const today = new Date().toDateString();
+    if (lastWorkoutDate !== today) {
+      lastWorkoutDate = today;
+      workoutStreak += 1;
+      userData.streak = workoutStreak;
+      userData.lastWorkoutDate = today;
+      saveUserData({ ...userData, timestamp: Date.now() });
+      document.getElementById('userStreak').textContent = `🔥 ${workoutStreak} day streak`;
+    }
+    
+    if (currentSchedule) renderSchedule(currentSchedule);
+    
+    showToast('🎉 All exercises completed!', 'success');
+    setTimeout(() => {
+      showResultsModal(seconds || 300);
+    }, 500);
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  FINISH BUTTON
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('finishWorkoutBtn').addEventListener('click', function() {
+    if (isWorkoutActive) {
+      showToast('⚠️ Please stop your workout first!', 'error');
+      return;
+    }
+    if (confirm('🎯 Finish all exercises? Great job!')) {
+      finishWorkout();
+    }
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  START WORKOUT BUTTON
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('startWorkoutBtn').addEventListener('click', function() {
+    if (isWorkoutActive) return;
+    
+    const currentEx = dayExercises[currentExerciseIndex];
+    if (!currentEx) {
+      showToast('⚠️ No exercise to start!', 'error');
+      return;
+    }
+    
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+    startExerciseTimer();
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  START EXERCISE TIMER
+  // ──────────────────────────────────────────────────────────────
+  function startExerciseTimer() {
+    isWorkoutActive = true;
+    const startBtn = document.getElementById('startWorkoutBtn');
+    const stopBtn = document.getElementById('stopWorkoutBtn');
+    
+    startBtn.disabled = true;
+    startBtn.innerHTML = '<i class="fas fa-clock"></i> 00:00:00';
+    stopBtn.disabled = false;
+    
+    seconds = 0;
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds++;
+      const hrs = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      startBtn.innerHTML = `<i class="fas fa-clock"></i> ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }, 1000);
+    
+    document.getElementById('formCorrection').textContent = '⏱️ Workout in progress... Keep going! 💪';
+    document.getElementById('formCorrection').className = 'form-correction active good';
+    
+    showToast('🎯 Workout started!', 'info');
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  STOP WORKOUT BUTTON
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('stopWorkoutBtn').addEventListener('click', function() {
+    if (!isWorkoutActive) return;
+    
+    isWorkoutActive = false;
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
+    const startBtn = document.getElementById('startWorkoutBtn');
+    startBtn.disabled = false;
+    startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+    this.disabled = true;
+    
+    document.getElementById('formCorrection').textContent = '⏹️ Workout stopped. Ready to continue!';
+    document.getElementById('formCorrection').className = 'form-correction active waiting';
+    
+    showToast(`⏹️ Workout stopped at ${formatTime(seconds)}`, 'info');
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  FORMAT TIME
+  // ──────────────────────────────────────────────────────────────
+  function formatTime(secs) {
+    const hrs = Math.floor(secs / 3600);
+    const mins = Math.floor((secs % 3600) / 60);
+    const secsRem = secs % 60;
+    return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secsRem).padStart(2, '0')}`;
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  CLOSE WORKOUT LIST
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('closeWorkoutList').addEventListener('click', () => {
+    document.getElementById('workoutListModal').classList.remove('active');
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  START WORKOUT FROM LIST
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('startWorkoutListBtn').addEventListener('click', function() {
+    if (!selectedDayData || selectedDayData.exercises.length === 0) {
+      showToast('⚠️ No exercises for today!', 'error');
+      return;
+    }
+    if (isWorkoutStarted) {
+      showToast('⚠️ Workout already in progress!', 'info');
+      return;
+    }
+    currentExerciseIndex = 0;
+    startWorkoutFlow(selectedDayData);
+    this.disabled = true;
+    setTimeout(() => { this.disabled = false; }, 1000);
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  BACK TO SCHEDULE
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('dashboardBack').addEventListener('click', () => {
+    if (isWorkoutActive || isWorkoutStarted) {
+      if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
+        resetWorkoutState();
+        document.getElementById('dashboardContainer').classList.remove('active');
+        document.getElementById('scheduleContainer').classList.add('active');
+        const schedule = generateSchedule(true);
+        if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
+        showToast('📅 Back to schedule!', 'info');
+      }
+    } else {
+      document.getElementById('dashboardContainer').classList.remove('active');
+      document.getElementById('scheduleContainer').classList.add('active');
+      const schedule = generateSchedule(true);
+      if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
+      showToast('📅 Back to schedule!', 'info');
+    }
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  BACK TO LIST
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('dashBackToList').addEventListener('click', () => {
+    if (isWorkoutActive || isWorkoutStarted) {
+      if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
+        resetWorkoutState();
+        document.getElementById('dashboardContainer').classList.remove('active');
+        if (selectedDayData) openWorkoutList(selectedDayData);
+        else document.getElementById('scheduleContainer').classList.add('active');
+        showToast('📋 Back to workout list', 'info');
+      }
+    } else {
+      document.getElementById('dashboardContainer').classList.remove('active');
+      if (selectedDayData) openWorkoutList(selectedDayData);
+      else document.getElementById('scheduleContainer').classList.add('active');
+      showToast('📋 Back to workout list', 'info');
+    }
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  RESET WORKOUT STATE
+  // ──────────────────────────────────────────────────────────────
+  function resetWorkoutState() {
+    isWorkoutActive = false;
+    isWorkoutStarted = false;
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    const startBtn = document.getElementById('startWorkoutBtn');
+    startBtn.disabled = false;
+    startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+    document.getElementById('stopWorkoutBtn').disabled = true;
+    document.getElementById('nextExerciseBtn').style.display = 'flex';
+    document.getElementById('finishWorkoutBtn').style.display = 'none';
+    document.getElementById('formCorrection').textContent = '⏹️ Workout stopped';
+    document.getElementById('formCorrection').className = 'form-correction active waiting';
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  SHOW RESULTS MODAL
+  // ──────────────────────────────────────────────────────────────
+  function showResultsModal(durationSeconds) {
+    const modal = document.getElementById('resultsModal');
+    const minutes = Math.floor(durationSeconds / 60);
+    const secs = durationSeconds % 60;
+    const timeStr = `${minutes}m ${secs}s`;
+
+    const ex = dayExercises.length > 0 ? dayExercises[0] : null;
+    const muscleGroup = ex ? ex.muscle : 'Full Body';
+
+    const weight = userData.weight || 75;
+    const caloriesBurned = Math.round(weight * 0.053 * (durationSeconds / 60));
+    const proteinNeeded = Math.round((userData.protein || 150) / 3);
+
+    const bodyEmojis = { 'Chest': '💪', 'Back': '🏋️', 'Legs': '🦵', 'Shoulders': '💪', 'Biceps': '💪', 'Triceps': '💪', 'Core': '🔥', 'Full Body': '💪' };
+    const bodyEmoji = bodyEmojis[muscleGroup] || '💪';
+
+    const motivationalMessages = ['🔥 You\'re on fire! Keep pushing!', '💪 Amazing work! You\'re getting stronger!', '🌟 Great job! Consistency is key!', '⚡ You crushed it! Keep going!', '🏆 Incredible performance! You\'re a champion!', '🎯 Perfect form! You\'re a pro!', '🚀 Sky\'s the limit! Keep climbing!', '💯 Excellence! You\'re unstoppable!'];
+    const randomMsg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+    const subMessages = ['Your dedication is inspiring!', 'Every rep counts towards your goal!', 'Keep showing up! Results are coming!', 'You\'re building something great!', 'Stay consistent, stay strong!'];
+    const randomSub = subMessages[Math.floor(Math.random() * subMessages.length)];
+
+    const statsContainer = document.getElementById('resultStats');
+    statsContainer.innerHTML = `
+      <div class="result-stat"><div class="rs-value">${timeStr}</div><div class="rs-label">⏱️ Duration</div></div>
+      <div class="result-stat"><div class="rs-value">${caloriesBurned} kcal</div><div class="rs-label">🔥 Calories Burned</div></div>
+      <div class="result-stat"><div class="rs-value">${proteinNeeded}g</div><div class="rs-label">🥩 Protein Needed</div></div>
+      <div class="result-stat"><div class="rs-value">${dayExercises.length}</div><div class="rs-label">🏋️ Exercises Done</div></div>
+    `;
+
+    document.getElementById('resultBodyImg').textContent = bodyEmoji;
+    
+    let title = `🎉 ${dayExercises.length} Exercises Complete!`;
+    let sub = `You crushed ${dayExercises.length} exercises! 💪`;
+    if (isChallengeMode) {
+      title = '🏆 Challenge Complete! All 16 Exercises!';
+      sub = 'You crushed the ultimate challenge! 💪🔥';
+    } else if (isHeightMode) {
+      title = '📏 Height Routine Complete! All 16 Stretches!';
+      sub = 'Stretch & grow taller! 🌱📏';
+    }
+    
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultSub').textContent = sub;
+    document.getElementById('resultMsg').textContent = randomMsg;
+    document.getElementById('resultSubMsg').textContent = randomSub;
+
+    modal.classList.add('active');
+    
+    resetWorkoutState();
+    isWorkoutStarted = false;
+    isChallengeMode = false;
+    isHeightMode = false;
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  CLOSE RESULTS MODAL
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('closeResultsBtn').addEventListener('click', () => {
+    document.getElementById('resultsModal').classList.remove('active');
+    document.getElementById('dashboardContainer').classList.remove('active');
+    document.getElementById('scheduleContainer').classList.add('active');
+    const schedule = generateSchedule(true);
+    if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
+    showToast('📅 Back to schedule!', 'info');
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  GENERATE SCHEDULE BUTTON
+  // ──────────────────────────────────────────────────────────────
+  document.getElementById('generateScheduleBtn').addEventListener('click', () => {
+    const schedule = generateSchedule(false);
+    if (!schedule) return;
+    currentSchedule = schedule;
+    document.getElementById('onboardingCard').style.display = 'none';
+    document.getElementById('scheduleContainer').classList.add('active');
+    setupUserProfile(userData.name);
+    renderSchedule(schedule);
+    showToast('📅 Schedule generated!', 'success');
+    tg.showAlert({ text: '🎉 Your personalized workout schedule is ready!' }, {}, (result) => {});
+  });
+  </script>  <!-- PART 2B: JAVASCRIPT - EXERCISES + CHALLENGES + HEIGHT + CAMERA -->
+  <script>
     // ──────────────────────────────────────────────────────────────
     //  COMPLETE EXERCISE DATABASE - 140 EXERCISES
     // ──────────────────────────────────────────────────────────────
@@ -1240,7 +2068,6 @@
       CHEST_18: { id: 'CHEST_18', name: 'Clap Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Explosive push-ups with clap', tip: 'Focus on explosive power', defaultReps: 10, defaultSets: 3, benefit: 'Builds explosive power', reduce: 'Avoid landing with locked elbows' },
       CHEST_19: { id: 'CHEST_19', name: 'Wide Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Wide hand placement for outer chest', tip: 'Lower chest deeper for stretch', defaultReps: 12, defaultSets: 3, benefit: 'Outer chest development', reduce: 'Avoid going too deep' },
       CHEST_20: { id: 'CHEST_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Press barbell from landmine station', tip: 'Great for shoulder health', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder-friendly chest press', reduce: 'Avoid pressing too far forward' },
-
       BACK_01: { id: 'BACK_01', name: 'Pull-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', premium: true, desc: 'Pull body up to bar, lower controlled', tip: 'Keep core tight, use full range', defaultReps: 8, defaultSets: 3, benefit: 'Builds wide back & grip strength', reduce: 'Avoid swinging body' },
       BACK_02: { id: 'BACK_02', name: 'Chin-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Underhand grip pull-ups', tip: 'Focus on bicep engagement', defaultReps: 8, defaultSets: 3, benefit: 'Targets lats & biceps', reduce: 'Avoid using momentum' },
       BACK_03: { id: 'BACK_03', name: 'Bent-Over Barbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw', premium: false, desc: 'Bend at hips, row bar to chest', tip: 'Keep back straight, pull to belly button', defaultReps: 10, defaultSets: 3, benefit: 'Builds back thickness', reduce: 'Avoid rounding back' },
@@ -1261,7 +2088,6 @@
       BACK_18: { id: 'BACK_18', name: 'Shrugs (Traps)', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Shrug shoulders up with weight', tip: 'Hold peak contraction', defaultReps: 15, defaultSets: 3, benefit: 'Trap development', reduce: 'Avoid rolling shoulders' },
       BACK_19: { id: 'BACK_19', name: 'Farmers Walk', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Walk carrying heavy weight', tip: 'Keep shoulders back, core tight', defaultReps: 3, defaultSets: 3, benefit: 'Grip & back strength', reduce: 'Avoid leaning forward' },
       BACK_20: { id: 'BACK_20', name: 'Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Row cable handles to belly', tip: 'Controlled movement with squeeze', defaultReps: 12, defaultSets: 3, benefit: 'Back thickness', reduce: 'Avoid using momentum' },
-
       SHOULDER_01: { id: 'SHOULDER_01', name: 'Overhead Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog', premium: false, desc: 'Press bar overhead from shoulders', tip: 'Keep core tight, don\'t lean back', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder strength & size', reduce: 'Avoid arching back' },
       SHOULDER_02: { id: 'SHOULDER_02', name: 'Dumbbell Shoulder Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Press dumbbells overhead', tip: 'Keep wrists straight, control descent', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder stability', reduce: 'Avoid using too heavy weight' },
       SHOULDER_03: { id: 'SHOULDER_03', name: 'Arnold Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Rotate dumbbells from front to overhead', tip: 'Works all three delt heads', defaultReps: 10, defaultSets: 3, benefit: 'Full shoulder development', reduce: 'Avoid rotating too fast' },
@@ -1282,7 +2108,6 @@
       SHOULDER_18: { id: 'SHOULDER_18', name: 'Arnold Press (Variation)', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Press with rotation through full ROM', tip: 'Smooth controlled movement', defaultReps: 10, defaultSets: 3, benefit: 'Full shoulder development', reduce: 'Avoid rotating too fast' },
       SHOULDER_19: { id: 'SHOULDER_19', name: 'YTW Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Shoulder health exercises', tip: 'Focus on posture and control', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder health', reduce: 'Avoid using heavy weight' },
       SHOULDER_20: { id: 'SHOULDER_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Angled press from landmine', tip: 'Great for shoulder health', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder-friendly press', reduce: 'Avoid pressing too far forward' },
-
       BICEPS_01: { id: 'BICEPS_01', name: 'Barbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo', premium: false, desc: 'Curl barbell up to shoulders', tip: 'Keep elbows pinned to sides', defaultReps: 10, defaultSets: 3, benefit: 'Bicep mass builder', reduce: 'Avoid using momentum' },
       BICEPS_02: { id: 'BICEPS_02', name: 'Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Curl dumbbells alternately or together', tip: 'Full range of motion', defaultReps: 10, defaultSets: 3, benefit: 'Bicep peak development', reduce: 'Avoid swinging' },
       BICEPS_03: { id: 'BICEPS_03', name: 'Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Neutral grip curl', tip: 'Works brachialis and biceps', defaultReps: 10, defaultSets: 3, benefit: 'Brachialis development', reduce: 'Avoid using too heavy weight' },
@@ -1303,7 +2128,6 @@
       BICEPS_18: { id: 'BICEPS_18', name: 'Cross-Body Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Hammer curl across body', tip: 'Targets brachialis', defaultReps: 10, defaultSets: 3, benefit: 'Brachialis development', reduce: 'Avoid using momentum' },
       BICEPS_19: { id: 'BICEPS_19', name: 'Towel Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Curl with rolled towel', tip: 'Grip strength builder', defaultReps: 10, defaultSets: 3, benefit: 'Grip & bicep strength', reduce: 'Avoid using too thick towel' },
       BICEPS_20: { id: 'BICEPS_20', name: 'Cable Curl (Variation)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Various cable curl variations', tip: 'Constant tension throughout', defaultReps: 12, defaultSets: 3, benefit: 'Bicep variation', reduce: 'Avoid using momentum' },
-
       TRICEPS_01: { id: 'TRICEPS_01', name: 'Tricep Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Push cable bar down to thighs', tip: 'Keep elbows locked at sides', defaultReps: 12, defaultSets: 3, benefit: 'Tricep development', reduce: 'Avoid using momentum' },
       TRICEPS_02: { id: 'TRICEPS_02', name: 'Close-Grip Bench Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Press with close grip', tip: 'Focus on tricep drive', defaultReps: 10, defaultSets: 3, benefit: 'Tricep strength', reduce: 'Avoid using too heavy weight' },
       TRICEPS_03: { id: 'TRICEPS_03', name: 'Tricep Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true, desc: 'Dip between parallel bars', tip: 'Keep body upright for triceps focus', defaultReps: 12, defaultSets: 3, benefit: 'Tricep mass builder', reduce: 'Avoid going too deep' },
@@ -1324,7 +2148,6 @@
       TRICEPS_18: { id: 'TRICEPS_18', name: 'Floor Press (Close Grip)', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Press from floor position', tip: 'Safe for shoulders', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder-safe tricep press', reduce: 'Avoid locking elbows' },
       TRICEPS_19: { id: 'TRICEPS_19', name: 'Band Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Push band down with constant tension', tip: 'Great for home', defaultReps: 15, defaultSets: 3, benefit: 'Tricep endurance', reduce: 'Avoid using too light band' },
       TRICEPS_20: { id: 'TRICEPS_20', name: 'Tricep Hold Extensions', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Hold and extend for burn', tip: 'Isometric focus', defaultReps: 10, defaultSets: 3, benefit: 'Tricep endurance', reduce: 'Avoid holding too long' },
-
       LEGS_01: { id: 'LEGS_01', name: 'Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', premium: false, desc: 'Squat with barbell or bodyweight', tip: 'Keep chest up, knees tracking toes', defaultReps: 15, defaultSets: 3, benefit: 'Full leg development', reduce: 'Avoid leaning forward' },
       LEGS_02: { id: 'LEGS_02', name: 'Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false, desc: 'Lift barbell from ground', tip: 'Hinge at hips, keep back neutral', defaultReps: 8, defaultSets: 3, benefit: 'Full body strength', reduce: 'Avoid rounding back' },
       LEGS_03: { id: 'LEGS_03', name: 'Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', premium: false, desc: 'Step forward and lunge down', tip: 'Keep front knee behind toes', defaultReps: 12, defaultSets: 3, benefit: 'Leg stability & strength', reduce: 'Avoid leaning forward' },
@@ -1345,7 +2168,6 @@
       LEGS_18: { id: 'LEGS_18', name: 'Lateral Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Step to side into lunge', tip: 'Great for hip mobility', defaultReps: 10, defaultSets: 3, benefit: 'Hip mobility & strength', reduce: 'Avoid leaning too far forward' },
       LEGS_19: { id: 'LEGS_19', name: 'Side-Lying Leg Lifts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Lift leg while lying on side', tip: 'Glute medius focus', defaultReps: 12, defaultSets: 3, benefit: 'Glute medius development', reduce: 'Avoid using momentum' },
       LEGS_20: { id: 'LEGS_20', name: 'Resistance Band Walks', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Walk with band around ankles', tip: 'Great for glute activation', defaultReps: 10, defaultSets: 3, benefit: 'Glute activation', reduce: 'Avoid stepping too wide' },
-
       CORE_01: { id: 'CORE_01', name: 'Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU', premium: false, desc: 'Curl upper body up', tip: 'Keep neck relaxed', defaultReps: 20, defaultSets: 3, benefit: 'Upper abs development', reduce: 'Avoid pulling on neck' },
       CORE_02: { id: 'CORE_02', name: 'Leg Raises', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Raise legs up and down', tip: 'Keep lower back pressed down', defaultReps: 15, defaultSets: 3, benefit: 'Lower abs development', reduce: 'Avoid swinging legs' },
       CORE_03: { id: 'CORE_03', name: 'Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', premium: false, desc: 'Hold push-up position', tip: 'Keep body in straight line', defaultReps: 3, defaultSets: 3, benefit: 'Full core stability', reduce: 'Avoid sagging hips' },
@@ -1369,7 +2191,7 @@
     };
 
     // ──────────────────────────────────────────────────────────────
-    //  WORKOUT STYLES (Complete)
+    //  WORKOUT STYLES (All 11 styles)
     // ──────────────────────────────────────────────────────────────
     const WORKOUT_STYLES = {
       'Full Body': {
@@ -1474,7 +2296,7 @@
     };
 
     // ──────────────────────────────────────────────────────────────
-    //  ALL CHALLENGE WORKOUTS (Complete)
+    //  ALL 16 CHALLENGE WORKOUTS
     // ──────────────────────────────────────────────────────────────
     const CHALLENGE_EXERCISES = [
       { id: 'CHAL_01', name: '100 Push-ups Challenge', icon: '💪', muscle: 'Full Body', videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', desc: 'Complete 100 push-ups in sets', tip: 'Break into sets of 10-20', reps: 100, sets: 1, benefit: 'Builds endurance & chest strength', reduce: 'Avoid locking elbows' },
@@ -1496,7 +2318,7 @@
     ];
 
     // ──────────────────────────────────────────────────────────────
-    //  ALL HEIGHT INCREASE WORKOUTS (Complete)
+    //  ALL 16 HEIGHT INCREASE WORKOUTS
     // ──────────────────────────────────────────────────────────────
     const HEIGHT_EXERCISES = [
       { id: 'HGT_01', name: 'Hanging Leg Raises', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Hang and raise legs to chest', tip: 'Keep legs straight, engage core', reps: 15, sets: 3, benefit: 'Spinal decompression & core', reduce: 'Avoid swinging' },
@@ -1518,760 +2340,56 @@
     ];
 
     // ──────────────────────────────────────────────────────────────
-    //  STATE
+    //  CHALLENGE BUTTON - Schedule Page
     // ──────────────────────────────────────────────────────────────
-    let userData = {};
-    let currentSchedule = [];
-    let isWorkoutActive = false;
-    let isRecording = false;
-    let timerInterval = null;
-    let seconds = 0;
-    let facingMode = 'environment';
-    let selectedDayData = null;
-    let completedExercises = [];
-    let workoutStreak = 0;
-    let lastWorkoutDate = null;
-    let currentExerciseIndex = 0;
-    let dayExercises = [];
-    let isWorkoutStarted = false;
-    let totalExercises = 0;
-    let completedCount = 0;
-    let selectedExerciseId = null;
-    let isChallengeMode = false;
-    let isHeightMode = false;
-
-    // ──────────────────────────────────────────────────────────────
-    //  LOCAL STORAGE
-    // ──────────────────────────────────────────────────────────────
-    const STORAGE_KEY = 'ai_gym_trainer_data';
-
-    function saveUserData(data) {
-      try { 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        syncToBackend(data);
-      } catch (e) {}
-    }
-
-    function loadUserData() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const data = JSON.parse(raw);
-          if (data.timestamp && (Date.now() - data.timestamp < 30 * 24 * 60 * 60 * 1000)) return data;
-        }
-        return null;
-      } catch (e) { return null; }
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  BACKEND SYNC
-    // ──────────────────────────────────────────────────────────────
-    async function syncToBackend(data) {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/save-progress`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: USER_ID, data: { ...data, timestamp: Date.now() } })
-        });
-        const result = await response.json();
-        if (result.success) console.log('✅ Data synced to backend');
-      } catch (e) { console.log('⚠️ Backend sync failed'); }
-    }
-
-    async function loadFromBackend() {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/load-progress/${USER_ID}`);
-        const result = await response.json();
-        if (result.success && result.data) return result.data;
-        return null;
-      } catch (e) { return null; }
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  TOAST
-    // ──────────────────────────────────────────────────────────────
-    let toastTimeout;
-
-    function showToast(msg, type = 'info') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + type;
-      clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  HIDE LOADING
-    // ──────────────────────────────────────────────────────────────
-    function updateLoadingProgress(percent) {
-      const bar = document.getElementById('loadingProgressBar');
-      if (bar) bar.style.width = Math.min(percent, 100) + '%';
-    }
-
-    function hideLoading() {
-      const loadingScreen = document.getElementById('loadingScreen');
-      updateLoadingProgress(100);
-      loadingScreen.classList.add('hidden');
-      setTimeout(() => { loadingScreen.style.display = 'none'; }, 800);
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  SETUP USER PROFILE
-    // ──────────────────────────────────────────────────────────────
-    function setupUserProfile(name) {
-      const profile = document.getElementById('userProfile');
-      const avatar = document.getElementById('userAvatar');
-      const userName = document.getElementById('userName');
-      const userStatus = document.getElementById('userStatus');
-      const streakEl = document.getElementById('userStreak');
-
-      profile.style.display = 'flex';
-      if (USER_PHOTO) {
-        avatar.innerHTML = `<img src="${USER_PHOTO}" alt="Profile" />`;
-      } else {
-        avatar.textContent = name.charAt(0).toUpperCase() || '👤';
-      }
-      userName.textContent = name || USER_FULL_NAME || 'Athlete';
-      userStatus.textContent = `💪 ${userData.style || 'Full Body'} • ${userData.weight || 75}kg`;
-      
-      if (userData.lastWorkoutDate) {
-        const lastDate = new Date(userData.lastWorkoutDate);
-        const today = new Date();
-        const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-        if (diffDays === 0) workoutStreak = userData.streak || 1;
-        else if (diffDays === 1) workoutStreak = (userData.streak || 0) + 1;
-        else workoutStreak = 0;
-      } else workoutStreak = 0;
-      streakEl.textContent = `🔥 ${workoutStreak} day streak`;
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  GET EXERCISES FOR DAY
-    // ──────────────────────────────────────────────────────────────
-    function getExercisesForDay(day, style) {
-      const styleMap = WORKOUT_STYLES[style] || WORKOUT_STYLES['Full Body'];
-      const exerciseIds = styleMap[day.toLowerCase()] || [];
-      return exerciseIds.map(id => {
-        const ex = EXERCISE_DB[id];
-        if (!ex) return null;
-        return {
-          id: ex.id,
-          name: ex.name,
-          icon: ex.icon,
-          muscle: ex.muscle,
-          videoUrl: ex.videoUrl,
-          desc: ex.desc,
-          tip: ex.tip,
-          reps: ex.defaultReps,
-          sets: ex.defaultSets,
-          premium: ex.premium || false,
-          benefit: ex.benefit,
-          reduce: ex.reduce
-        };
-      }).filter(ex => ex !== null);
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  GENERATE SCHEDULE
-    // ──────────────────────────────────────────────────────────────
-    function generateSchedule(useStored = false) {
-      let name, style, weight, height, protein, calories, startTime, duration;
-
-      if (useStored && userData.name) {
-        name = userData.name;
-        style = userData.style;
-        weight = userData.weight;
-        height = userData.height;
-        protein = userData.protein;
-        calories = userData.calories;
-        startTime = userData.startTime;
-        duration = userData.duration;
-      } else {
-        name = document.getElementById('userNameInput').value || USER_FULL_NAME || 'Athlete';
-        style = document.getElementById('styleInput').value;
-        weight = parseFloat(document.getElementById('weightInput').value) || 75;
-        height = parseFloat(document.getElementById('heightInput').value) || 175;
-        protein = parseFloat(document.getElementById('proteinInput').value) || 150;
-        calories = parseFloat(document.getElementById('caloriesInput').value) || 2500;
-        startTime = document.getElementById('startTimeInput').value || '06:00';
-        duration = parseInt(document.getElementById('durationInput').value) || 45;
-      }
-
-      if (!name) {
-        showToast('⚠️ Please enter your name', 'error');
-        return null;
-      }
-
-      userData = { name, style, weight, height, protein, calories, startTime, duration, userId: USER_ID, streak: workoutStreak };
-      saveUserData({ ...userData, timestamp: Date.now() });
-
-      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      const schedule = [];
-
-      days.forEach((day, index) => {
-        const exercises = getExercisesForDay(day, style);
-        schedule.push({
-          day: day,
-          date: new Date(Date.now() + index * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          exercises: exercises,
-          completed: false,
-          progress: 0
-        });
-      });
-
-      return schedule;
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  RENDER SCHEDULE
-    // ──────────────────────────────────────────────────────────────
-    function renderSchedule(schedule) {
-      const grid = document.getElementById('scheduleGrid');
-      grid.innerHTML = '';
-
-      schedule.forEach((day) => {
-        const completedCount = day.exercises.filter(e => completedExercises.includes(e.id)).length;
-        const totalCount = day.exercises.length;
-        const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-        
-        const dayEl = document.createElement('div');
-        dayEl.className = 'schedule-day';
-        dayEl.innerHTML = `
-          <div class="day-header">
-            <span class="day-name">${day.day}</span>
-            <span class="day-date">${day.date}</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-            <span style="font-size:0.7rem; color:var(--tg-hint);">
-              ${day.exercises.length} exercises • ${userData.duration || 45} min
-              ${completedCount > 0 ? ` • ✅ ${completedCount}/${totalCount} done` : ''}
-            </span>
-            <span style="font-size:0.6rem; color:var(--accent);">
-              <i class="fas fa-chevron-right"></i> Tap to view
-            </span>
-          </div>
-          <div class="day-progress">
-            <div class="bar" style="width:${progress}%;"></div>
-          </div>
-        `;
-        dayEl.addEventListener('click', () => { openWorkoutList(day); });
-        grid.appendChild(dayEl);
-      });
-
-      document.getElementById('scheduleBadge').textContent = `${schedule.length} Days`;
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  OPEN WORKOUT LIST
-    // ──────────────────────────────────────────────────────────────
-    function openWorkoutList(day) {
-      selectedDayData = day;
-      const modal = document.getElementById('workoutListModal');
-      document.getElementById('workoutListDay').textContent = `${day.day}'s Workouts`;
-      document.getElementById('workoutListSub').textContent = `${day.exercises.length} exercises • Tap "Start Workout" to begin`;
-
-      const container = document.getElementById('workoutListItems');
-      container.innerHTML = '';
-
-      if (day.exercises.length === 0) {
-        container.innerHTML = `
-          <div style="text-align:center; padding:30px 0; color:var(--tg-hint);">
-            <div style="font-size:3rem; margin-bottom:10px;">😴</div>
-            <div style="font-weight:600;">Rest Day</div>
-            <div style="font-size:0.8rem;">Take time to recover! 💪</div>
-          </div>
-        `;
-        document.getElementById('startWorkoutListBtn').style.display = 'none';
-      } else {
-        document.getElementById('startWorkoutListBtn').style.display = 'flex';
-        document.getElementById('startWorkoutListBtn').disabled = false;
-        document.getElementById('startWorkoutListBtn').innerHTML = '<i class="fas fa-play"></i> Start Workout';
-        
-        day.exercises.forEach((ex, index) => {
-          const item = document.createElement('div');
-          item.className = 'workout-list-item';
-          const isDone = completedExercises.includes(ex.id);
-          item.innerHTML = `
-            <div class="wli-icon">${ex.icon}</div>
-            <div class="wli-info">
-              <div class="wli-name">${ex.name} ${ex.premium ? '<span class="wli-premium">⭐</span>' : ''}</div>
-              <div class="wli-muscle">${ex.muscle} • ${ex.sets}×${ex.reps} reps</div>
-            </div>
-            <span class="wli-status ${isDone ? 'done' : ''}">${isDone ? '✅ Done' : `${index + 1}`}</span>
-            <div class="wli-arrow"><i class="fas fa-chevron-right"></i></div>
-          `;
-          item.addEventListener('click', () => {
-            modal.classList.remove('active');
-            currentExerciseIndex = index;
-            startWorkoutFlow(day);
-          });
-          container.appendChild(item);
-        });
-      }
-
-      modal.classList.add('active');
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  START WORKOUT FLOW
-    // ──────────────────────────────────────────────────────────────
-    function startWorkoutFlow(day) {
-      isChallengeMode = false;
-      isHeightMode = false;
-      dayExercises = day.exercises;
-      totalExercises = dayExercises.length;
-      completedCount = 0;
-      
-      dayExercises.forEach(ex => {
-        const idx = completedExercises.indexOf(ex.id);
-        if (idx > -1) completedExercises.splice(idx, 1);
-      });
-      
-      document.getElementById('workoutListModal').classList.remove('active');
-      document.getElementById('scheduleContainer').classList.remove('active');
-      document.getElementById('dashboardContainer').classList.add('active');
-      
-      isWorkoutStarted = true;
-      showExercise(currentExerciseIndex);
-      showToast(`🏋️ Starting ${day.day}'s workout!`, 'success');
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  SHOW EXERCISE
-    // ──────────────────────────────────────────────────────────────
-    function showExercise(index) {
-      if (index >= totalExercises) {
-        finishWorkout();
-        return;
-      }
-      
-      const ex = dayExercises[index];
-      if (!ex) {
-        finishWorkout();
-        return;
-      }
-      
-      currentExerciseIndex = index;
-      selectedExerciseId = ex.id;
-      
-      updateProgress();
-      
-      // Set title
-      if (isChallengeMode) {
-        document.getElementById('dashTitle').innerHTML = `<i class="fas fa-trophy" style="color:var(--gold);"></i> 🏆 ${ex.icon} ${ex.name}`;
-      } else if (isHeightMode) {
-        document.getElementById('dashTitle').innerHTML = `<i class="fas fa-arrow-up" style="color:var(--blue);"></i> 📏 ${ex.icon} ${ex.name}`;
-      } else {
-        document.getElementById('dashTitle').innerHTML = `<i class="fas fa-dumbbell"></i> ${ex.icon} ${ex.name}`;
-      }
-      document.getElementById('dashSub').textContent = `${ex.muscle} • ${ex.sets} sets × ${ex.reps} reps`;
-      
-      // FIXED VIDEO - Auto plays when exercise is shown
-      const videoIframe = document.getElementById('videoIframe');
-      const placeholder = document.getElementById('videoPlaceholder');
-      if (ex.videoUrl && ex.videoUrl.includes('youtube.com/embed/')) {
-        videoIframe.src = ex.videoUrl + '?autoplay=1&rel=0&modestbranding=1';
-        videoIframe.style.display = 'block';
-        placeholder.style.display = 'none';
-      } else {
-        videoIframe.src = '';
-        videoIframe.style.display = 'none';
-        placeholder.style.display = 'flex';
-      }
-      
-      // Stats
-      const statsContainer = document.getElementById('dashStats');
-      statsContainer.innerHTML = '';
-      const weight = userData.weight || 75;
-      const calories = userData.calories || 2500;
-      const protein = userData.protein || 150;
-      
-      const stats = [
-        { icon: '⚖️', value: `${weight}`, label: 'Weight (kg)', benefit: ex.benefit || 'Builds strength' },
-        { icon: '🔥', value: `${Math.round(calories/4.5)}`, label: 'Calories', benefit: 'Per workout' },
-        { icon: '🥩', value: `${Math.round(protein/3)}g`, label: 'Protein', benefit: 'Muscle recovery' },
-        { icon: '🎯', value: `${ex.sets}×${ex.reps}`, label: 'Sets × Reps', benefit: ex.muscle }
-      ];
-      
-      stats.forEach(stat => {
-        const statEl = document.createElement('div');
-        statEl.className = 'dash-stat';
-        statEl.innerHTML = `
-          <div class="stat-icon">${stat.icon}</div>
-          <div class="stat-value">${stat.value}</div>
-          <div class="stat-label">${stat.label}</div>
-          <div class="${stat.benefit.includes('Avoid') ? 'stat-reduce' : 'stat-benefit'}">${stat.benefit}</div>
-        `;
-        statsContainer.appendChild(statEl);
-      });
-      
-      // Details
-      const detailsContainer = document.getElementById('dashDetails');
-      detailsContainer.innerHTML = `
-        <div class="detail-row"><span class="detail-label">🏋️ Exercise</span><span class="detail-value">${ex.icon} ${ex.name} ${ex.premium ? '⭐' : ''}</span></div>
-        <div class="detail-row"><span class="detail-label">🎯 Target</span><span class="detail-value">${ex.muscle}</span></div>
-        <div class="detail-row"><span class="detail-label">📝 Description</span><span class="detail-value">${ex.desc}</span></div>
-        <div class="detail-row"><span class="detail-label">💡 Tip</span><span class="detail-value good">${ex.tip}</span></div>
-        <div class="detail-row" style="background:rgba(249,176,66,0.08); padding:6px 0; border-radius:4px; margin:2px 0;">
-          <span class="detail-label" style="font-weight:700;">📊 Sets & Reps</span>
-          <span class="detail-value" style="font-size:1rem; font-weight:800; color:var(--accent);">${ex.sets} sets × ${ex.reps} reps</span>
-        </div>
-        <div class="detail-row"><span class="detail-label">✅ Benefit</span><span class="detail-value good">${ex.benefit || 'Builds strength & muscle'}</span></div>
-        <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${ex.reduce || 'Avoid using momentum'}</span></div>
-      `;
-      
-      // Nutrition - Custom for Challenge & Height
-      const nutritionContainer = document.getElementById('dashNutritionGrid');
-      nutritionContainer.innerHTML = '';
-      
-      if (isChallengeMode) {
-        // Challenge Nutrition
-        nutritionContainer.innerHTML = `
-          <div class="dash-nutrition-item"><span class="nut-label">🔥 Pre-Workout</span><span class="nut-value">Coffee/Green Tea</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">⚡ Energy</span><span class="nut-value">Complex Carbs</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">🥩 Protein</span><span class="nut-value">${Math.round((userData.protein || 150) * 1.2)}g</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">💧 Hydration</span><span class="nut-value">2.5L Water</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">🥗 Recovery</span><span class="nut-value">Banana + Protein</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">🎯 Focus</span><span class="nut-value">BCAA/EAA</span></div>
-          <div class="dash-nutrition-item" style="grid-column:1/-1; border-bottom:none; padding-top:8px; text-align:center; color:var(--gold);">
-            🏆 Challenge Mode: Push your limits! 💪
-          </div>
-        `;
-      } else if (isHeightMode) {
-        // Height Increase Nutrition
-        nutritionContainer.innerHTML = `
-          <div class="dash-nutrition-item"><span class="nut-label">🥛 Calcium</span><span class="nut-value">1200mg</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">💊 Vitamin D</span><span class="nut-value">800 IU</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">🥩 Protein</span><span class="nut-value">${Math.round((userData.protein || 150) * 1.2)}g</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">🌾 Zinc</span><span class="nut-value">15mg</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">🥑 Healthy Fats</span><span class="nut-value">30g</span></div>
-          <div class="dash-nutrition-item"><span class="nut-label">💧 Water</span><span class="nut-value">3L</span></div>
-          <div class="dash-nutrition-item" style="grid-column:1/-1; border-bottom:none; padding-top:8px; text-align:center; color:var(--blue);">
-            🌟 Foods: Milk, Eggs, Salmon, Nuts, Leafy Greens, Oranges
-          </div>
-        `;
-      } else {
-        // Regular Workout Nutrition
-        const duration = userData.duration || 45;
-        const caloriesNeeded = Math.round((userData.calories || 2500) / 4.5);
-        const proteinNeeded = Math.round((userData.protein || 150) / 3);
-        const carbsNeeded = Math.round((userData.weight || 75) * 1.3);
-        const fatsNeeded = Math.round((userData.weight || 75) * 0.45);
-        const waterNeeded = Math.round((userData.weight || 75) * 35 + duration * 10);
-        
-        let specificFoods = [];
-        if (ex.muscle === 'Chest') specificFoods = ['🥩 Chicken Breast', '🍚 Brown Rice', '🥦 Broccoli'];
-        else if (ex.muscle === 'Back') specificFoods = ['🐟 Salmon', '🍠 Sweet Potato', '🥗 Spinach'];
-        else if (ex.muscle === 'Legs') specificFoods = ['🥩 Lean Beef', '🍝 Quinoa', '🥬 Kale'];
-        else if (ex.muscle === 'Shoulders') specificFoods = ['🍗 Turkey', '🍚 Oats', '🥑 Avocado'];
-        else if (ex.muscle === 'Biceps' || ex.muscle === 'Triceps') specificFoods = ['🥚 Eggs', '🍌 Banana', '🥜 Almonds'];
-        else if (ex.muscle === 'Core') specificFoods = ['🐟 Tuna', '🍞 Whole Grain', '🥒 Cucumber'];
-        else specificFoods = ['🥩 Protein Source', '🍚 Complex Carbs', '🥗 Vegetables'];
-        
-        const nutritionItems = [
-          { label: '🔥 Calories', value: caloriesNeeded, unit: 'kcal', primary: true },
-          { label: '🥩 Protein', value: proteinNeeded, unit: 'g', primary: true },
-          { label: '🌾 Carbs', value: carbsNeeded, unit: 'g', primary: false },
-          { label: '🥑 Fats', value: fatsNeeded, unit: 'g', primary: false },
-          { label: '💧 Water', value: waterNeeded, unit: 'ml', primary: false },
-          { label: '🍽️ Meals', value: specificFoods.join(' • '), unit: '', primary: false }
-        ];
-        
-        nutritionItems.forEach(item => {
-          const el = document.createElement('div');
-          el.className = `dash-nutrition-item${item.primary ? ' primary' : ''}`;
-          el.innerHTML = `<span class="nut-label">${item.label}</span><span class="nut-value">${item.value} ${item.unit}</span>`;
-          nutritionContainer.appendChild(el);
-        });
-      }
-      
-      // BUTTONS: Show Next or Finish
-      const nextBtn = document.getElementById('nextExerciseBtn');
-      const finishBtn = document.getElementById('finishWorkoutBtn');
-      const startBtn = document.getElementById('startWorkoutBtn');
-      const stopBtn = document.getElementById('stopWorkoutBtn');
-      
-      if (index === totalExercises - 1) {
-        nextBtn.style.display = 'none';
-        finishBtn.style.display = 'flex';
-        finishBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish';
-        finishBtn.disabled = false;
-      } else {
-        nextBtn.style.display = 'flex';
-        finishBtn.style.display = 'none';
-        nextBtn.innerHTML = '<i class="fas fa-forward"></i> Next';
-        nextBtn.disabled = false;
-      }
-      
-      startBtn.disabled = false;
-      startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
-      stopBtn.disabled = true;
-      isWorkoutActive = false;
-      
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      seconds = 0;
-      
-      document.getElementById('formCorrection').textContent = `🎯 Ready for ${ex.name}`;
-      document.getElementById('formCorrection').className = 'form-correction active waiting';
-      
-      showToast(`💪 Exercise ${index + 1}/${totalExercises}: ${ex.name}`, 'info');
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  UPDATE PROGRESS
-    // ──────────────────────────────────────────────────────────────
-    function updateProgress() {
-      const progress = totalExercises > 0 ? ((currentExerciseIndex) / totalExercises) * 100 : 0;
-      document.getElementById('progressText').textContent = `${currentExerciseIndex + 1}/${totalExercises}`;
-      document.getElementById('progressFill').style.width = progress + '%';
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  NEXT EXERCISE BUTTON
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('nextExerciseBtn').addEventListener('click', function() {
-      if (isWorkoutActive) {
-        showToast('⚠️ Please stop current workout first!', 'error');
-        return;
-      }
-      
-      const currentEx = dayExercises[currentExerciseIndex];
-      if (currentEx && !completedExercises.includes(currentEx.id)) {
-        completedExercises.push(currentEx.id);
-        completedCount++;
-      }
-      
-      currentExerciseIndex++;
-      if (currentExerciseIndex < totalExercises) {
-        showExercise(currentExerciseIndex);
-      } else {
-        finishWorkout();
-      }
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  FINISH WORKOUT
-    // ──────────────────────────────────────────────────────────────
-    function finishWorkout() {
-      for (let i = currentExerciseIndex; i < totalExercises; i++) {
-        const ex = dayExercises[i];
-        if (ex && !completedExercises.includes(ex.id)) {
-          completedExercises.push(ex.id);
-        }
-      }
-      
-      const today = new Date().toDateString();
-      if (lastWorkoutDate !== today) {
-        lastWorkoutDate = today;
-        workoutStreak += 1;
-        userData.streak = workoutStreak;
-        userData.lastWorkoutDate = today;
-        saveUserData({ ...userData, timestamp: Date.now() });
-        document.getElementById('userStreak').textContent = `🔥 ${workoutStreak} day streak`;
-      }
-      
-      if (currentSchedule) renderSchedule(currentSchedule);
-      
-      showToast('🎉 All exercises completed!', 'success');
-      setTimeout(() => {
-        showResultsModal(seconds || 300);
-      }, 500);
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  FINISH BUTTON
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('finishWorkoutBtn').addEventListener('click', function() {
-      if (isWorkoutActive) {
-        showToast('⚠️ Please stop your workout first!', 'error');
-        return;
-      }
-      if (confirm('🎯 Finish all exercises? Great job!')) {
-        finishWorkout();
-      }
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  START WORKOUT BUTTON
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('startWorkoutBtn').addEventListener('click', function() {
-      if (isWorkoutActive) return;
-      
-      const currentEx = dayExercises[currentExerciseIndex];
-      if (!currentEx) {
-        showToast('⚠️ No exercise to start!', 'error');
-        return;
-      }
-      
-      this.disabled = true;
-      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
-      startExerciseTimer();
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  START EXERCISE TIMER
-    // ──────────────────────────────────────────────────────────────
-    function startExerciseTimer() {
-      isWorkoutActive = true;
-      const startBtn = document.getElementById('startWorkoutBtn');
-      const stopBtn = document.getElementById('stopWorkoutBtn');
-      
-      startBtn.disabled = true;
-      startBtn.innerHTML = '<i class="fas fa-clock"></i> 00:00:00';
-      stopBtn.disabled = false;
-      
-      seconds = 0;
-      if (timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        seconds++;
-        const hrs = Math.floor(seconds / 3600);
-        const mins = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-        startBtn.innerHTML = `<i class="fas fa-clock"></i> ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      }, 1000);
-      
-      document.getElementById('formCorrection').textContent = '⏱️ Workout in progress... Keep going! 💪';
-      document.getElementById('formCorrection').className = 'form-correction active good';
-      
-      showToast('🎯 Workout started!', 'info');
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  STOP WORKOUT BUTTON
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('stopWorkoutBtn').addEventListener('click', function() {
-      if (!isWorkoutActive) return;
-      
-      isWorkoutActive = false;
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      
-      const startBtn = document.getElementById('startWorkoutBtn');
-      startBtn.disabled = false;
-      startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
-      this.disabled = true;
-      
-      document.getElementById('formCorrection').textContent = '⏹️ Workout stopped. Ready to continue!';
-      document.getElementById('formCorrection').className = 'form-correction active waiting';
-      
-      showToast(`⏹️ Workout stopped at ${formatTime(seconds)}`, 'info');
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  FORMAT TIME
-    // ──────────────────────────────────────────────────────────────
-    function formatTime(secs) {
-      const hrs = Math.floor(secs / 3600);
-      const mins = Math.floor((secs % 3600) / 60);
-      const secsRem = secs % 60;
-      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secsRem).padStart(2, '0')}`;
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  CLOSE WORKOUT LIST
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('closeWorkoutList').addEventListener('click', () => {
-      document.getElementById('workoutListModal').classList.remove('active');
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  START WORKOUT FROM LIST
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('startWorkoutListBtn').addEventListener('click', function() {
-      if (!selectedDayData || selectedDayData.exercises.length === 0) {
-        showToast('⚠️ No exercises for today!', 'error');
-        return;
-      }
-      if (isWorkoutStarted) {
-        showToast('⚠️ Workout already in progress!', 'info');
-        return;
-      }
-      currentExerciseIndex = 0;
-      startWorkoutFlow(selectedDayData);
-      this.disabled = true;
-      setTimeout(() => { this.disabled = false; }, 1000);
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  BACK TO SCHEDULE
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('dashboardBack').addEventListener('click', () => {
-      if (isWorkoutActive || isWorkoutStarted) {
-        if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
-          resetWorkoutState();
-          document.getElementById('dashboardContainer').classList.remove('active');
-          document.getElementById('scheduleContainer').classList.add('active');
-          const schedule = generateSchedule(true);
-          if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
-          showToast('📅 Back to schedule!', 'info');
-        }
-      } else {
-        document.getElementById('dashboardContainer').classList.remove('active');
-        document.getElementById('scheduleContainer').classList.add('active');
-        const schedule = generateSchedule(true);
-        if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
-        showToast('📅 Back to schedule!', 'info');
-      }
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  BACK TO LIST
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('dashBackToList').addEventListener('click', () => {
-      if (isWorkoutActive || isWorkoutStarted) {
-        if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
-          resetWorkoutState();
-          document.getElementById('dashboardContainer').classList.remove('active');
-          if (selectedDayData) openWorkoutList(selectedDayData);
-          else document.getElementById('scheduleContainer').classList.add('active');
-          showToast('📋 Back to workout list', 'info');
-        }
-      } else {
-        document.getElementById('dashboardContainer').classList.remove('active');
-        if (selectedDayData) openWorkoutList(selectedDayData);
-        else document.getElementById('scheduleContainer').classList.add('active');
-        showToast('📋 Back to workout list', 'info');
-      }
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  RESET WORKOUT STATE
-    // ──────────────────────────────────────────────────────────────
-    function resetWorkoutState() {
-      isWorkoutActive = false;
-      isWorkoutStarted = false;
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      const startBtn = document.getElementById('startWorkoutBtn');
-      startBtn.disabled = false;
-      startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
-      document.getElementById('stopWorkoutBtn').disabled = true;
-      document.getElementById('nextExerciseBtn').style.display = 'flex';
-      document.getElementById('finishWorkoutBtn').style.display = 'none';
-      document.getElementById('formCorrection').textContent = '⏹️ Workout stopped';
-      document.getElementById('formCorrection').className = 'form-correction active waiting';
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  CHALLENGE BUTTON - ALL 16 CHALLENGE WORKOUTS
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('challengeBtn').addEventListener('click', function() {
+    document.getElementById('scheduleChallengeBtn').addEventListener('click', function() {
       if (isWorkoutActive || isWorkoutStarted) {
         showToast('⚠️ Finish current workout first!', 'error');
         return;
       }
-      
+      startChallengeMode();
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  HEIGHT BUTTON - Schedule Page
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('scheduleHeightBtn').addEventListener('click', function() {
+      if (isWorkoutActive || isWorkoutStarted) {
+        showToast('⚠️ Finish current workout first!', 'error');
+        return;
+      }
+      startHeightMode();
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  CHALLENGE BUTTON - Dashboard
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('dashChallengeBtn').addEventListener('click', function() {
+      if (isWorkoutActive || isWorkoutStarted) {
+        showToast('⚠️ Finish current workout first!', 'error');
+        return;
+      }
+      startChallengeMode();
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  HEIGHT BUTTON - Dashboard
+    // ──────────────────────────────────────────────────────────────
+    document.getElementById('dashHeightBtn').addEventListener('click', function() {
+      if (isWorkoutActive || isWorkoutStarted) {
+        showToast('⚠️ Finish current workout first!', 'error');
+        return;
+      }
+      startHeightMode();
+    });
+
+    // ──────────────────────────────────────────────────────────────
+    //  START CHALLENGE MODE
+    // ──────────────────────────────────────────────────────────────
+    function startChallengeMode() {
       isChallengeMode = true;
       isHeightMode = false;
       
-      // Use ALL 16 challenge exercises
       dayExercises = CHALLENGE_EXERCISES.map(ex => ({
         id: ex.id,
         name: ex.name,
@@ -2300,21 +2418,15 @@
       
       showExercise(currentExerciseIndex);
       showToast('🏆 Challenge started with ALL 16 exercises! Give it your all!', 'premium');
-    });
+    }
 
     // ──────────────────────────────────────────────────────────────
-    //  HEIGHT INCREASE BUTTON - ALL 16 HEIGHT EXERCISES
+    //  START HEIGHT MODE
     // ──────────────────────────────────────────────────────────────
-    document.getElementById('heightIncreaseBtn').addEventListener('click', function() {
-      if (isWorkoutActive || isWorkoutStarted) {
-        showToast('⚠️ Finish current workout first!', 'error');
-        return;
-      }
-      
+    function startHeightMode() {
       isHeightMode = true;
       isChallengeMode = false;
       
-      // Use ALL 16 height exercises
       dayExercises = HEIGHT_EXERCISES.map(ex => ({
         id: ex.id,
         name: ex.name,
@@ -2343,94 +2455,19 @@
       
       showExercise(currentExerciseIndex);
       showToast('📏 Height Increase routine with ALL 16 exercises!', 'success');
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  SHOW RESULTS MODAL
-    // ──────────────────────────────────────────────────────────────
-    function showResultsModal(durationSeconds) {
-      const modal = document.getElementById('resultsModal');
-      const minutes = Math.floor(durationSeconds / 60);
-      const secs = durationSeconds % 60;
-      const timeStr = `${minutes}m ${secs}s`;
-
-      const ex = dayExercises.length > 0 ? dayExercises[0] : null;
-      const muscleGroup = ex ? ex.muscle : 'Full Body';
-
-      const weight = userData.weight || 75;
-      const caloriesBurned = Math.round(weight * 0.053 * (durationSeconds / 60));
-      const proteinNeeded = Math.round((userData.protein || 150) / 3);
-
-      const bodyEmojis = { 'Chest': '💪', 'Back': '🏋️', 'Legs': '🦵', 'Shoulders': '💪', 'Biceps': '💪', 'Triceps': '💪', 'Core': '🔥', 'Full Body': '💪' };
-      const bodyEmoji = bodyEmojis[muscleGroup] || '💪';
-
-      const motivationalMessages = ['🔥 You\'re on fire! Keep pushing!', '💪 Amazing work! You\'re getting stronger!', '🌟 Great job! Consistency is key!', '⚡ You crushed it! Keep going!', '🏆 Incredible performance! You\'re a champion!', '🎯 Perfect form! You\'re a pro!', '🚀 Sky\'s the limit! Keep climbing!', '💯 Excellence! You\'re unstoppable!'];
-      const randomMsg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      const subMessages = ['Your dedication is inspiring!', 'Every rep counts towards your goal!', 'Keep showing up! Results are coming!', 'You\'re building something great!', 'Stay consistent, stay strong!'];
-      const randomSub = subMessages[Math.floor(Math.random() * subMessages.length)];
-
-      const statsContainer = document.getElementById('resultStats');
-      statsContainer.innerHTML = `
-        <div class="result-stat"><div class="rs-value">${timeStr}</div><div class="rs-label">⏱️ Duration</div></div>
-        <div class="result-stat"><div class="rs-value">${caloriesBurned} kcal</div><div class="rs-label">🔥 Calories Burned</div></div>
-        <div class="result-stat"><div class="rs-value">${proteinNeeded}g</div><div class="rs-label">🥩 Protein Needed</div></div>
-        <div class="result-stat"><div class="rs-value">${dayExercises.length}</div><div class="rs-label">🏋️ Exercises Done</div></div>
-      `;
-
-      document.getElementById('resultBodyImg').textContent = bodyEmoji;
-      
-      let title = `🎉 ${dayExercises.length} Exercises Complete!`;
-      let sub = `You crushed ${dayExercises.length} exercises! 💪`;
-      if (isChallengeMode) {
-        title = '🏆 Challenge Complete! All 16 Exercises!';
-        sub = 'You crushed the ultimate challenge! 💪🔥';
-      } else if (isHeightMode) {
-        title = '📏 Height Routine Complete! All 16 Stretches!';
-        sub = 'Stretch & grow taller! 🌱📏';
-      }
-      
-      document.getElementById('resultTitle').textContent = title;
-      document.getElementById('resultSub').textContent = sub;
-      document.getElementById('resultMsg').textContent = randomMsg;
-      document.getElementById('resultSubMsg').textContent = randomSub;
-
-      modal.classList.add('active');
-      
-      resetWorkoutState();
-      isWorkoutStarted = false;
-      isChallengeMode = false;
-      isHeightMode = false;
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  CLOSE RESULTS MODAL
+    //  REFRESH BUTTON
     // ──────────────────────────────────────────────────────────────
-    document.getElementById('closeResultsBtn').addEventListener('click', () => {
-      document.getElementById('resultsModal').classList.remove('active');
-      document.getElementById('dashboardContainer').classList.remove('active');
-      document.getElementById('scheduleContainer').classList.add('active');
+    document.getElementById('scheduleRefreshBtn').addEventListener('click', function() {
       const schedule = generateSchedule(true);
       if (schedule) { currentSchedule = schedule; renderSchedule(schedule); }
-      showToast('📅 Back to schedule!', 'info');
+      showToast('🔄 Schedule refreshed!', 'info');
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  GENERATE SCHEDULE BUTTON
-    // ──────────────────────────────────────────────────────────────
-    document.getElementById('generateScheduleBtn').addEventListener('click', () => {
-      const schedule = generateSchedule(false);
-      if (!schedule) return;
-      currentSchedule = schedule;
-      document.getElementById('onboardingCard').style.display = 'none';
-      document.getElementById('scheduleContainer').classList.add('active');
-      setupUserProfile(userData.name);
-      renderSchedule(schedule);
-      showToast('📅 Schedule generated!', 'success');
-      tg.showAlert({ text: '🎉 Your personalized workout schedule is ready!' }, {}, (result) => {});
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    //  CAMERA
+    //  CAMERA - Professional
     // ──────────────────────────────────────────────────────────────
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
@@ -2439,7 +2476,9 @@
     async function startCamera() {
       if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } } });
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } } 
+        });
         video.srcObject = stream;
         await video.play();
         drawFrame();
@@ -2457,7 +2496,20 @@
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       if (isWorkoutActive) {
-        const corrections = ['✅ Perfect form! Keep it up! 💪', '⬇️ Go a bit lower for better range', '⬆️ Push up more! Full extension', '🔄 Keep your core tight!', '📐 Great angle! Almost there!', '💪 Squeeze at the top!', '🎯 Control the movement, don\'t rush', '✅ Excellent form! You\'re killing it!', '⚠️ Slow down the descent', '💪 Breathe! Exhale on exertion', '🎯 Focus on the muscle contraction', '✅ Great tempo! Keep it controlled'];
+        const corrections = [
+          '✅ Perfect form! Keep it up! 💪',
+          '⬇️ Go a bit lower for better range',
+          '⬆️ Push up more! Full extension',
+          '🔄 Keep your core tight!',
+          '📐 Great angle! Almost there!',
+          '💪 Squeeze at the top!',
+          '🎯 Control the movement, don\'t rush',
+          '✅ Excellent form! You\'re killing it!',
+          '⚠️ Slow down the descent',
+          '💪 Breathe! Exhale on exertion',
+          '🎯 Focus on the muscle contraction',
+          '✅ Great tempo! Keep it controlled'
+        ];
         const randomCorrection = corrections[Math.floor(Math.random() * corrections.length)];
         const isGood = randomCorrection.includes('✅') || randomCorrection.includes('💪') || randomCorrection.includes('🎯');
         document.getElementById('formCorrection').textContent = randomCorrection;
@@ -2466,25 +2518,44 @@
       requestAnimationFrame(drawFrame);
     }
 
+    // Camera Controls
     document.getElementById('camToggle').addEventListener('click', () => {
       facingMode = facingMode === 'environment' ? 'user' : 'environment';
       startCamera();
     });
 
-    document.getElementById('recordBtn').addEventListener('click', () => {
+    // Flash Toggle
+    document.getElementById('flashToggle').addEventListener('click', function() {
+      flashEnabled = !flashEnabled;
+      this.style.borderColor = flashEnabled ? 'var(--accent)' : 'rgba(255,255,255,0.08)';
+      this.style.background = flashEnabled ? 'rgba(249,176,66,0.4)' : 'rgba(249,176,66,0.2)';
+      showToast(flashEnabled ? '💡 Flash ON' : '💡 Flash OFF', 'info');
+    });
+
+    // Record Button
+    document.getElementById('recordBtn').addEventListener('click', function() {
       isRecording = !isRecording;
-      const btn = document.getElementById('recordBtn');
       const ind = document.getElementById('recIndicator');
       if (isRecording) {
-        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
-        btn.classList.add('recording');
+        this.innerHTML = '<i class="fas fa-stop"></i> Stop';
+        this.classList.add('recording');
         ind.classList.add('active');
+        recSeconds = 0;
+        if (recInterval) clearInterval(recInterval);
+        recInterval = setInterval(() => {
+          recSeconds++;
+          const mins = Math.floor(recSeconds / 60);
+          const secs = recSeconds % 60;
+          document.getElementById('recTimer').textContent = 
+            `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }, 1000);
         showToast('🔴 Recording started!', 'info');
       } else {
-        btn.innerHTML = '<i class="fas fa-circle"></i> Record';
-        btn.classList.remove('recording');
+        this.innerHTML = '<i class="fas fa-circle"></i> Record';
+        this.classList.remove('recording');
         ind.classList.remove('active');
-        showToast('✅ Recording saved!', 'success');
+        if (recInterval) { clearInterval(recInterval); recInterval = null; }
+        showToast(`✅ Recording saved! (${Math.floor(recSeconds/60)}m ${recSeconds%60}s)`, 'success');
       }
     });
 
