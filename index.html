@@ -8,9 +8,6 @@
   <!-- Telegram Mini App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Ad SDK for Premium Workouts -->
-  <script src="//libtl.com/sdk.js" data-zone="11190061" data-sdk="show_11190061"></script>
-
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -30,12 +27,7 @@
       --green: #4ade80;
       --green-glow: rgba(74, 222, 128, 0.2);
       --red: #f87171;
-      --red-glow: rgba(248, 113, 113, 0.2);
-      --blue: #60a5fa;
-      --purple: #a78bfa;
       --gold: #fbbf24;
-      --premium: #f59e0b;
-      --premium-glow: rgba(245, 158, 11, 0.3);
       --radius: 20px;
       --radius-sm: 12px;
       --radius-xs: 8px;
@@ -89,7 +81,6 @@
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes pulse-logo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     @keyframes fade-text { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-    @keyframes progress-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
     /* LOADING */
     #loadingScreen {
@@ -276,8 +267,6 @@
     .workout-list-item .wli-muscle { font-size: 0.6rem; color: var(--tg-hint); }
     .workout-list-item .wli-premium { color: var(--gold); font-size: 0.7rem; margin-left: 4px; }
     .workout-list-item .wli-arrow { color: var(--tg-hint); font-size: 0.8rem; }
-    .workout-list-item .wli-status { font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; background: rgba(255,255,255,0.05); }
-    .workout-list-item .wli-status.done { background: rgba(74,222,128,0.15); color: var(--green); }
     .close-workout-list {
       width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none;
       background: rgba(10, 14, 23, 0.6);
@@ -288,7 +277,6 @@
     }
     .close-workout-list:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* START WORKOUT BUTTON IN LIST */
     .start-workout-list-btn {
       width: 100%; padding: 14px; border-radius: var(--radius-sm); border: none;
       background: linear-gradient(135deg, var(--green), #22c55e);
@@ -378,7 +366,7 @@
     .dash-nutrition-item .nut-label { color: var(--tg-hint); font-size: 0.65rem; }
     .dash-nutrition-item .nut-value { font-weight: 600; font-size: 0.7rem; }
 
-    /* VIDEO EMBED */
+    /* VIDEO EMBED - Auto shows for current workout */
     .video-embed {
       margin: 12px 0;
       border-radius: var(--radius-xs);
@@ -437,6 +425,7 @@
       color: #0a0e17; box-shadow: 0 4px 24px var(--green-glow);
     }
     .dash-actions .action-btn.finish-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow); }
+    .dash-actions .action-btn.finish-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     /* CAMERA */
     .camera-wrapper {
@@ -484,7 +473,6 @@
     .cam-btn.record.recording { background: #4b5563; border-color: #4b5563; animation: pulse-record 1.5s infinite; }
     @keyframes pulse-record { 0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.3); } 50% { box-shadow: 0 0 0 12px rgba(248,113,113,0); } }
 
-    /* FORM CORRECTION */
     .form-correction {
       position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
       z-index: 10; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
@@ -515,33 +503,6 @@
     .toast.error { border-color: var(--red); }
     .toast.info { border-color: var(--accent); }
     .toast.premium { border-color: var(--gold); }
-
-    /* ACTION BAR */
-    .action-bar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      padding: 10px 14px; padding-bottom: max(10px, env(safe-area-inset-bottom));
-      background: rgba(19, 27, 38, 0.9);
-      backdrop-filter: blur(24px);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      display: flex; gap: 8px;
-      z-index: 100; box-shadow: 0 -4px 40px rgba(0,0,0,0.5);
-    }
-    .action-btn {
-      flex: 1; padding: 12px; border-radius: var(--radius-sm); border: none;
-      font-weight: 700; font-size: 0.8rem; cursor: pointer;
-      transition: var(--transition); font-family: inherit;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .action-btn:active { transform: scale(0.96); }
-    .action-btn.primary {
-      background: linear-gradient(135deg, var(--accent), #f59e0b);
-      color: var(--tg-button-text); box-shadow: 0 4px 24px var(--accent-glow);
-    }
-    .action-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px var(--accent-glow); }
-    .action-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-    .action-btn.secondary { background: rgba(10, 14, 23, 0.6); color: var(--tg-text); border: 1px solid rgba(255,255,255,0.08); }
-    .action-btn.secondary:hover { border-color: var(--tg-hint); }
-    .action-btn.secondary:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* RESULTS MODAL */
     .results-modal {
@@ -798,7 +759,13 @@
       </div>
     </div>
 
-  </div><script>
+          </div>  <!-- PART 2: ALL SCRIPTS START HERE -->
+  <script>
+    // ──────────────────────────────────────────────────────────────
+    //  BACKEND CONNECTION
+    // ──────────────────────────────────────────────────────────────
+    const BACKEND_URL = 'https://gym-apk-wicj.onrender.com';
+
     // ──────────────────────────────────────────────────────────────
     //  TELEGRAM INIT
     // ──────────────────────────────────────────────────────────────
@@ -826,31 +793,10 @@
     const USER_PHOTO = tgUser?.photo_url || null;
 
     // ──────────────────────────────────────────────────────────────
-    //  AD FUNCTIONS
-    // ──────────────────────────────────────────────────────────────
-    async function showPremiumAd() {
-      try {
-        if (typeof show_11190061 !== 'undefined') {
-          await show_11190061();
-          return true;
-        }
-        return true;
-      } catch (e) { return true; }
-    }
-    async function showRewardedPopup() {
-      try {
-        if (typeof show_11190061 !== 'undefined') {
-          await show_11190061('pop');
-          return true;
-        }
-        return true;
-      } catch (e) { return true; }
-    }
-
-    // ──────────────────────────────────────────────────────────────
-    //  EXERCISE DATABASE - 140 EXERCISES
+    //  COMPLETE EXERCISE DATABASE - 140 EXERCISES
     // ──────────────────────────────────────────────────────────────
     const EXERCISE_DB = {
+      // CHEST (20 exercises)
       CHEST_01: { id: 'CHEST_01', name: 'Barbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/gRVjAtPip0Y', premium: true, desc: 'Lie on bench, grip bar slightly wider than shoulders', tip: 'Keep shoulders pinned back, feet planted', defaultReps: 10, defaultSets: 3, benefit: 'Builds upper body strength & chest mass', reduce: 'Avoid bouncing bar off chest' },
       CHEST_02: { id: 'CHEST_02', name: 'Dumbbell Bench Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/VmB1G1K7v94', premium: false, desc: 'Press dumbbells up from chest level', tip: 'Keep wrists straight, control the descent', defaultReps: 10, defaultSets: 3, benefit: 'Improves chest symmetry & stability', reduce: 'Avoid arching back too much' },
       CHEST_03: { id: 'CHEST_03', name: 'Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', premium: false, desc: 'Lower chest to ground, push back up', tip: 'Keep core tight, body in straight line', defaultReps: 15, defaultSets: 3, benefit: 'Builds functional chest strength', reduce: 'Avoid sagging hips' },
@@ -872,6 +818,7 @@
       CHEST_19: { id: 'CHEST_19', name: 'Wide Push-ups', icon: '💪', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Wide hand placement for outer chest', tip: 'Lower chest deeper for stretch', defaultReps: 12, defaultSets: 3, benefit: 'Outer chest development', reduce: 'Avoid going too deep' },
       CHEST_20: { id: 'CHEST_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Chest', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Press barbell from landmine station', tip: 'Great for shoulder health', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder-friendly chest press', reduce: 'Avoid pressing too far forward' },
 
+      // BACK (20 exercises)
       BACK_01: { id: 'BACK_01', name: 'Pull-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', premium: true, desc: 'Pull body up to bar, lower controlled', tip: 'Keep core tight, use full range', defaultReps: 8, defaultSets: 3, benefit: 'Builds wide back & grip strength', reduce: 'Avoid swinging body' },
       BACK_02: { id: 'BACK_02', name: 'Chin-ups', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Underhand grip pull-ups', tip: 'Focus on bicep engagement', defaultReps: 8, defaultSets: 3, benefit: 'Targets lats & biceps', reduce: 'Avoid using momentum' },
       BACK_03: { id: 'BACK_03', name: 'Bent-Over Barbell Row', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/vT2GjY_Umpw', premium: false, desc: 'Bend at hips, row bar to chest', tip: 'Keep back straight, pull to belly button', defaultReps: 10, defaultSets: 3, benefit: 'Builds back thickness', reduce: 'Avoid rounding back' },
@@ -893,6 +840,7 @@
       BACK_19: { id: 'BACK_19', name: 'Farmers Walk', icon: '🏋️', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Walk carrying heavy weight', tip: 'Keep shoulders back, core tight', defaultReps: 3, defaultSets: 3, benefit: 'Grip & back strength', reduce: 'Avoid leaning forward' },
       BACK_20: { id: 'BACK_20', name: 'Cable Row', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Row cable handles to belly', tip: 'Controlled movement with squeeze', defaultReps: 12, defaultSets: 3, benefit: 'Back thickness', reduce: 'Avoid using momentum' },
 
+      // SHOULDERS (20 exercises)
       SHOULDER_01: { id: 'SHOULDER_01', name: 'Overhead Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/qEwKCR5JCog', premium: false, desc: 'Press bar overhead from shoulders', tip: 'Keep core tight, don\'t lean back', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder strength & size', reduce: 'Avoid arching back' },
       SHOULDER_02: { id: 'SHOULDER_02', name: 'Dumbbell Shoulder Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Press dumbbells overhead', tip: 'Keep wrists straight, control descent', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder stability', reduce: 'Avoid using too heavy weight' },
       SHOULDER_03: { id: 'SHOULDER_03', name: 'Arnold Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Rotate dumbbells from front to overhead', tip: 'Works all three delt heads', defaultReps: 10, defaultSets: 3, benefit: 'Full shoulder development', reduce: 'Avoid rotating too fast' },
@@ -914,6 +862,7 @@
       SHOULDER_19: { id: 'SHOULDER_19', name: 'YTW Raises', icon: '💪', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Shoulder health exercises', tip: 'Focus on posture and control', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder health', reduce: 'Avoid using heavy weight' },
       SHOULDER_20: { id: 'SHOULDER_20', name: 'Landmine Press', icon: '🏋️', muscle: 'Shoulders', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Angled press from landmine', tip: 'Great for shoulder health', defaultReps: 10, defaultSets: 3, benefit: 'Shoulder-friendly press', reduce: 'Avoid pressing too far forward' },
 
+      // BICEPS (20 exercises)
       BICEPS_01: { id: 'BICEPS_01', name: 'Barbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/ykJmrZ5v0Oo', premium: false, desc: 'Curl barbell up to shoulders', tip: 'Keep elbows pinned to sides', defaultReps: 10, defaultSets: 3, benefit: 'Bicep mass builder', reduce: 'Avoid using momentum' },
       BICEPS_02: { id: 'BICEPS_02', name: 'Dumbbell Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Curl dumbbells alternately or together', tip: 'Full range of motion', defaultReps: 10, defaultSets: 3, benefit: 'Bicep peak development', reduce: 'Avoid swinging' },
       BICEPS_03: { id: 'BICEPS_03', name: 'Hammer Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Neutral grip curl', tip: 'Works brachialis and biceps', defaultReps: 10, defaultSets: 3, benefit: 'Brachialis development', reduce: 'Avoid using too heavy weight' },
@@ -935,6 +884,7 @@
       BICEPS_19: { id: 'BICEPS_19', name: 'Towel Curl', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Curl with rolled towel', tip: 'Grip strength builder', defaultReps: 10, defaultSets: 3, benefit: 'Grip & bicep strength', reduce: 'Avoid using too thick towel' },
       BICEPS_20: { id: 'BICEPS_20', name: 'Cable Curl (Variation)', icon: '💪', muscle: 'Biceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Various cable curl variations', tip: 'Constant tension throughout', defaultReps: 12, defaultSets: 3, benefit: 'Bicep variation', reduce: 'Avoid using momentum' },
 
+      // TRICEPS (20 exercises)
       TRICEPS_01: { id: 'TRICEPS_01', name: 'Tricep Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Push cable bar down to thighs', tip: 'Keep elbows locked at sides', defaultReps: 12, defaultSets: 3, benefit: 'Tricep development', reduce: 'Avoid using momentum' },
       TRICEPS_02: { id: 'TRICEPS_02', name: 'Close-Grip Bench Press', icon: '🏋️', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Press with close grip', tip: 'Focus on tricep drive', defaultReps: 10, defaultSets: 3, benefit: 'Tricep strength', reduce: 'Avoid using too heavy weight' },
       TRICEPS_03: { id: 'TRICEPS_03', name: 'Tricep Dips', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/2z8JmcrW-As', premium: true, desc: 'Dip between parallel bars', tip: 'Keep body upright for triceps focus', defaultReps: 12, defaultSets: 3, benefit: 'Tricep mass builder', reduce: 'Avoid going too deep' },
@@ -956,6 +906,7 @@
       TRICEPS_19: { id: 'TRICEPS_19', name: 'Band Pushdowns', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Push band down with constant tension', tip: 'Great for home', defaultReps: 15, defaultSets: 3, benefit: 'Tricep endurance', reduce: 'Avoid using too light band' },
       TRICEPS_20: { id: 'TRICEPS_20', name: 'Tricep Hold Extensions', icon: '💪', muscle: 'Triceps', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Hold and extend for burn', tip: 'Isometric focus', defaultReps: 10, defaultSets: 3, benefit: 'Tricep endurance', reduce: 'Avoid holding too long' },
 
+      // LEGS (20 exercises)
       LEGS_01: { id: 'LEGS_01', name: 'Squats', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', premium: false, desc: 'Squat with barbell or bodyweight', tip: 'Keep chest up, knees tracking toes', defaultReps: 15, defaultSets: 3, benefit: 'Full leg development', reduce: 'Avoid leaning forward' },
       LEGS_02: { id: 'LEGS_02', name: 'Deadlifts', icon: '🏋️', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/r4MzxtBKyNE', premium: false, desc: 'Lift barbell from ground', tip: 'Hinge at hips, keep back neutral', defaultReps: 8, defaultSets: 3, benefit: 'Full body strength', reduce: 'Avoid rounding back' },
       LEGS_03: { id: 'LEGS_03', name: 'Lunges', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', premium: false, desc: 'Step forward and lunge down', tip: 'Keep front knee behind toes', defaultReps: 12, defaultSets: 3, benefit: 'Leg stability & strength', reduce: 'Avoid leaning forward' },
@@ -977,6 +928,7 @@
       LEGS_19: { id: 'LEGS_19', name: 'Side-Lying Leg Lifts', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Lift leg while lying on side', tip: 'Glute medius focus', defaultReps: 12, defaultSets: 3, benefit: 'Glute medius development', reduce: 'Avoid using momentum' },
       LEGS_20: { id: 'LEGS_20', name: 'Resistance Band Walks', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: true, desc: 'Walk with band around ankles', tip: 'Great for glute activation', defaultReps: 10, defaultSets: 3, benefit: 'Glute activation', reduce: 'Avoid stepping too wide' },
 
+      // CORE (20 exercises)
       CORE_01: { id: 'CORE_01', name: 'Crunches', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/Xyd_fa5zoEU', premium: false, desc: 'Curl upper body up', tip: 'Keep neck relaxed', defaultReps: 20, defaultSets: 3, benefit: 'Upper abs development', reduce: 'Avoid pulling on neck' },
       CORE_02: { id: 'CORE_02', name: 'Leg Raises', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', premium: false, desc: 'Raise legs up and down', tip: 'Keep lower back pressed down', defaultReps: 15, defaultSets: 3, benefit: 'Lower abs development', reduce: 'Avoid swinging legs' },
       CORE_03: { id: 'CORE_03', name: 'Planks', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', premium: false, desc: 'Hold push-up position', tip: 'Keep body in straight line', defaultReps: 3, defaultSets: 3, benefit: 'Full core stability', reduce: 'Avoid sagging hips' },
@@ -1123,6 +1075,7 @@
     let isWorkoutStarted = false;
     let totalExercises = 0;
     let completedCount = 0;
+    let selectedExerciseId = null;
 
     // ──────────────────────────────────────────────────────────────
     //  LOCAL STORAGE
@@ -1130,7 +1083,11 @@
     const STORAGE_KEY = 'ai_gym_trainer_data';
 
     function saveUserData(data) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+      try { 
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        // Also sync to backend
+        syncToBackend(data);
+      } catch (e) {}
     }
 
     function loadUserData() {
@@ -1142,6 +1099,38 @@
         }
         return null;
       } catch (e) { return null; }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  BACKEND SYNC
+    // ──────────────────────────────────────────────────────────────
+    async function syncToBackend(data) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/save-progress`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: USER_ID, data: { ...data, timestamp: Date.now() } })
+        });
+        const result = await response.json();
+        if (result.success) {
+          console.log('✅ Data synced to backend');
+        }
+      } catch (e) {
+        console.log('⚠️ Backend sync failed, data saved locally');
+      }
+    }
+
+    async function loadFromBackend() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/load-progress/${USER_ID}`);
+        const result = await response.json();
+        if (result.success && result.data) {
+          return result.data;
+        }
+        return null;
+      } catch (e) {
+        return null;
+      }
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -1367,7 +1356,6 @@
           `;
           item.addEventListener('click', () => {
             modal.classList.remove('active');
-            // Start from this exercise
             currentExerciseIndex = index;
             startWorkoutFlow(day);
           });
@@ -1406,7 +1394,6 @@
     // ──────────────────────────────────────────────────────────────
     function showExercise(index) {
       if (index >= totalExercises) {
-        // All done!
         finishWorkout();
         return;
       }
@@ -1427,7 +1414,7 @@
       document.getElementById('dashTitle').innerHTML = `<i class="fas fa-dumbbell"></i> ${ex.icon} ${ex.name}`;
       document.getElementById('dashSub').textContent = `${ex.muscle} • ${ex.sets} sets × ${ex.reps} reps`;
       
-      // Show video automatically
+      // AUTO SHOW VIDEO - YouTube video opens automatically
       const videoIframe = document.getElementById('videoIframe');
       if (ex.videoUrl) {
         videoIframe.src = ex.videoUrl + '?autoplay=1&rel=0';
@@ -1511,19 +1498,21 @@
         nutritionContainer.appendChild(el);
       });
       
-      // Update buttons - Show Next or Finish
+      // UPDATE BUTTONS: Show Next or Finish based on current exercise
       const nextBtn = document.getElementById('nextExerciseBtn');
       const finishBtn = document.getElementById('finishWorkoutBtn');
       const startBtn = document.getElementById('startWorkoutBtn');
       const stopBtn = document.getElementById('stopWorkoutBtn');
       
+      // Check if this is the LAST exercise
       if (index === totalExercises - 1) {
-        // Last exercise - show Finish button
+        // Last exercise - show FINISH button, hide NEXT
         nextBtn.style.display = 'none';
         finishBtn.style.display = 'flex';
         finishBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish';
         finishBtn.disabled = false;
       } else {
+        // Not last exercise - show NEXT button, hide FINISH
         nextBtn.style.display = 'flex';
         finishBtn.style.display = 'none';
         nextBtn.innerHTML = '<i class="fas fa-forward"></i> Next';
@@ -1536,7 +1525,7 @@
       stopBtn.disabled = true;
       isWorkoutActive = false;
       
-      // Reset timer if active
+      // Reset timer
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -1559,7 +1548,7 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  NEXT EXERCISE
+    //  NEXT EXERCISE BUTTON
     // ──────────────────────────────────────────────────────────────
     document.getElementById('nextExerciseBtn').addEventListener('click', function() {
       if (isWorkoutActive) {
@@ -1574,7 +1563,7 @@
         completedCount++;
       }
       
-      // Move to next
+      // Move to next exercise
       currentExerciseIndex++;
       if (currentExerciseIndex < totalExercises) {
         showExercise(currentExerciseIndex);
@@ -1619,7 +1608,7 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  FINISH BUTTON (in dashboard)
+    //  FINISH BUTTON (in dashboard - shows only on last exercise)
     // ──────────────────────────────────────────────────────────────
     document.getElementById('finishWorkoutBtn').addEventListener('click', function() {
       if (isWorkoutActive) {
@@ -1647,13 +1636,8 @@
       this.disabled = true;
       this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
       
-      if (currentEx.premium) {
-        showPremiumAd().then(() => {
-          startExerciseTimer();
-        });
-      } else {
-        startExerciseTimer();
-      }
+      // For premium exercises, could show ad here
+      startExerciseTimer();
     });
 
     // ──────────────────────────────────────────────────────────────
@@ -1745,7 +1729,7 @@
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  BACK TO SCHEDULE - WITH CONFIRMATION
+    //  BACK TO SCHEDULE
     // ──────────────────────────────────────────────────────────────
     document.getElementById('dashboardBack').addEventListener('click', () => {
       if (isWorkoutActive || isWorkoutStarted) {
@@ -1827,7 +1811,7 @@
         '🏆 Challenge: 5km cycling sprint!'
       ];
       const random = challenges[Math.floor(Math.random() * challenges.length)];
-      alert('🏆 ' + random);
+      tg.showAlert({ text: '🏆 ' + random }, {}, (result) => {});
       showToast('🏆 Challenge accepted!', 'premium');
     });
 
@@ -1853,7 +1837,6 @@
       const timeStr = `${minutes}m ${secs}s`;
 
       const ex = dayExercises.length > 0 ? dayExercises[0] : null;
-      const exName = ex ? ex.name : 'Workout';
       const muscleGroup = ex ? ex.muscle : 'Full Body';
 
       const weight = userData.weight || 75;
@@ -1884,7 +1867,6 @@
 
       modal.classList.add('active');
       
-      // Reset workout state
       resetWorkoutState();
       isWorkoutStarted = false;
     }
@@ -1913,7 +1895,7 @@
       setupUserProfile(userData.name);
       renderSchedule(schedule);
       showToast('📅 Schedule generated!', 'success');
-      alert('🎉 Your personalized workout schedule is ready!');
+      tg.showAlert({ text: '🎉 Your personalized workout schedule is ready!' }, {}, (result) => {});
     });
 
     // ──────────────────────────────────────────────────────────────
@@ -1982,8 +1964,19 @@
       try {
         updateLoadingProgress(20);
         
-        const savedData = loadUserData();
+        // Try to load from backend first
+        const backendData = await loadFromBackend();
         updateLoadingProgress(40);
+        
+        let savedData = null;
+        if (backendData && backendData.userId === USER_ID) {
+          savedData = backendData;
+          console.log('✅ Data loaded from backend');
+        } else {
+          savedData = loadUserData();
+        }
+        
+        updateLoadingProgress(60);
         
         if (savedData && savedData.userId === USER_ID) {
           userData = savedData;
@@ -2006,7 +1999,7 @@
           if (USER_FULL_NAME) { document.getElementById('userNameInput').value = USER_FULL_NAME; }
           showToast('👋 Welcome! Set up your profile.', 'info');
         }
-        updateLoadingProgress(70);
+        updateLoadingProgress(80);
 
         if (navigator.mediaDevices?.getUserMedia) { 
           setTimeout(startCamera, 1000); 
@@ -2016,9 +2009,10 @@
           if (e.key === 'r' || e.key === 'R') document.getElementById('recordBtn').click(); 
         });
 
-        updateLoadingProgress(90);
+        updateLoadingProgress(95);
         console.log('🏋️ AI Gym Trainer Pro Max 100 loaded!');
         console.log(`💪 Exercises loaded: ${Object.keys(EXERCISE_DB).length}`);
+        console.log(`🔗 Backend: ${BACKEND_URL}`);
         console.log('🚀 PRO MAX with step-by-step workout flow!');
 
         updateLoadingProgress(100);
@@ -2044,4 +2038,4 @@
     init();
   </script>
 </body>
-          </html>
+  </html>
