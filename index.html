@@ -245,9 +245,74 @@
     .onboarding-btn:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 40px var(--accent-glow); }
     .onboarding-btn:active { transform: scale(0.97); }
 
-    /* Schedule */
+    /* SCHEDULE - With Challenge & Height Buttons at TOP */
     .schedule-container { display: none; animation: slideUp 0.6s ease-out; }
     .schedule-container.active { display: block; }
+    
+    /* 🔴 RED CIRCLE AREA - Challenge & Height Buttons on Schedule Page */
+    .schedule-top-btns {
+      display: flex; gap: 10px; margin-bottom: 14px;
+    }
+    .schedule-top-btns .top-btn {
+      flex: 1; padding: 12px 14px; border-radius: var(--radius-sm);
+      border: none;
+      font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: var(--transition);
+      font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Challenge Button - Red/Gold */
+    .schedule-top-btns .top-btn.challenge-btn {
+      background: linear-gradient(135deg, #dc2626, #f59e0b);
+      color: #fff;
+      box-shadow: 0 4px 25px rgba(220, 38, 38, 0.3);
+    }
+    .schedule-top-btns .top-btn.challenge-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15) 0%, transparent 60%);
+      animation: shimmerBtn 3s ease-in-out infinite;
+    }
+    .schedule-top-btns .top-btn.challenge-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(220, 38, 38, 0.4);
+    }
+    .schedule-top-btns .top-btn.challenge-btn i {
+      font-size: 1rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    /* Height Increase Button - Blue/Purple */
+    .schedule-top-btns .top-btn.height-btn {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: #fff;
+      box-shadow: 0 4px 25px rgba(59, 130, 246, 0.3);
+    }
+    .schedule-top-btns .top-btn.height-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 70% 50%, rgba(255,255,255,0.15) 0%, transparent 60%);
+      animation: shimmerBtn 3s ease-in-out infinite reverse;
+    }
+    .schedule-top-btns .top-btn.height-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(59, 130, 246, 0.4);
+    }
+    .schedule-top-btns .top-btn.height-btn i {
+      font-size: 1rem;
+      animation: floatUp 2s ease-in-out infinite;
+    }
+
     .schedule-header {
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
     }
@@ -354,11 +419,10 @@
     }
     .start-workout-list-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 40px var(--green-glow); }
 
-    /* Dashboard */
+    /* DASHBOARD - Same buttons also here for consistency */
     .dashboard-container { display: none; animation: slideUp 0.5s ease-out; }
     .dashboard-container.active { display: block; }
     
-    /* TOP BUTTONS - CHALLENGE & HEIGHT INCREASE (RED CIRCLE AREA) */
     .dashboard-top-btns {
       display: flex; gap: 10px; margin-bottom: 14px;
     }
@@ -372,7 +436,6 @@
       position: relative;
       overflow: hidden;
     }
-    /* Challenge Button - Red/Gold */
     .dashboard-top-btns .top-btn.challenge-btn {
       background: linear-gradient(135deg, #dc2626, #f59e0b);
       color: #fff;
@@ -396,8 +459,6 @@
       font-size: 1rem;
       animation: bounce 2s ease-in-out infinite;
     }
-
-    /* Height Increase Button - Blue/Purple */
     .dashboard-top-btns .top-btn.height-btn {
       background: linear-gradient(135deg, #3b82f6, #8b5cf6);
       color: #fff;
@@ -421,8 +482,6 @@
       font-size: 1rem;
       animation: floatUp 2s ease-in-out infinite;
     }
-
-    /* List Button */
     .dashboard-top-btns .top-btn.list-btn {
       background: rgba(19, 27, 38, 0.7);
       backdrop-filter: blur(12px);
@@ -515,7 +574,7 @@
     .dash-nutrition-item .nut-label { color: var(--tg-hint); font-size: 0.65rem; }
     .dash-nutrition-item .nut-value { font-weight: 600; font-size: 0.75rem; color: var(--accent); }
 
-    /* Video Embed - Fixed YouTube */
+    /* Video Embed */
     .video-embed {
       margin: 12px 0;
       border-radius: var(--radius-xs);
@@ -609,7 +668,7 @@
     .dash-actions .action-btn.finish-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow); }
     .dash-actions .action-btn.finish-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    /* PRO CAMERA - Premium */
+    /* PRO CAMERA */
     .camera-wrapper {
       position: relative; background: #080b12; border-radius: var(--radius);
       overflow: hidden; aspect-ratio: 4/3;
@@ -630,7 +689,6 @@
     #video { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; background: #0a0e17; }
     #canvas { position: absolute; top: 0; left: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
     
-    /* Camera Overlay Grid - Professional */
     .cam-overlay-grid {
       position: absolute;
       top: 0;
@@ -657,7 +715,6 @@
     .cam-overlay-grid .grid-line.vertical:nth-child(3) { left: 33.33%; }
     .cam-overlay-grid .grid-line.vertical:nth-child(4) { left: 66.66%; }
     
-    /* Center Crosshair */
     .cam-crosshair {
       position: absolute;
       top: 50%;
@@ -769,7 +826,6 @@
     }
     .cam-btn.flash:hover { background: rgba(249, 176, 66, 0.3); }
 
-    /* Form Correction - Pro */
     .form-correction {
       position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
       z-index: 10; 
@@ -872,12 +928,15 @@
       .dash-nutrition-grid { grid-template-columns: 1fr 1fr; }
       .results-modal .result-stats { grid-template-columns: 1fr; }
       .user-profile .user-name { font-size: 0.8rem; }
+      .schedule-top-btns .top-btn { font-size: 0.6rem; padding: 8px 10px; }
       .dashboard-top-btns .top-btn { font-size: 0.6rem; padding: 8px 10px; }
       .cam-controls .cam-btn { font-size: 0.6rem; padding: 6px 12px; }
     }
     @media (max-width: 360px) {
       .dashboard-stats { grid-template-columns: 1fr; }
       .dash-nutrition-grid { grid-template-columns: 1fr; }
+      .schedule-top-btns { flex-wrap: wrap; }
+      .schedule-top-btns .top-btn { flex: 1 1 30%; }
       .dashboard-top-btns { flex-wrap: wrap; }
       .dashboard-top-btns .top-btn { flex: 1 1 30%; }
     }
@@ -1001,8 +1060,22 @@
       </button>
     </div>
 
-    <!-- SCHEDULE -->
+    <!-- SCHEDULE - WITH CHALLENGE & HEIGHT BUTTONS AT TOP (RED CIRCLE AREA) -->
     <div class="schedule-container" id="scheduleContainer">
+      
+      <!-- 🔴 RED CIRCLE AREA: Challenge & Height Increase Buttons -->
+      <div class="schedule-top-btns">
+        <button class="top-btn challenge-btn" id="scheduleChallengeBtn">
+          <i class="fas fa-trophy"></i> Challenge
+        </button>
+        <button class="top-btn height-btn" id="scheduleHeightBtn">
+          <i class="fas fa-arrow-up"></i> Height +
+        </button>
+        <button class="top-btn" id="scheduleRefreshBtn" style="background:rgba(19,27,38,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.06);color:var(--tg-text);">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+      
       <div class="schedule-header">
         <h2><i class="fas fa-calendar-alt"></i> Your Workout Schedule</h2>
         <span class="badge" id="scheduleBadge">7 Days</span>
@@ -1015,12 +1088,12 @@
     <!-- DASHBOARD -->
     <div class="dashboard-container" id="dashboardContainer">
       
-      <!-- 🔴 RED CIRCLE AREA: Challenge & Height Increase Buttons -->
+      <!-- DASHBOARD TOP BUTTONS (same buttons for consistency) -->
       <div class="dashboard-top-btns">
-        <button class="top-btn challenge-btn" id="challengeBtn">
+        <button class="top-btn challenge-btn" id="dashChallengeBtn">
           <i class="fas fa-trophy"></i> Challenge
         </button>
-        <button class="top-btn height-btn" id="heightIncreaseBtn">
+        <button class="top-btn height-btn" id="dashHeightBtn">
           <i class="fas fa-arrow-up"></i> Height +
         </button>
         <button class="top-btn list-btn" id="dashBackToList">
@@ -1059,12 +1132,11 @@
         </div>
       </div>
 
-      <!-- 🔴 PRO CAMERA - Professional Quality -->
+      <!-- PRO CAMERA -->
       <div class="camera-wrapper" id="cameraWrapper">
         <video id="video" playsinline></video>
         <canvas id="canvas"></canvas>
         
-        <!-- Professional Camera Overlay Grid -->
         <div class="cam-overlay-grid">
           <div class="grid-line horizontal"></div>
           <div class="grid-line horizontal"></div>
