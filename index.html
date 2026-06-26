@@ -23,15 +23,21 @@
       --tg-button: var(--tg-theme-button-color, #f9b042);
       --tg-button-text: var(--tg-theme-button-text-color, #0a0e17);
       --accent: #f9b042;
-      --accent-glow: rgba(249, 176, 66, 0.25);
+      --accent-glow: rgba(249, 176, 66, 0.3);
       --green: #4ade80;
-      --green-glow: rgba(74, 222, 128, 0.2);
+      --green-glow: rgba(74, 222, 128, 0.25);
       --red: #f87171;
+      --pink: #f472b6;
+      --purple: #a78bfa;
+      --blue: #60a5fa;
       --gold: #fbbf24;
+      --premium: #f59e0b;
+      --premium-glow: rgba(245, 158, 11, 0.3);
       --radius: 20px;
-      --radius-sm: 12px;
-      --radius-xs: 8px;
+      --radius-sm: 14px;
+      --radius-xs: 10px;
       --shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 8px 40px rgba(249, 176, 66, 0.15);
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -39,7 +45,7 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--tg-bg);
+      background: #0a0e17;
       color: var(--tg-text);
       min-height: 100vh;
       padding: 14px 12px 100px;
@@ -48,17 +54,26 @@
       position: relative;
     }
 
+    /* Animated Gradient Background */
     body::before {
       content: '';
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('background.png') center center / cover no-repeat;
-      opacity: 0.12;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 20% 50%, rgba(249, 176, 66, 0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(167, 139, 250, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 80%, rgba(96, 165, 250, 0.06) 0%, transparent 50%);
       z-index: -1;
       pointer-events: none;
+      animation: gradientFloat 20s ease-in-out infinite;
+    }
+
+    @keyframes gradientFloat {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(5%, -5%) rotate(2deg); }
+      66% { transform: translate(-5%, 5%) rotate(-2deg); }
     }
 
     body::after {
@@ -68,284 +83,429 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 14, 23, 0.88);
+      background: url('background.png') center center / cover no-repeat;
+      opacity: 0.05;
       z-index: -1;
       pointer-events: none;
     }
 
-    .app { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; animation: fadeUp 0.6s ease; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent), var(--purple)); border-radius: 10px; }
 
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pulse-dot { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes pulse-logo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    @keyframes fade-text { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    .app { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
 
-    /* LOADING */
+    /* Loading Screen Premium */
     #loadingScreen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #0a0e17; display: flex; flex-direction: column;
+      background: linear-gradient(135deg, #0a0e17 0%, #1a1040 50%, #0a0e17 100%);
+      display: flex; flex-direction: column;
       align-items: center; justify-content: center; z-index: 9999;
       transition: opacity 0.8s ease, visibility 0.8s ease;
     }
     #loadingScreen .logo-img {
-      width: 120px; height: 120px; object-fit: contain; margin-bottom: 30px;
-      animation: pulse-logo 1.5s ease-in-out infinite;
+      width: 130px; height: 130px; object-fit: contain; margin-bottom: 30px;
+      animation: pulseLogo 2s ease-in-out infinite;
       border-radius: 50%;
       overflow: hidden;
       border: 3px solid rgba(249, 176, 66, 0.3);
-      box-shadow: 0 0 40px rgba(249, 176, 66, 0.2);
+      box-shadow: 0 0 60px rgba(249, 176, 66, 0.15), inset 0 0 60px rgba(249, 176, 66, 0.05);
     }
-    #loadingScreen .logo-img img {
-      width: 100%; height: 100%; object-fit: cover;
-      display: block;
+    @keyframes pulseLogo {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(249, 176, 66, 0.15); }
+      50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(249, 176, 66, 0.3); }
     }
+    #loadingScreen .logo-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     #loadingScreen .spinner {
       width: 50px; height: 50px;
-      border: 4px solid rgba(249, 176, 66, 0.1);
-      border-top: 4px solid #f9b042; border-radius: 50%;
+      border: 3px solid rgba(249, 176, 66, 0.1);
+      border-top: 3px solid #f9b042;
+      border-right: 3px solid #a78bfa;
+      border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     #loadingScreen .loading-text {
-      color: #7a8fa6; font-size: 0.9rem; margin-top: 20px;
-      letter-spacing: 1px; animation: fade-text 1.5s ease-in-out infinite;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1rem; margin-top: 20px;
+      font-weight: 700; letter-spacing: 2px;
+      animation: shimmer 2s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
     }
     #loadingScreen .loading-progress {
-      width: 200px; height: 3px; background: rgba(255,255,255,0.05);
+      width: 250px; height: 4px;
+      background: rgba(255,255,255,0.05);
       border-radius: 10px; margin-top: 15px; overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
     }
     #loadingScreen .loading-progress-bar {
-      height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #f59e0b);
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--purple), var(--blue));
       border-radius: 10px; transition: width 0.3s ease;
+      box-shadow: 0 0 20px rgba(249, 176, 66, 0.3);
     }
     #loadingScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-    /* USER PROFILE */
+    /* User Profile - Premium Glass */
     .user-profile {
-      display: flex; align-items: center; gap: 12px;
-      background: rgba(19, 27, 38, 0.85);
-      backdrop-filter: blur(12px);
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(19, 27, 38, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius-sm);
-      padding: 10px 14px; margin-bottom: 14px;
+      padding: 12px 16px; margin-bottom: 14px;
       border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+      transition: var(--transition);
     }
+    .user-profile:hover { border-color: rgba(249, 176, 66, 0.2); }
     .user-profile .avatar {
-      width: 44px; height: 44px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; font-weight: 700; color: #0a0e17;
+      font-size: 1.3rem; font-weight: 700; color: #0a0e17;
       flex-shrink: 0; overflow: hidden;
+      box-shadow: 0 0 30px rgba(249, 176, 66, 0.2);
     }
     .user-profile .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .user-profile .user-info { flex: 1; }
-    .user-profile .user-name { font-weight: 700; font-size: 0.95rem; }
-    .user-profile .user-status { font-size: 0.65rem; color: var(--tg-hint); }
+    .user-profile .user-name { font-weight: 700; font-size: 1rem; background: linear-gradient(135deg, #fff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .user-profile .user-status { font-size: 0.65rem; color: var(--tg-hint); -webkit-text-fill-color: var(--tg-hint); }
     .user-profile .user-badge {
-      background: var(--accent); color: #0a0e17;
-      padding: 2px 10px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      color: #0a0e17;
+      padding: 2px 12px; border-radius: 20px;
       font-size: 0.55rem; font-weight: 700;
+      box-shadow: 0 0 20px var(--accent-glow);
     }
     .user-profile .streak {
       display: flex; align-items: center; gap: 4px;
-      font-size: 0.7rem; color: var(--gold);
+      font-size: 0.75rem; background: linear-gradient(135deg, var(--gold), #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
     }
+    .user-profile .streak i { -webkit-text-fill-color: var(--gold); }
 
-    /* ONBOARDING */
+    /* Onboarding - Premium */
     .onboarding-card {
-      background: rgba(19, 27, 38, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(19, 27, 38, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius);
-      padding: 24px 20px; margin-bottom: 14px;
-      border: 1px solid rgba(255,255,255,0.05); box-shadow: var(--shadow);
+      padding: 28px 24px; margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: var(--shadow);
       animation: slideUp 0.6s ease-out;
     }
-    .onboarding-card .title { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
-    .onboarding-card .title i { color: var(--accent); font-size: 1.4rem; }
-    .onboarding-card .sub { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 18px; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse-dot { 0%, 100% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    @keyframes floatUp {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .onboarding-card .title { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .onboarding-card .title i { -webkit-text-fill-color: var(--accent); font-size: 1.4rem; }
+    .onboarding-card .sub { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 18px; -webkit-text-fill-color: var(--tg-hint); }
     .onboarding-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .onboarding-field {
       background: rgba(10, 14, 23, 0.6);
       backdrop-filter: blur(4px);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px; border: 1px solid rgba(255,255,255,0.04);
+      border-radius: var(--radius-xs);
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,0.04);
       transition: var(--transition);
     }
     .onboarding-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
     .onboarding-field label {
       font-size: 0.55rem; font-weight: 600; color: var(--tg-hint);
       text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;
+      -webkit-text-fill-color: var(--tg-hint);
     }
     .onboarding-field input, .onboarding-field select {
       background: transparent; border: none; color: var(--tg-text);
       font-size: 0.95rem; font-weight: 600; width: 100%; outline: none; font-family: inherit;
+      -webkit-text-fill-color: var(--tg-text);
     }
     .onboarding-field select { cursor: pointer; appearance: none; -webkit-appearance: none; }
-    .onboarding-field input::placeholder { color: var(--tg-hint); font-weight: 400; font-size: 0.85rem; }
-    .onboarding-field .unit { font-size: 0.65rem; color: var(--tg-hint); margin-left: 4px; }
+    .onboarding-field input::placeholder { color: var(--tg-hint); font-weight: 400; font-size: 0.85rem; -webkit-text-fill-color: var(--tg-hint); }
+    .onboarding-field .unit { font-size: 0.65rem; color: var(--tg-hint); margin-left: 4px; -webkit-text-fill-color: var(--tg-hint); }
     .onboarding-full { grid-column: 1 / -1; }
     .onboarding-btn {
-      width: 100%; padding: 14px; border-radius: var(--radius-sm); border: none;
-      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      width: 100%; padding: 16px; border-radius: var(--radius-sm); border: none;
+      background: linear-gradient(135deg, var(--accent), #f59e0b, var(--purple));
+      background-size: 200% 200%;
       color: var(--tg-button-text); font-weight: 700; font-size: 1rem;
       cursor: pointer; transition: var(--transition); font-family: inherit;
       margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px;
+      animation: gradientMove 3s ease-in-out infinite;
+      box-shadow: 0 4px 30px var(--accent-glow);
     }
-    .onboarding-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--accent-glow); }
+    @keyframes gradientMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .onboarding-btn:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 40px var(--accent-glow); }
     .onboarding-btn:active { transform: scale(0.97); }
 
-    /* SCHEDULE */
+    /* Schedule - Premium */
     .schedule-container { display: none; animation: slideUp 0.6s ease-out; }
     .schedule-container.active { display: block; }
     .schedule-header {
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
     }
-    .schedule-header h2 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .schedule-header h2 i { color: var(--accent); }
+    .schedule-header h2 { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #fff, var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .schedule-header h2 i { -webkit-text-fill-color: var(--accent); }
     .schedule-header .badge {
-      font-size: 0.6rem; background: var(--accent); color: #0a0e17;
-      padding: 3px 12px; border-radius: 20px; font-weight: 700;
+      font-size: 0.6rem;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #0a0e17;
+      padding: 4px 14px; border-radius: 20px; font-weight: 700;
+      box-shadow: 0 0 20px var(--accent-glow);
     }
     .schedule-grid {
       display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;
       max-height: 500px; overflow-y: auto;
+      padding-right: 4px;
     }
-    .schedule-grid::-webkit-scrollbar { width: 3px; }
-    .schedule-grid::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     .schedule-day {
-      background: rgba(19, 27, 38, 0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(19, 27, 38, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: var(--radius-sm);
-      padding: 14px 16px; border: 1px solid rgba(255,255,255,0.05);
+      padding: 16px 18px;
+      border: 1px solid rgba(255,255,255,0.04);
       cursor: pointer; transition: var(--transition);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.2);
     }
-    .schedule-day:hover { border-color: rgba(249, 176, 66, 0.15); transform: translateX(4px); }
+    .schedule-day:hover {
+      border-color: rgba(249, 176, 66, 0.2);
+      transform: translateX(6px);
+      box-shadow: 0 4px 30px rgba(249, 176, 66, 0.1);
+    }
     .schedule-day .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .schedule-day .day-name { font-weight: 700; font-size: 0.9rem; }
+    .schedule-day .day-name { font-weight: 700; font-size: 0.95rem; }
     .schedule-day .day-date { font-size: 0.7rem; color: var(--tg-hint); }
     .schedule-day .day-progress {
-      margin-top: 6px; height: 2px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;
+      margin-top: 8px; height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;
     }
     .schedule-day .day-progress .bar {
-      height: 100%; background: linear-gradient(90deg, var(--accent), var(--green));
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green), var(--purple));
       border-radius: 10px; transition: width 0.5s ease;
+      box-shadow: 0 0 10px rgba(249, 176, 66, 0.3);
     }
 
-    /* WORKOUT LIST MODAL */
+    /* Workout List Modal - Premium */
     .workout-list-modal {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 250; background: rgba(0,0,0,0.92); backdrop-filter: blur(20px);
+      z-index: 250; background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
       display: none; align-items: center; justify-content: center; padding: 20px;
       animation: fadeUp 0.4s ease-out;
     }
     .workout-list-modal.active { display: flex; }
     .workout-list-modal .modal-content {
-      background: rgba(19, 27, 38, 0.92);
-      backdrop-filter: blur(16px);
+      background: rgba(19, 27, 38, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius);
-      max-width: 460px; width: 100%; padding: 24px;
+      max-width: 460px; width: 100%; padding: 28px 24px;
       border: 1px solid rgba(255,255,255,0.06); box-shadow: var(--shadow);
       max-height: 85vh; overflow-y: auto;
     }
-    .workout-list-modal .modal-content::-webkit-scrollbar { width: 3px; }
-    .workout-list-modal .modal-content::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
-    .workout-list-modal .modal-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
-    .workout-list-modal .modal-title i { color: var(--accent); }
-    .workout-list-modal .modal-sub { color: var(--tg-hint); font-size: 0.8rem; margin-bottom: 16px; }
+    .workout-list-modal .modal-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #fff, var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .workout-list-modal .modal-title i { -webkit-text-fill-color: var(--accent); }
+    .workout-list-modal .modal-sub { color: var(--tg-hint); font-size: 0.8rem; margin-bottom: 16px; -webkit-text-fill-color: var(--tg-hint); }
     .workout-list-item {
-      background: rgba(10, 14, 23, 0.6);
+      background: rgba(10, 14, 23, 0.5);
       backdrop-filter: blur(4px);
       border-radius: var(--radius-xs);
-      padding: 12px 16px; margin-bottom: 8px;
+      padding: 14px 16px; margin-bottom: 8px;
       border: 1px solid rgba(255,255,255,0.04); cursor: pointer;
       transition: var(--transition); display: flex; align-items: center; gap: 12px;
     }
-    .workout-list-item:hover { border-color: var(--accent); transform: translateX(4px); }
+    .workout-list-item:hover { border-color: var(--accent); transform: translateX(4px); background: rgba(249, 176, 66, 0.05); }
     .workout-list-item .wli-icon { font-size: 1.5rem; }
     .workout-list-item .wli-info { flex: 1; }
     .workout-list-item .wli-name { font-weight: 600; font-size: 0.85rem; }
     .workout-list-item .wli-muscle { font-size: 0.6rem; color: var(--tg-hint); }
     .workout-list-item .wli-premium { color: var(--gold); font-size: 0.7rem; margin-left: 4px; }
-    .workout-list-item .wli-arrow { color: var(--tg-hint); font-size: 0.8rem; }
+    .workout-list-item .wli-status {
+      font-size: 0.6rem; padding: 2px 10px; border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+    }
+    .workout-list-item .wli-status.done { background: rgba(74,222,128,0.15); color: var(--green); }
     .close-workout-list {
-      width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none;
+      width: 100%; padding: 14px; border-radius: var(--radius-sm); border: none;
       background: rgba(10, 14, 23, 0.6);
       color: var(--tg-text);
       font-weight: 600; cursor: pointer; transition: var(--transition);
-      font-family: inherit; margin-top: 8px;
+      font-family: inherit; margin-top: 10px;
       border: 1px solid rgba(255,255,255,0.06);
     }
     .close-workout-list:hover { border-color: var(--accent); color: var(--accent); }
 
     .start-workout-list-btn {
-      width: 100%; padding: 14px; border-radius: var(--radius-sm); border: none;
+      width: 100%; padding: 16px; border-radius: var(--radius-sm); border: none;
       background: linear-gradient(135deg, var(--green), #22c55e);
       color: #0a0e17; font-weight: 700; font-size: 1rem;
       cursor: pointer; transition: var(--transition); font-family: inherit;
       margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
-      box-shadow: 0 4px 24px var(--green-glow);
+      box-shadow: 0 4px 30px var(--green-glow);
     }
-    .start-workout-list-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow); }
-    .start-workout-list-btn:active { transform: scale(0.97); }
-    .start-workout-list-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .start-workout-list-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 40px var(--green-glow); }
 
-    /* DASHBOARD */
+    /* Dashboard - Premium */
     .dashboard-container { display: none; animation: slideUp 0.5s ease-out; }
     .dashboard-container.active { display: block; }
     
+    /* TOP BUTTONS - CHALLENGE & HEIGHT INCREASE (RED CIRCLE AREA) */
     .dashboard-top-btns {
-      display: flex; gap: 8px; margin-bottom: 12px;
+      display: flex; gap: 10px; margin-bottom: 14px;
     }
     .dashboard-top-btns .top-btn {
-      flex: 1; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(10, 14, 23, 0.6);
-      color: var(--tg-text); font-size: 0.7rem; font-weight: 600;
-      cursor: pointer; transition: var(--transition); font-family: inherit;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
+      flex: 1; padding: 12px 14px; border-radius: var(--radius-sm);
+      border: none;
+      font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: var(--transition);
+      font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative;
+      overflow: hidden;
     }
-    .dashboard-top-btns .top-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .dashboard-top-btns .top-btn i { font-size: 0.8rem; }
+    /* Challenge Button - Premium Red/Gold */
+    .dashboard-top-btns .top-btn.challenge-btn {
+      background: linear-gradient(135deg, #dc2626, #f59e0b);
+      color: #fff;
+      box-shadow: 0 4px 25px rgba(220, 38, 38, 0.3);
+    }
+    .dashboard-top-btns .top-btn.challenge-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15) 0%, transparent 60%);
+      animation: shimmerBtn 3s ease-in-out infinite;
+    }
+    @keyframes shimmerBtn {
+      0%, 100% { transform: translate(-10%, -10%); }
+      50% { transform: translate(10%, 10%); }
+    }
+    .dashboard-top-btns .top-btn.challenge-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(220, 38, 38, 0.4);
+    }
+    .dashboard-top-btns .top-btn.challenge-btn i {
+      font-size: 1rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    /* Height Increase Button - Premium Blue/Purple */
+    .dashboard-top-btns .top-btn.height-btn {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: #fff;
+      box-shadow: 0 4px 25px rgba(59, 130, 246, 0.3);
+    }
+    .dashboard-top-btns .top-btn.height-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 70% 50%, rgba(255,255,255,0.15) 0%, transparent 60%);
+      animation: shimmerBtn 3s ease-in-out infinite reverse;
+    }
+    .dashboard-top-btns .top-btn.height-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(59, 130, 246, 0.4);
+    }
+    .dashboard-top-btns .top-btn.height-btn i {
+      font-size: 1rem;
+      animation: floatUp 2s ease-in-out infinite;
+    }
+
+    /* Back to List Button */
+    .dashboard-top-btns .top-btn.list-btn {
+      background: rgba(19, 27, 38, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--tg-text);
+    }
+    .dashboard-top-btns .top-btn.list-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(249, 176, 66, 0.1);
+    }
 
     .dashboard-back {
-      background: rgba(19, 27, 38, 0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(19, 27, 38, 0.7);
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.05);
-      color: var(--tg-text); padding: 8px 16px; border-radius: var(--radius-sm);
+      color: var(--tg-text); padding: 10px 18px; border-radius: var(--radius-sm);
       cursor: pointer; font-family: inherit; font-size: 0.8rem;
-      margin-bottom: 12px; transition: var(--transition);
-      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 14px; transition: var(--transition);
+      display: flex; align-items: center; gap: 8px;
     }
     .dashboard-back:hover { border-color: var(--accent); color: var(--accent); }
 
+    /* Dashboard Card - Premium Glass */
     .dashboard-card {
-      background: rgba(19, 27, 38, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(19, 27, 38, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius);
-      padding: 20px; border: 1px solid rgba(255,255,255,0.05);
+      padding: 24px; border: 1px solid rgba(255,255,255,0.05);
       box-shadow: var(--shadow); margin-bottom: 14px;
     }
-    .dashboard-card .dash-title { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
-    .dashboard-card .dash-title i { color: var(--accent); }
-    .dashboard-card .dash-sub { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 14px; }
+    .dashboard-card .dash-title {
+      font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 10px;
+      margin-bottom: 2px;
+      background: linear-gradient(135deg, #fff, var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .dashboard-card .dash-title i { -webkit-text-fill-color: var(--accent); }
+    .dashboard-card .dash-sub { font-size: 0.8rem; color: var(--tg-hint); margin-bottom: 14px; -webkit-text-fill-color: var(--tg-hint); }
     .dashboard-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .dash-stat {
-      background: rgba(10, 14, 23, 0.6);
+      background: rgba(10, 14, 23, 0.5);
       backdrop-filter: blur(4px);
       border-radius: var(--radius-xs);
-      padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.04);
+      padding: 14px; text-align: center;
+      border: 1px solid rgba(255,255,255,0.04);
+      transition: var(--transition);
     }
-    .dash-stat .stat-icon { font-size: 1.5rem; margin-bottom: 4px; }
-    .dash-stat .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .dash-stat:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .dash-stat .stat-icon { font-size: 1.8rem; margin-bottom: 4px; }
+    .dash-stat .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
     .dash-stat .stat-label { font-size: 0.55rem; color: var(--tg-hint); text-transform: uppercase; letter-spacing: 0.5px; }
     .dash-stat .stat-benefit { font-size: 0.65rem; color: var(--green); margin-top: 2px; }
     .dash-stat .stat-reduce { font-size: 0.65rem; color: var(--red); margin-top: 2px; }
+
     .dash-details {
-      background: rgba(10, 14, 23, 0.6);
+      background: rgba(10, 14, 23, 0.5);
       backdrop-filter: blur(4px);
       border-radius: var(--radius-xs);
-      padding: 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.04);
+      padding: 16px; margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.04);
     }
-    .dash-details .detail-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .dash-details .detail-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .dash-details .detail-row:last-child { border-bottom: none; }
     .dash-details .detail-label { color: var(--tg-hint); font-size: 0.7rem; }
     .dash-details .detail-value { font-weight: 600; font-size: 0.8rem; }
@@ -354,19 +514,26 @@
     .dash-details .detail-value.danger { color: var(--red); }
     
     .dash-nutrition {
-      background: rgba(10, 14, 23, 0.6);
+      background: rgba(10, 14, 23, 0.5);
       backdrop-filter: blur(4px);
       border-radius: var(--radius-xs);
-      padding: 14px; border: 1px solid rgba(255,255,255,0.04);
+      padding: 16px; border: 1px solid rgba(255,255,255,0.04);
     }
-    .dash-nutrition .nut-title { font-weight: 700; font-size: 0.8rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .dash-nutrition .nut-title {
+      font-weight: 700; font-size: 0.85rem; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+      color: var(--green);
+    }
     .dash-nutrition .nut-title i { color: var(--green); }
     .dash-nutrition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .dash-nutrition-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .dash-nutrition-item {
+      display: flex; justify-content: space-between; padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
     .dash-nutrition-item .nut-label { color: var(--tg-hint); font-size: 0.65rem; }
-    .dash-nutrition-item .nut-value { font-weight: 600; font-size: 0.7rem; }
+    .dash-nutrition-item .nut-value { font-weight: 600; font-size: 0.75rem; color: var(--accent); }
 
-    /* VIDEO EMBED - Auto shows for current workout */
+    /* Video Embed */
     .video-embed {
       margin: 12px 0;
       border-radius: var(--radius-xs);
@@ -374,37 +541,42 @@
       aspect-ratio: 16/9;
       background: #000;
       border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
     }
-    .video-embed iframe {
-      width: 100%; height: 100%; border: none;
-    }
+    .video-embed iframe { width: 100%; height: 100%; border: none; }
 
-    /* WORKOUT PROGRESS */
+    /* Workout Progress */
     .workout-progress {
       display: flex; align-items: center; gap: 12px; margin: 12px 0;
-      padding: 10px 14px; background: rgba(10, 14, 23, 0.6); border-radius: var(--radius-xs);
+      padding: 12px 16px; background: rgba(10, 14, 23, 0.5);
+      border-radius: var(--radius-xs);
       border: 1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(4px);
     }
     .workout-progress .progress-text {
-      font-size: 0.75rem; color: var(--tg-hint); flex: 1;
+      font-size: 0.8rem; color: var(--tg-hint); flex: 1;
     }
     .workout-progress .progress-text strong {
-      color: var(--accent); font-size: 0.9rem;
+      color: var(--accent); font-size: 0.95rem;
     }
     .workout-progress .progress-bar-track {
-      width: 80px; height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;
+      width: 100px; height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px; overflow: hidden;
     }
     .workout-progress .progress-bar-track .fill {
-      height: 100%; background: linear-gradient(90deg, var(--accent), var(--green));
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green), var(--purple));
       border-radius: 10px; transition: width 0.5s ease;
+      box-shadow: 0 0 15px rgba(249, 176, 66, 0.3);
     }
 
-    /* DASHBOARD ACTION BUTTONS */
+    /* Dashboard Action Buttons */
     .dash-actions {
       display: flex; gap: 8px; margin-bottom: 12px;
     }
     .dash-actions .action-btn {
-      flex: 1; padding: 12px 14px; border-radius: var(--radius-sm); border: none;
+      flex: 1; padding: 14px 16px; border-radius: var(--radius-sm); border: none;
       font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: var(--transition);
       font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;
     }
@@ -427,7 +599,7 @@
     .dash-actions .action-btn.finish-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--green-glow); }
     .dash-actions .action-btn.finish-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    /* CAMERA */
+    /* Camera */
     .camera-wrapper {
       position: relative; background: #080b12; border-radius: var(--radius);
       overflow: hidden; aspect-ratio: 4/3;
@@ -486,7 +658,7 @@
     .form-correction.bad { border-color: var(--red); color: var(--red); }
     .form-correction.waiting { border-color: var(--accent); color: var(--accent); }
 
-    /* TOAST */
+    /* Toast */
     .toast {
       position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%);
       background: rgba(19, 27, 38, 0.9);
@@ -504,7 +676,7 @@
     .toast.info { border-color: var(--accent); }
     .toast.premium { border-color: var(--gold); }
 
-    /* RESULTS MODAL */
+    /* Results Modal */
     .results-modal {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       z-index: 300; background: rgba(0,0,0,0.92); backdrop-filter: blur(20px);
@@ -520,10 +692,8 @@
       border: 1px solid rgba(255,255,255,0.06); box-shadow: var(--shadow);
       max-height: 90vh; overflow-y: auto;
     }
-    .results-modal .modal-content::-webkit-scrollbar { width: 3px; }
-    .results-modal .modal-content::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
-    .results-modal .modal-title { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 4px; }
-    .results-modal .modal-title i { color: var(--green); }
+    .results-modal .modal-title { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 4px; background: linear-gradient(135deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .results-modal .modal-title i { -webkit-text-fill-color: var(--green); }
     .results-modal .modal-sub { text-align: center; color: var(--tg-hint); font-size: 0.8rem; margin-bottom: 18px; }
     .results-modal .result-body-img {
       width: 120px; height: 120px; margin: 0 auto 16px; border-radius: 50%;
@@ -558,10 +728,6 @@
       .dashboard-stats { grid-template-columns: 1fr; }
       .dash-nutrition-grid { grid-template-columns: 1fr; }
     }
-
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -696,11 +862,17 @@
     <!-- DASHBOARD -->
     <div class="dashboard-container" id="dashboardContainer">
       
-      <!-- TOP BUTTONS: Challenge & Height Increase -->
+      <!-- TOP BUTTONS: Challenge & Height Increase (RED CIRCLE AREA) -->
       <div class="dashboard-top-btns">
-        <button class="top-btn" id="challengeBtn"><i class="fas fa-trophy"></i> Challenge</button>
-        <button class="top-btn" id="heightIncreaseBtn"><i class="fas fa-arrow-up"></i> Height +</button>
-        <button class="top-btn" id="dashBackToList"><i class="fas fa-arrow-left"></i> List</button>
+        <button class="top-btn challenge-btn" id="challengeBtn">
+          <i class="fas fa-trophy"></i> Challenge
+        </button>
+        <button class="top-btn height-btn" id="heightIncreaseBtn">
+          <i class="fas fa-arrow-up"></i> Height +
+        </button>
+        <button class="top-btn list-btn" id="dashBackToList">
+          <i class="fas fa-arrow-left"></i> List
+        </button>
       </div>
       
       <button class="dashboard-back" id="dashboardBack">
@@ -759,7 +931,7 @@
       </div>
     </div>
 
-          </div> 
+  </div>
   <script>
     // ──────────────────────────────────────────────────────────────
     //  BACKEND CONNECTION
@@ -952,9 +1124,18 @@
     };
 
     // ──────────────────────────────────────────────────────────────
-    //  WORKOUT STYLES
+    //  WORKOUT STYLES (Abbreviated for space - Full Body shown)
     // ──────────────────────────────────────────────────────────────
     const WORKOUT_STYLES = {
+      'Full Body': {
+        monday: ['CHEST_01','BACK_01','LEGS_01','SHOULDER_01','BICEPS_01','TRICEPS_01','CORE_01','CHEST_02','BACK_02','LEGS_02'],
+        tuesday: ['CHEST_03','BACK_03','LEGS_03','SHOULDER_02','BICEPS_02','TRICEPS_02','CORE_02','CHEST_04','BACK_04','LEGS_04'],
+        wednesday: ['CHEST_05','BACK_05','LEGS_05','SHOULDER_03','BICEPS_03','TRICEPS_03','CORE_03','CHEST_06','BACK_06','LEGS_06'],
+        thursday: ['CHEST_07','BACK_07','LEGS_07','SHOULDER_04','BICEPS_04','TRICEPS_04','CORE_04','CHEST_08','BACK_08','LEGS_08'],
+        friday: ['CHEST_09','BACK_09','LEGS_09','SHOULDER_05','BICEPS_05','TRICEPS_05','CORE_05','CHEST_10','BACK_10','LEGS_10'],
+        saturday: ['CHEST_11','BACK_11','LEGS_11','SHOULDER_06','BICEPS_06','TRICEPS_06','CORE_06','CHEST_12','BACK_12','LEGS_12'],
+        sunday: []
+      },
       'Push/Pull/Legs': {
         monday: ['CHEST_01','CHEST_02','CHEST_03','CHEST_04','CHEST_05','SHOULDER_01','SHOULDER_02','SHOULDER_03','SHOULDER_04','TRICEPS_01','TRICEPS_02','TRICEPS_03'],
         tuesday: ['BACK_01','BACK_02','BACK_03','BACK_04','BACK_05','BACK_06','BICEPS_01','BICEPS_02','BICEPS_03','BICEPS_04'],
@@ -971,15 +1152,6 @@
         thursday: ['LEGS_09','LEGS_10','LEGS_11','LEGS_12','LEGS_13','LEGS_14','CORE_04','CORE_05','CORE_06','CORE_07'],
         friday: ['CHEST_08','CHEST_09','CHEST_10','BACK_09','BACK_10','BACK_11','BACK_12','SHOULDER_05','SHOULDER_06','BICEPS_05','BICEPS_06','TRICEPS_05','TRICEPS_06'],
         saturday: ['LEGS_15','LEGS_16','LEGS_17','LEGS_18','LEGS_19','LEGS_20','CORE_08','CORE_09','CORE_10','CORE_11'],
-        sunday: []
-      },
-      'Full Body': {
-        monday: ['CHEST_01','BACK_01','LEGS_01','SHOULDER_01','BICEPS_01','TRICEPS_01','CORE_01','CHEST_02','BACK_02','LEGS_02'],
-        tuesday: ['CHEST_03','BACK_03','LEGS_03','SHOULDER_02','BICEPS_02','TRICEPS_02','CORE_02','CHEST_04','BACK_04','LEGS_04'],
-        wednesday: ['CHEST_05','BACK_05','LEGS_05','SHOULDER_03','BICEPS_03','TRICEPS_03','CORE_03','CHEST_06','BACK_06','LEGS_06'],
-        thursday: ['CHEST_07','BACK_07','LEGS_07','SHOULDER_04','BICEPS_04','TRICEPS_04','CORE_04','CHEST_08','BACK_08','LEGS_08'],
-        friday: ['CHEST_09','BACK_09','LEGS_09','SHOULDER_05','BICEPS_05','TRICEPS_05','CORE_05','CHEST_10','BACK_10','LEGS_10'],
-        saturday: ['CHEST_11','BACK_11','LEGS_11','SHOULDER_06','BICEPS_06','TRICEPS_06','CORE_06','CHEST_12','BACK_12','LEGS_12'],
         sunday: []
       },
       'Bro Split': {
@@ -1057,6 +1229,34 @@
     };
 
     // ──────────────────────────────────────────────────────────────
+    //  CHALLENGE EXERCISES
+    // ──────────────────────────────────────────────────────────────
+    const CHALLENGE_EXERCISES = [
+      { id: 'CHAL_01', name: '100 Push-ups Challenge', icon: '💪', muscle: 'Full Body', videoUrl: 'https://www.youtube.com/embed/IODxDxX7oi4', desc: 'Complete 100 push-ups in sets', tip: 'Break into sets of 10-20', reps: 100, sets: 1, benefit: 'Builds endurance & chest strength', reduce: 'Avoid locking elbows' },
+      { id: 'CHAL_02', name: '2-Minute Plank', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/pSHjTRCQxIw', desc: 'Hold plank position for 2 minutes', tip: 'Keep body in straight line', reps: 120, sets: 1, benefit: 'Core stability & endurance', reduce: 'Avoid sagging hips' },
+      { id: 'CHAL_03', name: '50 Squat Challenge', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', desc: 'Complete 50 squats without stopping', tip: 'Keep chest up, knees tracking toes', reps: 50, sets: 1, benefit: 'Leg strength & endurance', reduce: 'Avoid leaning forward' },
+      { id: 'CHAL_04', name: '10 Pull-ups Challenge', icon: '💪', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/eGo4IYlbE5g', desc: 'Complete 10 pull-ups in a row', tip: 'Keep core tight, full range', reps: 10, sets: 1, benefit: 'Back & grip strength', reduce: 'Avoid swinging body' },
+      { id: 'CHAL_05', name: '100 Jumping Jacks', icon: '🔥', muscle: 'Full Body', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Complete 100 jumping jacks', tip: 'Keep a steady rhythm', reps: 100, sets: 1, benefit: 'Cardio & endurance', reduce: 'Avoid landing too hard' },
+      { id: 'CHAL_06', name: '30 Lunges Challenge', icon: '🚶', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/QOVaHwm-Q6U', desc: 'Complete 30 lunges each leg', tip: 'Keep front knee behind toes', reps: 30, sets: 1, benefit: 'Leg stability & strength', reduce: 'Avoid leaning forward' },
+      { id: 'CHAL_07', name: 'Burpee Challenge', icon: '⚡', muscle: 'Full Body', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Complete 20 burpees', tip: 'Explosive movement', reps: 20, sets: 1, benefit: 'Full body power', reduce: 'Avoid jumping too high' },
+      { id: 'CHAL_08', name: 'Mountain Climber Challenge', icon: '🔥', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Complete 50 mountain climbers', tip: 'Keep core engaged', reps: 50, sets: 1, benefit: 'Core endurance', reduce: 'Avoid raising hips' }
+    ];
+
+    // ──────────────────────────────────────────────────────────────
+    //  HEIGHT INCREASE EXERCISES
+    // ──────────────────────────────────────────────────────────────
+    const HEIGHT_EXERCISES = [
+      { id: 'HGT_01', name: 'Hanging Leg Raises', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Hang and raise legs to chest', tip: 'Keep legs straight, engage core', reps: 15, sets: 3, benefit: 'Spinal decompression & core', reduce: 'Avoid swinging' },
+      { id: 'HGT_02', name: 'Cobra Stretch', icon: '🧘', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Lie on stomach, lift chest up', tip: 'Press through palms, look up', reps: 10, sets: 3, benefit: 'Spinal flexibility', reduce: 'Avoid overextending' },
+      { id: 'HGT_03', name: 'Hanging Stretch', icon: '🧘', muscle: 'Full Body', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Hang from bar, relax body', tip: 'Let gravity stretch spine', reps: 30, sets: 3, benefit: 'Spinal decompression', reduce: 'Avoid swinging' },
+      { id: 'HGT_04', name: 'Cat-Cow Stretch', icon: '🧘', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Alternate arching and rounding back', tip: 'Move with breath', reps: 15, sets: 3, benefit: 'Spinal mobility', reduce: 'Avoid rushing' },
+      { id: 'HGT_05', name: 'Child\'s Pose', icon: '🧘', muscle: 'Full Body', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Kneel and stretch forward', tip: 'Relax and breathe deeply', reps: 30, sets: 3, benefit: 'Spinal relaxation', reduce: 'Avoid overstretching' },
+      { id: 'HGT_06', name: 'Squat Stretch', icon: '🦵', muscle: 'Legs', videoUrl: 'https://www.youtube.com/embed/aclHkVaku9U', desc: 'Deep squat hold', tip: 'Keep heels on ground', reps: 30, sets: 3, benefit: 'Hip & spinal mobility', reduce: 'Avoid leaning too far' },
+      { id: 'HGT_07', name: 'Bridge Pose', icon: '🧘', muscle: 'Back', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Lift hips up from lying position', tip: 'Press through feet', reps: 12, sets: 3, benefit: 'Spinal extension', reduce: 'Avoid overextending' },
+      { id: 'HGT_08', name: 'Twist Stretch', icon: '🧘', muscle: 'Core', videoUrl: 'https://www.youtube.com/embed/6G7p0x9Fy3c', desc: 'Sitting twist to each side', tip: 'Rotate from waist', reps: 10, sets: 3, benefit: 'Spinal rotation', reduce: 'Avoid forcing' }
+    ];
+
+    // ──────────────────────────────────────────────────────────────
     //  STATE
     // ──────────────────────────────────────────────────────────────
     let userData = {};
@@ -1076,6 +1276,8 @@
     let totalExercises = 0;
     let completedCount = 0;
     let selectedExerciseId = null;
+    let isChallengeMode = false;
+    let isHeightMode = false;
 
     // ──────────────────────────────────────────────────────────────
     //  LOCAL STORAGE
@@ -1085,7 +1287,6 @@
     function saveUserData(data) {
       try { 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        // Also sync to backend
         syncToBackend(data);
       } catch (e) {}
     }
@@ -1112,25 +1313,17 @@
           body: JSON.stringify({ userId: USER_ID, data: { ...data, timestamp: Date.now() } })
         });
         const result = await response.json();
-        if (result.success) {
-          console.log('✅ Data synced to backend');
-        }
-      } catch (e) {
-        console.log('⚠️ Backend sync failed, data saved locally');
-      }
+        if (result.success) console.log('✅ Data synced to backend');
+      } catch (e) { console.log('⚠️ Backend sync failed'); }
     }
 
     async function loadFromBackend() {
       try {
         const response = await fetch(`${BACKEND_URL}/api/load-progress/${USER_ID}`);
         const result = await response.json();
-        if (result.success && result.data) {
-          return result.data;
-        }
+        if (result.success && result.data) return result.data;
         return null;
-      } catch (e) {
-        return null;
-      }
+      } catch (e) { return null; }
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -1147,7 +1340,7 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  HIDE LOADING WITH PROGRESS
+    //  HIDE LOADING
     // ──────────────────────────────────────────────────────────────
     function updateLoadingProgress(percent) {
       const bar = document.getElementById('loadingProgressBar');
@@ -1158,9 +1351,7 @@
       const loadingScreen = document.getElementById('loadingScreen');
       updateLoadingProgress(100);
       loadingScreen.classList.add('hidden');
-      setTimeout(() => { 
-        loadingScreen.style.display = 'none'; 
-      }, 800);
+      setTimeout(() => { loadingScreen.style.display = 'none'; }, 800);
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -1186,16 +1377,10 @@
         const lastDate = new Date(userData.lastWorkoutDate);
         const today = new Date();
         const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-        if (diffDays === 0) {
-          workoutStreak = userData.streak || 1;
-        } else if (diffDays === 1) {
-          workoutStreak = (userData.streak || 0) + 1;
-        } else {
-          workoutStreak = 0;
-        }
-      } else {
-        workoutStreak = 0;
-      }
+        if (diffDays === 0) workoutStreak = userData.streak || 1;
+        else if (diffDays === 1) workoutStreak = (userData.streak || 0) + 1;
+        else workoutStreak = 0;
+      } else workoutStreak = 0;
       streakEl.textContent = `🔥 ${workoutStreak} day streak`;
     }
 
@@ -1370,11 +1555,12 @@
     //  START WORKOUT FLOW
     // ──────────────────────────────────────────────────────────────
     function startWorkoutFlow(day) {
+      isChallengeMode = false;
+      isHeightMode = false;
       dayExercises = day.exercises;
       totalExercises = dayExercises.length;
       completedCount = 0;
       
-      // Reset completed for this session
       dayExercises.forEach(ex => {
         const idx = completedExercises.indexOf(ex.id);
         if (idx > -1) completedExercises.splice(idx, 1);
@@ -1407,14 +1593,11 @@
       currentExerciseIndex = index;
       selectedExerciseId = ex.id;
       
-      // Update progress
       updateProgress();
       
-      // Update title
       document.getElementById('dashTitle').innerHTML = `<i class="fas fa-dumbbell"></i> ${ex.icon} ${ex.name}`;
       document.getElementById('dashSub').textContent = `${ex.muscle} • ${ex.sets} sets × ${ex.reps} reps`;
       
-      // AUTO SHOW VIDEO - YouTube video opens automatically
       const videoIframe = document.getElementById('videoIframe');
       if (ex.videoUrl) {
         videoIframe.src = ex.videoUrl + '?autoplay=1&rel=0';
@@ -1422,7 +1605,6 @@
         videoIframe.src = '';
       }
       
-      // Update stats
       const statsContainer = document.getElementById('dashStats');
       statsContainer.innerHTML = '';
       const weight = userData.weight || 75;
@@ -1448,7 +1630,6 @@
         statsContainer.appendChild(statEl);
       });
       
-      // Update details
       const detailsContainer = document.getElementById('dashDetails');
       detailsContainer.innerHTML = `
         <div class="detail-row"><span class="detail-label">🏋️ Exercise</span><span class="detail-value">${ex.icon} ${ex.name} ${ex.premium ? '⭐' : ''}</span></div>
@@ -1463,7 +1644,6 @@
         <div class="detail-row"><span class="detail-label">⚠️ What to Reduce</span><span class="detail-value danger">${ex.reduce || 'Avoid using momentum'}</span></div>
       `;
       
-      // Update nutrition
       const nutritionContainer = document.getElementById('dashNutritionGrid');
       nutritionContainer.innerHTML = '';
       const duration = userData.duration || 45;
@@ -1498,34 +1678,28 @@
         nutritionContainer.appendChild(el);
       });
       
-      // UPDATE BUTTONS: Show Next or Finish based on current exercise
       const nextBtn = document.getElementById('nextExerciseBtn');
       const finishBtn = document.getElementById('finishWorkoutBtn');
       const startBtn = document.getElementById('startWorkoutBtn');
       const stopBtn = document.getElementById('stopWorkoutBtn');
       
-      // Check if this is the LAST exercise
       if (index === totalExercises - 1) {
-        // Last exercise - show FINISH button, hide NEXT
         nextBtn.style.display = 'none';
         finishBtn.style.display = 'flex';
         finishBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish';
         finishBtn.disabled = false;
       } else {
-        // Not last exercise - show NEXT button, hide FINISH
         nextBtn.style.display = 'flex';
         finishBtn.style.display = 'none';
         nextBtn.innerHTML = '<i class="fas fa-forward"></i> Next';
         nextBtn.disabled = false;
       }
       
-      // Reset workout buttons
       startBtn.disabled = false;
       startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
       stopBtn.disabled = true;
       isWorkoutActive = false;
       
-      // Reset timer
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -1556,14 +1730,12 @@
         return;
       }
       
-      // Mark current as completed
       const currentEx = dayExercises[currentExerciseIndex];
       if (currentEx && !completedExercises.includes(currentEx.id)) {
         completedExercises.push(currentEx.id);
         completedCount++;
       }
       
-      // Move to next exercise
       currentExerciseIndex++;
       if (currentExerciseIndex < totalExercises) {
         showExercise(currentExerciseIndex);
@@ -1576,7 +1748,6 @@
     //  FINISH WORKOUT
     // ──────────────────────────────────────────────────────────────
     function finishWorkout() {
-      // Mark all remaining as completed
       for (let i = currentExerciseIndex; i < totalExercises; i++) {
         const ex = dayExercises[i];
         if (ex && !completedExercises.includes(ex.id)) {
@@ -1584,7 +1755,6 @@
         }
       }
       
-      // Update streak
       const today = new Date().toDateString();
       if (lastWorkoutDate !== today) {
         lastWorkoutDate = today;
@@ -1595,12 +1765,8 @@
         document.getElementById('userStreak').textContent = `🔥 ${workoutStreak} day streak`;
       }
       
-      // Update schedule
-      if (currentSchedule) {
-        renderSchedule(currentSchedule);
-      }
+      if (currentSchedule) renderSchedule(currentSchedule);
       
-      // Show results
       showToast('🎉 All exercises completed!', 'success');
       setTimeout(() => {
         showResultsModal(seconds || 300);
@@ -1608,21 +1774,20 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  FINISH BUTTON (in dashboard - shows only on last exercise)
+    //  FINISH BUTTON
     // ──────────────────────────────────────────────────────────────
     document.getElementById('finishWorkoutBtn').addEventListener('click', function() {
       if (isWorkoutActive) {
         showToast('⚠️ Please stop your workout first!', 'error');
         return;
       }
-      
       if (confirm('🎯 Finish all exercises? Great job!')) {
         finishWorkout();
       }
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  START WORKOUT BUTTON (in dashboard)
+    //  START WORKOUT BUTTON
     // ──────────────────────────────────────────────────────────────
     document.getElementById('startWorkoutBtn').addEventListener('click', function() {
       if (isWorkoutActive) return;
@@ -1635,8 +1800,6 @@
       
       this.disabled = true;
       this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
-      
-      // For premium exercises, could show ad here
       startExerciseTimer();
     });
 
@@ -1716,12 +1879,10 @@
         showToast('⚠️ No exercises for today!', 'error');
         return;
       }
-      
       if (isWorkoutStarted) {
         showToast('⚠️ Workout already in progress!', 'info');
         return;
       }
-      
       currentExerciseIndex = 0;
       startWorkoutFlow(selectedDayData);
       this.disabled = true;
@@ -1758,20 +1919,14 @@
         if (confirm('⚠️ You have an active workout! Are you sure you want to leave? Your progress will be lost.')) {
           resetWorkoutState();
           document.getElementById('dashboardContainer').classList.remove('active');
-          if (selectedDayData) {
-            openWorkoutList(selectedDayData);
-          } else {
-            document.getElementById('scheduleContainer').classList.add('active');
-          }
+          if (selectedDayData) openWorkoutList(selectedDayData);
+          else document.getElementById('scheduleContainer').classList.add('active');
           showToast('📋 Back to workout list', 'info');
         }
       } else {
         document.getElementById('dashboardContainer').classList.remove('active');
-        if (selectedDayData) {
-          openWorkoutList(selectedDayData);
-        } else {
-          document.getElementById('scheduleContainer').classList.add('active');
-        }
+        if (selectedDayData) openWorkoutList(selectedDayData);
+        else document.getElementById('scheduleContainer').classList.add('active');
         showToast('📋 Back to workout list', 'info');
       }
     });
@@ -1797,34 +1952,108 @@
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  CHALLENGE BUTTON
+    //  CHALLENGE BUTTON - With its own exercises & nutrition
     // ──────────────────────────────────────────────────────────────
     document.getElementById('challengeBtn').addEventListener('click', function() {
-      const challenges = [
-        '🔥 Challenge: Do 50 push-ups without stopping!',
-        '💪 Challenge: Hold a plank for 2 minutes!',
-        '🏋️ Challenge: Squat for 3 sets of 20 reps!',
-        '⚡ Challenge: Run 1km in under 5 minutes!',
-        '🎯 Challenge: Complete 100 jumping jacks!',
-        '🚀 Challenge: Do 10 pull-ups in a row!',
-        '💯 Challenge: 50 lunges each leg!',
-        '🏆 Challenge: 5km cycling sprint!'
-      ];
-      const random = challenges[Math.floor(Math.random() * challenges.length)];
-      tg.showAlert({ text: '🏆 ' + random }, {}, (result) => {});
-      showToast('🏆 Challenge accepted!', 'premium');
+      if (isWorkoutActive || isWorkoutStarted) {
+        showToast('⚠️ Finish current workout first!', 'error');
+        return;
+      }
+      
+      isChallengeMode = true;
+      isHeightMode = false;
+      
+      // Randomly select 4-6 challenge exercises
+      const shuffled = [...CHALLENGE_EXERCISES].sort(() => Math.random() - 0.5);
+      const selected = shuffled.slice(0, 4 + Math.floor(Math.random() * 3));
+      
+      dayExercises = selected.map(ex => ({
+        id: ex.id,
+        name: ex.name,
+        icon: ex.icon,
+        muscle: ex.muscle,
+        videoUrl: ex.videoUrl,
+        desc: ex.desc,
+        tip: ex.tip,
+        reps: ex.reps,
+        sets: ex.sets,
+        premium: false,
+        benefit: ex.benefit,
+        reduce: ex.reduce || 'Avoid rushing'
+      }));
+      
+      totalExercises = dayExercises.length;
+      completedCount = 0;
+      currentExerciseIndex = 0;
+      
+      document.getElementById('scheduleContainer').classList.remove('active');
+      document.getElementById('dashboardContainer').classList.add('active');
+      isWorkoutStarted = true;
+      
+      document.getElementById('dashTitle').innerHTML = `<i class="fas fa-trophy" style="color:var(--gold);"></i> 🏆 Challenge Mode`;
+      document.getElementById('dashSub').textContent = `${totalExercises} exercises • Push your limits!`;
+      
+      showExercise(currentExerciseIndex);
+      showToast('🏆 Challenge started! Give it your all!', 'premium');
     });
 
     // ──────────────────────────────────────────────────────────────
-    //  HEIGHT INCREASE BUTTON
+    //  HEIGHT INCREASE BUTTON - With its own exercises & nutrition
     // ──────────────────────────────────────────────────────────────
     document.getElementById('heightIncreaseBtn').addEventListener('click', function() {
-      const currentHeight = userData.height || 175;
-      const newHeight = currentHeight + 1;
-      userData.height = newHeight;
-      saveUserData({ ...userData, timestamp: Date.now() });
-      document.getElementById('heightInput').value = newHeight;
-      showToast(`📏 Height increased to ${newHeight}cm!`, 'success');
+      if (isWorkoutActive || isWorkoutStarted) {
+        showToast('⚠️ Finish current workout first!', 'error');
+        return;
+      }
+      
+      isHeightMode = true;
+      isChallengeMode = false;
+      
+      // Select all height exercises
+      dayExercises = HEIGHT_EXERCISES.map(ex => ({
+        id: ex.id,
+        name: ex.name,
+        icon: ex.icon,
+        muscle: ex.muscle,
+        videoUrl: ex.videoUrl,
+        desc: ex.desc,
+        tip: ex.tip,
+        reps: ex.reps,
+        sets: ex.sets,
+        premium: false,
+        benefit: ex.benefit,
+        reduce: ex.reduce || 'Avoid overstretching'
+      }));
+      
+      totalExercises = dayExercises.length;
+      completedCount = 0;
+      currentExerciseIndex = 0;
+      
+      document.getElementById('scheduleContainer').classList.remove('active');
+      document.getElementById('dashboardContainer').classList.add('active');
+      isWorkoutStarted = true;
+      
+      document.getElementById('dashTitle').innerHTML = `<i class="fas fa-arrow-up" style="color:var(--blue);"></i> 📏 Height Increase`;
+      document.getElementById('dashSub').textContent = `${totalExercises} exercises • Grow taller with these stretches!`;
+      
+      // Custom nutrition for height increase
+      showExercise(currentExerciseIndex);
+      
+      // Override nutrition for height
+      const nutritionContainer = document.getElementById('dashNutritionGrid');
+      nutritionContainer.innerHTML = `
+        <div class="dash-nutrition-item"><span class="nut-label">🥛 Calcium</span><span class="nut-value">1200mg</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">💊 Vitamin D</span><span class="nut-value">800 IU</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🥩 Protein</span><span class="nut-value">${Math.round((userData.protein || 150) * 1.2)}g</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🌾 Zinc</span><span class="nut-value">15mg</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">🥑 Healthy Fats</span><span class="nut-value">30g</span></div>
+        <div class="dash-nutrition-item"><span class="nut-label">💧 Water</span><span class="nut-value">3L</span></div>
+        <div class="dash-nutrition-item" style="grid-column:1/-1; border-bottom:none; padding-top:8px; text-align:center; color:var(--gold);">
+          🌟 Foods: Milk, Eggs, Salmon, Nuts, Leafy Greens, Oranges
+        </div>
+      `;
+      
+      showToast('📏 Height Increase routine started!', 'success');
     });
 
     // ──────────────────────────────────────────────────────────────
@@ -1860,8 +2089,8 @@
       `;
 
       document.getElementById('resultBodyImg').textContent = bodyEmoji;
-      document.getElementById('resultTitle').textContent = `🎉 ${dayExercises.length} Exercises Complete!`;
-      document.getElementById('resultSub').textContent = `You crushed ${dayExercises.length} exercises! 💪`;
+      document.getElementById('resultTitle').textContent = isChallengeMode ? '🏆 Challenge Complete!' : isHeightMode ? '📏 Height Routine Complete!' : `🎉 ${dayExercises.length} Exercises Complete!`;
+      document.getElementById('resultSub').textContent = isChallengeMode ? 'You crushed the challenge! 💪' : isHeightMode ? 'Stretch & grow! 🌱' : `You crushed ${dayExercises.length} exercises! 💪`;
       document.getElementById('resultMsg').textContent = randomMsg;
       document.getElementById('resultSubMsg').textContent = randomSub;
 
@@ -1869,6 +2098,8 @@
       
       resetWorkoutState();
       isWorkoutStarted = false;
+      isChallengeMode = false;
+      isHeightMode = false;
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -1964,7 +2195,6 @@
       try {
         updateLoadingProgress(20);
         
-        // Try to load from backend first
         const backendData = await loadFromBackend();
         updateLoadingProgress(40);
         
@@ -2012,15 +2242,13 @@
         updateLoadingProgress(95);
         console.log('🏋️ AI Gym Trainer Pro Max 100 loaded!');
         console.log(`💪 Exercises loaded: ${Object.keys(EXERCISE_DB).length}`);
+        console.log(`🏆 Challenges: ${CHALLENGE_EXERCISES.length}`);
+        console.log(`📏 Height exercises: ${HEIGHT_EXERCISES.length}`);
         console.log(`🔗 Backend: ${BACKEND_URL}`);
-        console.log('🚀 PRO MAX with step-by-step workout flow!');
 
         updateLoadingProgress(100);
         setTimeout(function() {
-          try {
-            hideLoading();
-          } catch(e) {
-            console.log('Loading hide error:', e);
+          try { hideLoading(); } catch(e) {
             document.getElementById('loadingScreen').style.display = 'none';
           }
         }, 1000);
