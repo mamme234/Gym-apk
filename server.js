@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'refresh';
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const WEBAPP_URL = process.env.WEBAPP_URL || 'https://your-app.onrender.com';
+const WEBAPP_URL = process.env.WEBAPP_URL || 'https://gym-apk-wicj.onrender.com';
 const ADMIN_ID = process.env.ADMIN_ID;
 
 // ──────────────────────────────────────────────────────────────
@@ -102,7 +102,21 @@ async function sendTelegram(chatId, text, replyMarkup = null) {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  WEBHOOK - Main Bot Handler
+//  WEBHOOK GET - For browser testing
+// ──────────────────────────────────────────────────────────────
+app.get('/webhook', (req, res) => {
+    res.json({
+        message: '✅ Webhook endpoint is active!',
+        method: 'POST only for Telegram updates',
+        status: 'active',
+        bot: BOT_TOKEN ? 'configured' : 'not configured',
+        webapp: WEBAPP_URL,
+        admin: ADMIN_ID || 'not set'
+    });
+});
+
+// ──────────────────────────────────────────────────────────────
+//  WEBHOOK POST - Main Bot Handler
 // ──────────────────────────────────────────────────────────────
 app.post('/webhook', async (req, res) => {
     console.log('📩 Webhook received');
@@ -585,6 +599,7 @@ app.get('/', (req, res) => {
             <p>📡 API: <a href="/api/health">/api/health</a></p>
             <p>🤖 Bot Status: <a href="/webhookstatus">/webhookstatus</a></p>
             <p>🔗 Set Webhook: POST to /setwebhook</p>
+            <p>📱 Webhook: <a href="/webhook">/webhook</a></p>
         `);
     }
 });
@@ -609,9 +624,10 @@ app.listen(PORT, '0.0.0.0', async () => {
     console.log('   /admin    - Admin panel');
     console.log('   /help     - Help');
     console.log('========================================');
-    console.log('\n🔗 Set Webhook:');
-    console.log(`   POST ${WEBAPP_URL}/setwebhook`);
-    console.log(`   GET ${WEBAPP_URL}/webhookstatus`);
+    console.log('\n🔗 Webhook URLs:');
+    console.log(`   GET  ${WEBAPP_URL}/webhook - Check status`);
+    console.log(`   POST ${WEBAPP_URL}/setwebhook - Set webhook`);
+    console.log(`   GET  ${WEBAPP_URL}/webhookstatus - Webhook info`);
     console.log('========================================\n');
     
     // Auto-set webhook on startup
