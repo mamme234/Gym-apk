@@ -11,8 +11,8 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
-const REFRESH_SECRET = process.env.REFRESH_SECRET || 'your-refresh-secret-key-change-this';
+const JWT_SECRET = process.env.JWT_SECRET || 'mamme dev';
+const REFRESH_SECRET = process.env.REFRESH_SECRET || 'mamme dev ref';
 
 // Telegram Bot Token
 const BOT_TOKEN = process.env.BOT_TOKEN || 'YOUR_BOT_TOKEN_HERE';
