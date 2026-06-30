@@ -1,0 +1,112 @@
+<!-- ===== PROFILE PAGE ===== -->
+<div id="profileScreen" class="screen">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+        <div class="profile-photo-container" onclick="showToast('Change profile photo', 'info')">
+            <div class="placeholder"><i class="fas fa-user"></i></div>
+            <div class="camera-overlay"><i class="fas fa-camera"></i></div>
+        </div>
+        <div>
+            <h2 id="profileName">John Doe</h2>
+            <p style="color:var(--text-secondary);" id="profileUsername">@johndoe_fit</p>
+            <span style="font-size:12px;padding:4px 12px;background:var(--card-bg);border-radius:20px;border:1px solid var(--glass-border);">
+                ⭐ Level <span id="profileLevel">5</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+        <div class="stat-item">
+            <div class="number" id="profileWorkouts">12</div>
+            <div class="label">Workouts</div>
+        </div>
+        <div class="stat-item">
+            <div class="number" id="profileStreak">5</div>
+            <div class="label">Day Streak</div>
+        </div>
+        <div class="stat-item">
+            <div class="number" id="profileXP">1,250</div>
+            <div class="label">XP Points</div>
+        </div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <h3 style="margin-bottom:16px;">Settings</h3>
+
+    <div class="settings-group">
+        <div class="title">Account</div>
+        <div class="settings-item" onclick="showEditProfile()">
+            <div class="left"><i class="fas fa-user-edit"></i><span>Edit Profile</span></div>
+            <div class="right"><i class="fas fa-chevron-right"></i></div>
+        </div>
+        <div class="settings-item">
+            <div class="left"><i class="fas fa-crown"></i><span>Premium Subscription</span></div>
+            <div class="right" style="color:var(--warning);">Upgrade</div>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <div class="title">Preferences</div>
+        <div class="settings-item">
+            <div class="left"><i class="fas fa-moon"></i><span>Dark Mode</span></div>
+            <div class="toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+        <div class="settings-item">
+            <div class="left"><i class="fas fa-globe"></i><span>Language</span></div>
+            <div class="right">English <i class="fas fa-chevron-right"></i></div>
+        </div>
+        <div class="settings-item">
+            <div class="left"><i class="fas fa-weight"></i><span>Units</span></div>
+            <div class="right">kg / cm <i class="fas fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <div class="title">Privacy</div>
+        <div class="settings-item">
+            <div class="left"><i class="fas fa-eye"></i><span>Profile Visibility</span></div>
+            <div class="right">Public <i class="fas fa-chevron-right"></i></div>
+        </div>
+        <div class="settings-item">
+            <div class="left"><i class="fas fa-lock"></i><span>Private Account</span></div>
+            <div class="toggle" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <div class="title">Support</div>
+        <div class="settings-item" onclick="showToast('Help center opening...', 'info')">
+            <div class="left"><i class="fas fa-question-circle"></i><span>Help Center</span></div>
+            <div class="right"><i class="fas fa-chevron-right"></i></div>
+        </div>
+        <div class="settings-item" onclick="showToast('Feedback form opened', 'success')">
+            <div class="left"><i class="fas fa-comment-dots"></i><span>Send Feedback</span></div>
+            <div class="right"><i class="fas fa-chevron-right"></i></div>
+        </div>
+        <div class="settings-item" onclick="showToast('Privacy policy loaded', 'info')">
+            <div class="left"><i class="fas fa-shield-alt"></i><span>Privacy Policy</span></div>
+            <div class="right"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <div class="title">Data</div>
+        <div class="settings-item" onclick="showToast('Data backup started', 'success')">
+            <div class="left"><i class="fas fa-cloud-upload-alt"></i><span>Backup Data</span></div>
+            <div class="right"><i class="fas fa-chevron-right"></i></div>
+        </div>
+        <div class="settings-item" onclick="showToast('Data restored', 'success')">
+            <div class="left"><i class="fas fa-cloud-download-alt"></i><span>Restore Data</span></div>
+            <div class="right"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    </div>
+
+    <button class="btn-outline" onclick="logout()" style="margin-top:16px;border-color:var(--danger);color:var(--danger);">
+        <i class="fas fa-sign-out-alt"></i> Log Out
+    </button>
+
+    <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--text-muted);">
+        ProGym v3.0.1 • Made with 💪
+        <br>
+        <span style="font-size:10px;">API: https://gym-apk-wicj.onrender.com</span>
+    </div>
+  </div>
