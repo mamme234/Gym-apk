@@ -36,7 +36,6 @@
 
     <!-- ===== APP CONTAINER ===== -->
     <div id="app">
-        <!-- Pages will be loaded here -->
         <div id="pageContainer"></div>
     </div>
 
@@ -44,23 +43,23 @@
     <div id="playerOverlay">
         <div class="player-header">
             <button onclick="closePlayer()"><i class="fas fa-chevron-left"></i></button>
-            <h3>Upper Body Power</h3>
+            <h3 id="playerTitle">Upper Body Power</h3>
             <button onclick="closePlayer()"><i class="fas fa-times"></i></button>
         </div>
 
         <div class="player-exercise">
-            <div class="video-container">
+            <div class="video-container" id="playerVideoContainer">
                 <div class="placeholder">
                     <i class="fas fa-play-circle" style="font-size:60px;color:var(--primary);"></i>
                 </div>
             </div>
-            <div class="timer">0:45</div>
+            <div class="timer" id="playerTimer">0:45</div>
             <div class="details">
                 <h4 id="playerExerciseName">Bench Press</h4>
                 <p id="playerExerciseDetail">Set 1 of 4 • 12 reps</p>
             </div>
             <div class="player-progress">
-                <div class="bar" style="width:25%;"></div>
+                <div class="bar" id="playerProgressBar" style="width:25%;"></div>
             </div>
         </div>
 
@@ -70,7 +69,7 @@
             <button class="ctrl-btn" onclick="nextExercise()"><i class="fas fa-step-forward"></i></button>
         </div>
 
-        <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;">
+        <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;padding-bottom:20px;">
             <button class="btn-outline" style="padding:8px 20px;font-size:12px;width:auto;max-width:none;border-color:var(--success);color:var(--success);" onclick="completeWorkout()">
                 <i class="fas fa-check"></i> Finish
             </button>
@@ -103,7 +102,6 @@
         </button>
     </div>
 
-    <!-- ===== SCRIPTS ===== -->
     <script src="app.js"></script>
 </body>
                                                                       </html>
