@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ProGym - Admin Panel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== ADMIN SPECIFIC STYLES ===== */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 30px;
+        }
+
+        .admin-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .admin-header h1 span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .admin-stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .admin-stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .admin-stat-card .number {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .admin-stat-card .label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .admin-stat-card .icon {
+            font-size: 24px;
+            color: var(--secondary);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 0 16px;
+            margin-bottom: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .admin-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-tab {
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .admin-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .admin-tab:active {
+            transform: scale(0.95);
+        }
+
+        .admin-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        /* ===== USER TABLE ===== */
+        .admin-table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .admin-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 14px;
+        }
+
+        .admin-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .admin-table .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 201, 167, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.inactive {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--danger);
+        }
+
+        .status-badge.premium {
+            background: rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+        }
+
+        .admin-action-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: var(--transition);
+            margin: 0 4px;
+        }
+
+        .admin-action-btn:active {
+            transform: scale(0.9);
+        }
+
+        .admin-action-btn.edit {
+            background: rgba(108, 99, 255, 0.2);
+            color: var(--primary);
+        }
+
+        .admin-action-btn.delete {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--danger);
+        }
+
+        .admin-action-btn.ban {
+            background: rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+        }
+
+        /* ===== BROADCAST ===== */
+        .broadcast-area {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .broadcast-area textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: var(--darker);
+            color: white;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+
+        .broadcast-area textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .broadcast-area select {
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: var(--darker);
+            color: white;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .admin-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .admin-table {
+                font-size: 12px;
+            }
+
+            .admin-table th,
+            .admin-table td {
+                padding: 8px 10px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .admin-tab {
+                font-size: 12px;
+                padding: 8px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-handle"></div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN APP ===== -->
+    <div id="app" class="visible">
+        <div class="admin-container">
+
+            <!-- ===== HEADER ===== -->
+            <div class="admin-header">
+                <h1>👑 <span>ProGym Admin</span></h1>
+                <div style="display:flex;gap:12px;align-items:center;">
+                    <span style="color:var(--text-secondary);font-size:14px;" id="adminName">Admin</span>
+                    <button class="btn-outline" style="padding:8px 16px;font-size:12px;width:auto;max-width:none;" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                    <button class="btn-primary" style="padding:8px 16px;font-size:12px;width:auto;max-width:none;" onclick="window.location.href='index.html'">
+                        <i class="fas fa-arrow-left"></i> Back to App
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== STATS ===== -->
+            <div class="admin-stats-grid" id="adminStats">
+                <div class="admin-stat-card">
+                    <span class="icon"><i class="fas fa-users"></i></span>
+                    <div class="number" id="statTotalUsers">0</div>
+                    <div class="label">Total Users</div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="icon"><i class="fas fa-user-check"></i></span>
+                    <div class="number" id="statActiveUsers">0</div>
+                    <div class="label">Active Users</div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="icon"><i class="fas fa-crown"></i></span>
+                    <div class="number" id="statPremiumUsers">0</div>
+                    <div class="label">Premium Users</div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="icon"><i class="fas fa-dumbbell"></i></span>
+                    <div class="number" id="statTotalWorkouts">0</div>
+                    <div class="label">Total Workouts</div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="icon"><i class="fas fa-check-circle"></i></span>
+                    <div class="number" id="statCompletedWorkouts">0</div>
+                    <div class="label">Completed</div>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="icon"><i class="fas fa-calendar-plus"></i></span>
+                    <div class="number" id="statNewUsers">0</div>
+                    <div class="label">New This Week</div>
+                </div>
+            </div>
+
+            <!-- ===== TABS ===== -->
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </button>
+                <button class="admin-tab" data-tab="users" onclick="switchTab('users')">
+                    <i class="fas fa-users"></i> Users
+                </button>
+                <button class="admin-tab" data-tab="exercises" onclick="switchTab('exercises')">
+                    <i class="fas fa-dumbbell"></i> Exercises
+                </button>
+                <button class="admin-tab" data-tab="broadcast" onclick="switchTab('broadcast')">
+                    <i class="fas fa-bullhorn"></i> Broadcast
+                </button>
+                <button class="admin-tab" data-tab="logs" onclick="switchTab('logs')">
+                    <i class="fas fa-history"></i> Logs
+                </button>
+            </div>
+
+            <!-- ===== TAB: DASHBOARD ===== -->
+            <div id="tabDashboard" class="admin-section active">
+                <div class="glass" style="padding:24px;">
+                    <h3 style="margin-bottom:12px;">📊 Quick Overview</h3>
+                    <p style="color:var(--text-secondary);">
+                        Welcome to the ProGym Admin Panel. Manage users, exercises, and send broadcasts.
+                    </p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+                        <div style="background:var(--card-bg);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--glass-border);">
+                            <div style="font-size:28px;font-weight:700;color:var(--primary);" id="dashUsers">0</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Total Users</div>
+                        </div>
+                        <div style="background:var(--card-bg);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--glass-border);">
+                            <div style="font-size:28px;font-weight:700;color:var(--success);" id="dashWorkouts">0</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Total Workouts</div>
+                        </div>
+                        <div style="background:var(--card-bg);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--glass-border);">
+                            <div style="font-size:28px;font-weight:700;color:var(--warning);" id="dashPremium">0</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Premium Users</div>
+                        </div>
+                        <div style="background:var(--card-bg);border-radius:12px;padding:16px;text-align:center;border:1px solid var(--glass-border);">
+                            <div style="font-size:28px;font-weight:700;color:var(--secondary);" id="dashNew">0</div>
+                            <div style="font-size:12px;color:var(--text-muted);">New This Week</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass" style="margin-top:16px;padding:24px;">
+                    <h3 style="margin-bottom:12px;">📈 Recent Activity</h3>
+                    <div id="recentActivity">
+                        <p style="color:var(--text-muted);text-align:center;padding:20px 0;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading activity...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: USERS ===== -->
+            <div id="tabUsers" class="admin-section">
+                <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+                    <div class="search-bar" style="flex:1;min-width:200px;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search users..." id="userSearch" oninput="loadUsers()">
+                    </div>
+                    <button class="btn-primary" style="padding:10px 20px;width:auto;max-width:none;" onclick="loadUsers()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Premium</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align:center;padding:40px 0;color:var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading users...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+                    <span style="color:var(--text-muted);font-size:13px;" id="userPagination">Showing 0-0 of 0</span>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn-outline" style="padding:6px 16px;width:auto;max-width:none;font-size:12px;" onclick="prevPage()">Previous</button>
+                        <button class="btn-outline" style="padding:6px 16px;width:auto;max-width:none;font-size:12px;" onclick="nextPage()">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: EXERCISES ===== -->
+            <div id="tabExercises" class="admin-section">
+                <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+                    <button class="btn-primary" style="padding:10px 20px;width:auto;max-width:none;" onclick="showAddExerciseModal()">
+                        <i class="fas fa-plus"></i> Add Exercise
+                    </button>
+                    <button class="btn-outline" style="padding:10px 20px;width:auto;max-width:none;" onclick="loadExercises()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Muscle</th>
+                                <th>Difficulty</th>
+                                <th>Equipment</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exercisesTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;padding:40px 0;color:var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading exercises...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== TAB: BROADCAST ===== -->
+            <div id="tabBroadcast" class="admin-section">
+                <div class="broadcast-area">
+                    <h3 style="margin-bottom:12px;">📢 Send Broadcast</h3>
+                    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:16px;">
+                        Send a message to all users or specific groups.
+                    </p>
+                    <input class="auth-input" type="text" placeholder="Broadcast Title" id="broadcastTitle">
+                    <textarea placeholder="Your message here..." id="broadcastMessage"></textarea>
+                    <select id="broadcastTarget">
+                        <option value="all">All Users</option>
+                        <option value="premium">Premium Users Only</option>
+                        <option value="active">Active Users Only</option>
+                    </select>
+                    <button class="btn-primary" style="width:auto;max-width:none;padding:12px 30px;" onclick="sendBroadcast()">
+                        <i class="fas fa-paper-plane"></i> Send Broadcast
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== TAB: LOGS ===== -->
+            <div id="tabLogs" class="admin-section">
+                <div class="glass" style="padding:20px;">
+                    <h3 style="margin-bottom:12px;">📋 Admin Logs</h3>
+                    <div id="logsContainer">
+                        <p style="color:var(--text-muted);text-align:center;padding:20px 0;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading logs...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    // =============================================
+    // ADMIN JAVASCRIPT
+    // =============================================
+
+    const API_URL = 'https://gym-apk-wicj.onrender.com/api/v1';
+    let authToken = localStorage.getItem('authToken') || null;
+    let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    let currentPage = 1;
+    let totalUsers = 0;
+
+    // ===== CHECK ADMIN ACCESS =====
+    if (!authToken || !currentUser || (currentUser.role !== 'Admin' && currentUser.role !== 'SuperAdmin')) {
+        window.location.href = 'index.html';
+    }
+
+    // ===== TOAST =====
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentNode) toast.remove();
+        }, 3000);
+    }
+
+    // ===== API CALL =====
+    async function apiCall(endpoint, options = {}) {
+        try {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            const response = await fetch(`${API_URL}${endpoint}`, {
+                ...options,
+                headers
+            });
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            showToast('Network error. Please try again.', 'error');
+            return null;
+        }
+    }
+
+    // ===== LOGOUT =====
+    function logout() {
+        authToken = null;
+        currentUser = null;
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
+        showToast('Logged out', 'info');
+        window.location.href = 'index.html';
+    }
+
+    // ===== SWITCH TABS =====
+    function switchTab(tab) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.admin-tab[data-tab="${tab}"]`).classList.add('active');
+        
+        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+
+        if (tab === 'dashboard') loadDashboard();
+        if (tab === 'users') loadUsers();
+        if (tab === 'exercises') loadExercises();
+        if (tab === 'logs') loadLogs();
+    }
+
+    // ===== LOAD DASHBOARD =====
+    async function loadDashboard() {
+        try {
+            const result = await apiCall('/admin/dashboard');
+            if (result && result.success) {
+                const stats = result.stats;
+                document.getElementById('statTotalUsers').textContent = stats.totalUsers || 0;
+                document.getElementById('statActiveUsers').textContent = stats.activeUsers || 0;
+                document.getElementById('statPremiumUsers').textContent = stats.premiumUsers || 0;
+                document.getElementById('statTotalWorkouts').textContent = stats.totalWorkouts || 0;
+                document.getElementById('statCompletedWorkouts').textContent = stats.completedWorkouts || 0;
+                document.getElementById('statNewUsers').textContent = stats.newUsersThisWeek || 0;
+                
+                document.getElementById('dashUsers').textContent = stats.totalUsers || 0;
+                document.getElementById('dashWorkouts').textContent = stats.totalWorkouts || 0;
+                document.getElementById('dashPremium').textContent = stats.premiumUsers || 0;
+                document.getElementById('dashNew').textContent = stats.newUsersThisWeek || 0;
+
+                // Recent activity
+                const activity = document.getElementById('recentActivity');
+                if (result.recentUsers && result.recentUsers.length > 0) {
+                    let html = '';
+                    result.recentUsers.forEach(user => {
+                        html += `
+                            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--glass-border);">
+                                <span>👤 ${user.fullName || user.username}</span>
+                                <span style="color:var(--text-muted);font-size:12px;">Joined ${new Date(user.createdAt).toLocaleDateString()}</span>
+                            </div>
+                        `;
+                    });
+                    activity.innerHTML = html;
+                } else {
+                    activity.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px 0;">No recent activity</p>';
+                }
+            }
+        } catch (error) {
+            console.error('Dashboard error:', error);
+        }
+    }
+
+    // ===== LOAD USERS =====
+    async function loadUsers() {
+        const search = document.getElementById('userSearch').value;
+        try {
+            const result = await apiCall(`/admin/users?page=${currentPage}&limit=20&search=${encodeURIComponent(search)}`);
+            if (result && result.success) {
+                const tbody = document.getElementById('usersTableBody');
+                totalUsers = result.pagination.total;
+                
+                if (result.users.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align:center;padding:40px 0;color:var(--text-muted);">
+                                <i class="fas fa-users"></i> No users found
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                result.users.forEach(user => {
+                    const statusClass = user.isActive ? 'active' : 'inactive';
+                    const statusText = user.isActive ? 'Active' : 'Inactive';
+                    const premiumText = user.isPremium ? '✅' : '❌';
+                    const roleColor = user.role === 'Admin' ? 'var(--warning)' : 'var(--primary)';
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${user.fullName || user.username}</strong></td>
+                            <td style="color:var(--text-secondary);">${user.email || '-'}</td>
+                            <td style="color:${roleColor};">${user.role || 'User'}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>${premiumText}</td>
+                            <td>
+                                <button class="admin-action-btn edit" onclick="editUser('${user._id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="admin-action-btn ${user.isBanned ? 'ban' : 'delete'}" onclick="toggleBanUser('${user._id}', ${user.isBanned})">
+                                    <i class="fas ${user.isBanned ? 'fa-check' : 'fa-ban'}"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+
+                document.getElementById('userPagination').textContent = 
+                    `Showing ${(currentPage-1)*20+1}-${Math.min(currentPage*20, totalUsers)} of ${totalUsers}`;
+            }
+        } catch (error) {
+            console.error('Users error:', error);
+        }
+    }
+
+    // ===== EDIT USER =====
+    function editUser(userId) {
+        const modal = document.getElementById('modalOverlay');
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `
+            <h3>✏️ Edit User</h3>
+            <div style="margin-bottom:12px;">
+                <label style="color:var(--text-secondary);font-size:13px;">Role</label>
+                <select class="auth-input" id="editRole">
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                    <option value="SuperAdmin">SuperAdmin</option>
+                </select>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="color:var(--text-secondary);font-size:13px;">Premium Status</label>
+                <select class="auth-input" id="editPremium">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="color:var(--text-secondary);font-size:13px;">Account Status</label>
+                <select class="auth-input" id="editActive">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="saveUserEdit('${userId}')">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <button class="btn-outline" onclick="closeModal()" style="margin-top:8px;">
+                Cancel
+            </button>
+        `;
+        modal.classList.add('active');
+    }
+
+    async function saveUserEdit(userId) {
+        const role = document.getElementById('editRole').value;
+        const isPremium = document.getElementById('editPremium').value === 'true';
+        const isActive = document.getElementById('editActive').value === 'true';
+
+        const result = await apiCall(`/admin/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ role, isPremium, isActive })
+        });
+
+        if (result && result.success) {
+            showToast('User updated successfully!', 'success');
+            closeModal();
+            loadUsers();
+            loadDashboard();
+        } else {
+            showToast('Failed to update user', 'error');
+        }
+    }
+
+    // ===== TOGGLE BAN USER =====
+    async function toggleBanUser(userId, isBanned) {
+        const action = isBanned ? 'unban' : 'ban';
+        if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+        const result = await apiCall(`/admin/users/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ isBanned: !isBanned })
+        });
+
+        if (result && result.success) {
+            showToast(`User ${action}ned successfully!`, 'success');
+            loadUsers();
+            loadDashboard();
+        } else {
+            showToast('Failed to update user', 'error');
+        }
+    }
+
+    // ===== PAGINATION =====
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            loadUsers();
+        }
+    }
+
+    function nextPage() {
+        if (currentPage * 20 < totalUsers) {
+            currentPage++;
+            loadUsers();
+        }
+    }
+
+    // ===== LOAD EXERCISES =====
+    async function loadExercises() {
+        try {
+            const result = await apiCall('/admin/exercises');
+            if (result && result.success) {
+                const tbody = document.getElementById('exercisesTableBody');
+                if (result.exercises.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align:center;padding:40px 0;color:var(--text-muted);">
+                                <i class="fas fa-dumbbell"></i> No exercises found
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                result.exercises.forEach(ex => {
+                    html += `
+                        <tr>
+                            <td><strong>${ex.name}</strong></td>
+                            <td>${ex.muscle}</td>
+                            <td><span class="status-badge active">${ex.difficulty || 'Beginner'}</span></td>
+                            <td style="color:var(--text-secondary);">${ex.equipment || 'Bodyweight'}</td>
+                            <td>
+                                <button class="admin-action-btn edit" onclick="deleteExercise('${ex._id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Exercises error:', error);
+        }
+    }
+
+    // ===== ADD EXERCISE =====
+    function showAddExerciseModal() {
+        const modal = document.getElementById('modalOverlay');
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `
+            <h3>➕ Add New Exercise</h3>
+            <input class="auth-input" type="text" placeholder="Exercise Name" id="exName">
+            <input class="auth-input" type="text" placeholder="Muscle Group" id="exMuscle">
+            <select class="auth-input" id="exDifficulty">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+                <option value="Professional">Professional</option>
+            </select>
+            <input class="auth-input" type="text" placeholder="Equipment" id="exEquipment">
+            <input class="auth-input" type="text" placeholder="YouTube Video URL" id="exVideo">
+            <input class="auth-input" type="text" placeholder="Category (chest/shoulders/biceps/triceps/legs/back/core)" id="exCategory">
+            <button class="btn-primary" onclick="saveExercise()">
+                <i class="fas fa-plus"></i> Add Exercise
+            </button>
+            <button class="btn-outline" onclick="closeModal()" style="margin-top:8px;">
+                Cancel
+            </button>
+        `;
+        modal.classList.add('active');
+    }
+
+    async function saveExercise() {
+        const name = document.getElementById('exName').value;
+        const muscle = document.getElementById('exMuscle').value;
+        const difficulty = document.getElementById('exDifficulty').value;
+        const equipment = document.getElementById('exEquipment').value;
+        const video = document.getElementById('exVideo').value;
+        const category = document.getElementById('exCategory').value;
+
+        if (!name || !muscle || !category) {
+            showToast('Please fill required fields', 'error');
+            return;
+        }
+
+        const result = await apiCall('/admin/exercises', {
+            method: 'POST',
+            body: JSON.stringify({ name, muscle, difficulty, equipment, video, category })
+        });
+
+        if (result && result.success) {
+            showToast('Exercise added successfully!', 'success');
+            closeModal();
+            loadExercises();
+        } else {
+            showToast('Failed to add exercise', 'error');
+        }
+    }
+
+    // ===== DELETE EXERCISE =====
+    async function deleteExercise(id) {
+        if (!confirm('Delete this exercise?')) return;
+        const result = await apiCall(`/admin/exercises/${id}`, {
+            method: 'DELETE'
+        });
+        if (result && result.success) {
+            showToast('Exercise deleted', 'success');
+            loadExercises();
+        }
+    }
+
+    // ===== SEND BROADCAST =====
+    async function sendBroadcast() {
+        const title = document.getElementById('broadcastTitle').value;
+        const message = document.getElementById('broadcastMessage').value;
+        const target = document.getElementById('broadcastTarget').value;
+
+        if (!title || !message) {
+            showToast('Please enter title and message', 'error');
+            return;
+        }
+
+        const result = await apiCall('/admin/broadcast', {
+            method: 'POST',
+            body: JSON.stringify({ title, message, target })
+        });
+
+        if (result && result.success) {
+            showToast(result.message || 'Broadcast sent!', 'success');
+            document.getElementById('broadcastTitle').value = '';
+            document.getElementById('broadcastMessage').value = '';
+        } else {
+            showToast('Failed to send broadcast', 'error');
+        }
+    }
+
+    // ===== LOAD LOGS =====
+    async function loadLogs() {
+        try {
+            const result = await apiCall('/admin/logs?limit=50');
+            const container = document.getElementById('logsContainer');
+            if (result && result.success && result.logs.length > 0) {
+                let html = '';
+                result.logs.forEach(log => {
+                    html += `
+                        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--glass-border);font-size:13px;">
+                            <span>🔹 ${log.action}</span>
+                            <span style="color:var(--text-secondary);">${log.details ? JSON.stringify(log.details).substring(0, 50) : '-'}</span>
+                            <span style="color:var(--text-muted);font-size:11px;">${new Date(log.createdAt).toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px 0;">No logs found</p>';
+            }
+        } catch (error) {
+            console.error('Logs error:', error);
+        }
+    }
+
+    // ===== MODAL =====
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('adminName').textContent = currentUser?.fullName || 'Admin';
+        loadDashboard();
+        loadUsers();
+        loadExercises();
+        loadLogs();
+    });
+
+    // ===== KEYBOARD SHORTCUTS =====
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    console.log('👑 ProGym Admin Panel Loaded');
+    console.log('📡 API:', API_URL);
+    console.log('👤 Admin:', currentUser?.fullName);
+    </script>
+</body>
+      </html>
