@@ -1,0 +1,163 @@
+<!-- ===== WORKOUTS PAGE ===== -->
+<div id="workoutsScreen" class="screen">
+    <!-- ===== WORKOUT PROGRAMS ===== -->
+    <div id="workoutProgramsSection">
+        <h2 style="margin-bottom:16px;">Workout Programs</h2>
+
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search programs..." id="programSearch" oninput="filterPrograms()">
+        </div>
+
+        <div class="filter-chips">
+            <span class="chip active">All</span>
+            <span class="chip">Strength</span>
+            <span class="chip">Cardio</span>
+            <span class="chip">HIIT</span>
+            <span class="chip">Yoga</span>
+            <span class="chip">Recovery</span>
+        </div>
+
+        <div id="programList">
+            <div class="program-card" onclick="startWorkout()">
+                <div class="program-icon"><i class="fas fa-fire"></i></div>
+                <div class="program-info">
+                    <h4>HIIT Blast</h4>
+                    <p>High intensity interval training</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 30 min</span>
+                        <span><i class="fas fa-calendar"></i> 5 days</span>
+                        <span>🔥 Hard</span>
+                    </div>
+                </div>
+                <i class="fas fa-star" style="color:var(--warning);font-size:14px;"></i>
+            </div>
+
+            <div class="program-card" onclick="startWorkout()">
+                <div class="program-icon" style="background:linear-gradient(135deg,#00C9A7,#6C63FF);"><i class="fas fa-dumbbell"></i></div>
+                <div class="program-info">
+                    <h4>Full Body Strength</h4>
+                    <p>Compound movements for muscle growth</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 60 min</span>
+                        <span><i class="fas fa-calendar"></i> 4 days</span>
+                        <span>💪 Intermediate</span>
+                    </div>
+                </div>
+                <i class="fas fa-star" style="color:var(--text-muted);font-size:14px;"></i>
+            </div>
+
+            <div class="program-card" onclick="startWorkout()">
+                <div class="program-icon" style="background:linear-gradient(135deg,#FF6584,#FFC107);"><i class="fas fa-heart"></i></div>
+                <div class="program-info">
+                    <h4>Cardio Endurance</h4>
+                    <p>Build stamina and burn fat</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 45 min</span>
+                        <span><i class="fas fa-calendar"></i> 6 days</span>
+                        <span>🏃 Beginner</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="program-card" onclick="startWorkout()">
+                <div class="program-icon" style="background:linear-gradient(135deg,#FF6B6B,#FF4757);"><i class="fas fa-bolt"></i></div>
+                <div class="program-info">
+                    <h4>Powerlifting</h4>
+                    <p>Squat, bench, deadlift focus</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 75 min</span>
+                        <span><i class="fas fa-calendar"></i> 3 days</span>
+                        <span>🏆 Advanced</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="program-card" onclick="startWorkout()">
+                <div class="program-icon" style="background:linear-gradient(135deg,#A29BFE,#6C63FF);"><i class="fas fa-yoga"></i></div>
+                <div class="program-info">
+                    <h4>Flexibility & Mobility</h4>
+                    <p>Improve range of motion</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-clock"></i> 30 min</span>
+                        <span><i class="fas fa-calendar"></i> 7 days</span>
+                        <span>🧘 All Levels</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EXERCISE LIBRARY ===== -->
+    <div id="exerciseLibrarySection" style="margin-top:30px;">
+        <h2 style="margin-bottom:16px;">Exercise Library</h2>
+
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search 300+ exercises..." id="exerciseSearch" oninput="filterExercises()">
+        </div>
+
+        <div class="filter-chips" id="exerciseFilters">
+            <span class="chip active" data-filter="all">All</span>
+            <span class="chip" data-filter="chest">Chest</span>
+            <span class="chip" data-filter="shoulders">Shoulders</span>
+            <span class="chip" data-filter="biceps">Biceps</span>
+            <span class="chip" data-filter="triceps">Triceps</span>
+            <span class="chip" data-filter="legs">Legs</span>
+            <span class="chip" data-filter="back">Back</span>
+            <span class="chip" data-filter="core">Core</span>
+        </div>
+
+        <div id="exerciseList">
+            <!-- Exercises will be rendered by JavaScript -->
+        </div>
+    </div>
+
+    <!-- ===== SCHEDULE GENERATOR ===== -->
+    <div id="scheduleSection" style="margin-top:30px;">
+        <h2 style="margin-bottom:16px;">Workout Schedule Generator</h2>
+        <p style="color:var(--text-secondary);margin-bottom:16px;">Select your workout style and we'll generate a weekly plan for you.</p>
+
+        <div class="schedule-options" id="scheduleOptions">
+            <div class="schedule-option selected" onclick="selectSchedule('muscle')" data-schedule="muscle">
+                <i class="fas fa-dumbbell"></i>
+                <h4>Muscle Split</h4>
+                <p>Chest, Back, Legs, Shoulders</p>
+            </div>
+            <div class="schedule-option" onclick="selectSchedule('fullbody')" data-schedule="fullbody">
+                <i class="fas fa-running"></i>
+                <h4>Full Body</h4>
+                <p>3-4 days per week</p>
+            </div>
+            <div class="schedule-option" onclick="selectSchedule('pushpull')" data-schedule="pushpull">
+                <i class="fas fa-arrows-alt-h"></i>
+                <h4>Push/Pull</h4>
+                <p>Push days & Pull days</p>
+            </div>
+            <div class="schedule-option" onclick="selectSchedule('hiit')" data-schedule="hiit">
+                <i class="fas fa-bolt"></i>
+                <h4>HIIT</h4>
+                <p>High intensity intervals</p>
+            </div>
+            <div class="schedule-option" onclick="selectSchedule('yoga')" data-schedule="yoga">
+                <i class="fas fa-yoga"></i>
+                <h4>Yoga & Mobility</h4>
+                <p>Flexibility & recovery</p>
+            </div>
+            <div class="schedule-option" onclick="selectSchedule('strength')" data-schedule="strength">
+                <i class="fas fa-crown"></i>
+                <h4>Strength Training</h4>
+                <p>Powerlifting focus</p>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="generateSchedule()" style="margin:16px 0;">
+            <i class="fas fa-calendar-plus"></i> Generate Schedule
+        </button>
+
+        <div id="scheduleResult" style="display:none;">
+            <h4 style="margin:16px 0 12px;">Your Weekly Schedule</h4>
+            <div id="scheduleDays"></div>
+        </div>
+    </div>
+              </div>
