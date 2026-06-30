@@ -6,10 +6,6 @@
     <title>ProGym - Professional Fitness App</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* =============================================
-           GLOBAL STYLES - ProGym App
-           ============================================= */
-
         * {
             margin: 0;
             padding: 0;
@@ -64,53 +60,14 @@
             visibility: hidden;
         }
 
-        .splash-logo-container {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+        .splash-logo {
+            font-size: 80px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FF6584, #6C63FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             animation: pulse 2s ease-in-out infinite;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .splash-logo-container::before {
-            content: '';
-            position: absolute;
-            inset: 50%;
-            width: 170cqmax;
-            height: 170cqmax;
-            translate: -50% -50%;
-            background: conic-gradient(
-                from 0deg,
-                transparent 0deg 36deg,
-                #3eaff 36deg 48deg,
-                transparent 48deg 126deg,
-                #ff8a6c 126deg 138deg,
-                transparent 138deg 216deg,
-                #3eaff 216deg 228deg,
-                transparent 228deg 306deg,
-                #ff8a6c 306deg 318deg,
-                transparent 318deg 360deg
-            );
-            animation: rotate 8s linear infinite;
-        }
-
-        @keyframes rotate {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .splash-logo-container img {
-            width: 70%;
-            height: 70%;
-            object-fit: contain;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 20px;
         }
 
         .splash-loader {
@@ -121,10 +78,6 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 20px 0;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         .splash-version {
@@ -149,14 +102,29 @@
             animation: progress 2s ease-in-out forwards;
         }
 
-        @keyframes progress {
-            0% { width: 0%; }
-            100% { width: 100%; }
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes progress {
+            0% {
+                width: 0%;
+            }
+            100% {
+                width: 100%;
+            }
         }
 
         /* ===== APP CONTAINER ===== */
@@ -174,7 +142,7 @@
             flex-direction: column;
         }
 
-        /* ===== PAGES ===== */
+        /* ===== SCREENS ===== */
         .screen {
             display: none;
             flex: 1;
@@ -186,12 +154,6 @@
 
         .screen.active {
             display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
         }
 
         .screen::-webkit-scrollbar {
@@ -203,7 +165,7 @@
             border-radius: 4px;
         }
 
-        /* ===== BOTTOM NAVIGATION ===== */
+        /* ===== BOTTOM NAV ===== */
         #bottomNav {
             display: none;
             position: fixed;
@@ -308,14 +270,13 @@
 
         /* ===== WELCOME SCREEN ===== */
         #welcomeScreen {
-            background: linear-gradient(180deg, rgba(10, 10, 26, 0.7) 0%, rgba(26, 26, 62, 0.9) 100%);
+            background: linear-gradient(180deg, #0A0A1A 0%, #1A1A3E 100%);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px 30px;
             min-height: 100vh;
-            position: relative;
         }
 
         #welcomeScreen.active {
@@ -382,7 +343,6 @@
             margin-bottom: 6px;
         }
 
-        /* ===== BUTTONS ===== */
         .btn-primary {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
@@ -400,10 +360,6 @@
 
         .btn-primary:active {
             transform: scale(0.96);
-        }
-
-        .btn-primary i {
-            margin-right: 8px;
         }
 
         .btn-outline {
@@ -430,7 +386,6 @@
             min-height: 100vh;
             display: none;
             flex-direction: column;
-            background: linear-gradient(180deg, #0A0A1A 0%, #1A1A3E 100%);
         }
 
         .auth-screen.active {
@@ -471,17 +426,6 @@
 
         .auth-input::placeholder {
             color: var(--text-muted);
-        }
-
-        .auth-input select {
-            background: transparent;
-            color: white;
-            border: none;
-            width: 100%;
-        }
-
-        .auth-input option {
-            background: var(--dark);
         }
 
         .auth-divider {
@@ -534,20 +478,20 @@
             cursor: pointer;
         }
 
-        /* ===== PROFILE ===== */
+        /* ===== PROFILE SETUP ===== */
         .profile-photo-container {
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             background: var(--card-bg);
             border: 3px solid var(--primary);
+            margin: 0 auto 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             overflow: hidden;
             position: relative;
-            flex-shrink: 0;
         }
 
         .profile-photo-container img {
@@ -557,7 +501,7 @@
         }
 
         .profile-photo-container .placeholder {
-            font-size: 32px;
+            font-size: 48px;
             color: var(--text-muted);
         }
 
@@ -569,14 +513,26 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: 24px;
         }
 
         .profile-photo-container:hover .camera-overlay {
             display: flex;
         }
 
-        /* ===== STATS GRID ===== */
+        /* ===== HOME DASHBOARD ===== */
+        .greeting {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .greeting-sub {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -610,7 +566,6 @@
             margin-bottom: 4px;
         }
 
-        /* ===== QUICK ACTIONS ===== */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -644,7 +599,29 @@
             color: var(--text-secondary);
         }
 
-        /* ===== MOTIVATION CARD ===== */
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) var(--progress, 0%), var(--card-bg) var(--progress, 0%));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .progress-ring .inner {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .motivation-card {
             background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(255, 101, 132, 0.2));
             border: 1px solid rgba(108, 99, 255, 0.2);
@@ -666,7 +643,7 @@
             color: var(--text-muted);
         }
 
-        /* ===== PROGRAM CARDS ===== */
+        /* ===== WORKOUT PROGRAMS ===== */
         .program-card {
             background: var(--card-bg);
             border: 1px solid var(--glass-border);
@@ -732,7 +709,7 @@
             color: var(--primary);
         }
 
-        /* ===== SEARCH BAR ===== */
+        /* ===== EXERCISE LIBRARY ===== */
         .search-bar {
             background: var(--card-bg);
             border: 1px solid var(--glass-border);
@@ -764,7 +741,6 @@
             color: var(--text-muted);
         }
 
-        /* ===== FILTER CHIPS ===== */
         .filter-chips {
             display: flex;
             gap: 8px;
@@ -795,7 +771,6 @@
             color: white;
         }
 
-        /* ===== EXERCISE CARDS ===== */
         .exercise-card {
             background: var(--card-bg);
             border: 1px solid var(--glass-border);
@@ -1019,93 +994,7 @@
             border-radius: 4px;
         }
 
-        /* ===== SCHEDULE OPTIONS ===== */
-        .schedule-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 16px 0;
-        }
-
-        .schedule-option {
-            background: var(--card-bg);
-            border: 2px solid var(--glass-border);
-            border-radius: 14px;
-            padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .schedule-option:active {
-            transform: scale(0.95);
-        }
-
-        .schedule-option.selected {
-            border-color: var(--primary);
-            background: rgba(108, 99, 255, 0.1);
-        }
-
-        .schedule-option i {
-            font-size: 28px;
-            color: var(--primary);
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .schedule-option h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .schedule-option p {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        /* ===== SCHEDULE DAYS ===== */
-        .schedule-day {
-            background: var(--card-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .schedule-day .day-name {
-            font-weight: 600;
-        }
-
-        .schedule-day .day-workout {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .schedule-day .day-status {
-            font-size: 12px;
-            padding: 2px 12px;
-            border-radius: 20px;
-        }
-
-        .schedule-day .day-status.completed {
-            background: rgba(0, 201, 167, 0.2);
-            color: var(--success);
-        }
-
-        .schedule-day .day-status.rest {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-        }
-
-        .schedule-day .day-status.upcoming {
-            background: rgba(108, 99, 255, 0.2);
-            color: var(--primary);
-        }
-
-        /* ===== NUTRITION RING ===== */
+        /* ===== NUTRITION ===== */
         .nutrition-ring {
             width: 100px;
             height: 100px;
@@ -1135,7 +1024,6 @@
             color: var(--text-muted);
         }
 
-        /* ===== MACRO GRID ===== */
         .macro-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1167,7 +1055,7 @@
             margin-top: 6px;
         }
 
-        /* ===== CHART ===== */
+        /* ===== PROGRESS ===== */
         .chart-container {
             background: var(--card-bg);
             border: 1px solid var(--glass-border);
@@ -1242,6 +1130,74 @@
             color: var(--text-muted);
         }
 
+        /* ===== COMMUNITY ===== */
+        .post-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .post-card .post-header {
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-card .post-header .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .post-card .post-header .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .post-card .post-header .time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .post-card .post-image {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--darker);
+            object-fit: cover;
+        }
+
+        .post-card .post-actions {
+            padding: 12px 14px;
+            display: flex;
+            gap: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .post-card .post-actions button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        .post-card .post-actions button:active {
+            color: var(--primary);
+        }
+
         /* ===== SETTINGS ===== */
         .settings-group {
             margin-bottom: 20px;
@@ -1289,7 +1245,7 @@
             font-size: 14px;
         }
 
-        /* ===== TOGGLE SWITCH ===== */
+        /* ===== SWITCH ===== */
         .toggle {
             width: 48px;
             height: 28px;
@@ -1349,8 +1305,14 @@
         }
 
         @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .modal-handle {
@@ -1392,18 +1354,31 @@
         }
 
         @keyframes slideDown {
-            from { transform: translateY(-40px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .toast i {
             font-size: 20px;
         }
 
-        .toast.success i { color: var(--success); }
-        .toast.error i { color: var(--danger); }
-        .toast.warning i { color: var(--warning); }
-        .toast.info i { color: var(--primary); }
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .toast.error i {
+            color: var(--danger);
+        }
+
+        .toast.warning i {
+            color: var(--warning);
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (min-width: 768px) {
@@ -1416,44 +1391,98 @@
         }
 
         @media (max-width: 380px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .quick-actions { grid-template-columns: repeat(2, 1fr); }
-            .achievement-grid { grid-template-columns: repeat(2, 1fr); }
-            .schedule-options { grid-template-columns: 1fr 1fr; }
-            .welcome-features { grid-template-columns: 1fr 1fr; }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .achievement-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .welcome-features {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
-        /* ===== SCROLLBAR ===== */
+        /* ===== SCROLLBAR STYLING ===== */
         .screen {
             scrollbar-width: thin;
         }
 
+        /* ===== LOADING SKELETON ===== */
+        .skeleton {
+            background: linear-gradient(90deg, var(--card-bg) 25%, rgba(255, 255, 255, 0.05) 50%, var(--card-bg) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
         /* ===== UTILITY ===== */
-        .mt-8 { margin-top: 8px; }
-        .mt-16 { margin-top: 16px; }
-        .mt-24 { margin-top: 24px; }
-        .mb-8 { margin-bottom: 8px; }
-        .mb-16 { margin-bottom: 16px; }
-        .gap-8 { gap: 8px; }
-        .gap-12 { gap: 12px; }
-        .flex { display: flex; }
-        .flex-col { flex-direction: column; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .text-center { text-align: center; }
-        .text-muted { color: var(--text-muted); }
-        .text-secondary { color: var(--text-secondary); }
-        .text-primary { color: var(--primary); }
-        .w-full { width: 100%; }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mt-24 {
+            margin-top: 24px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .mb-16 {
+            margin-bottom: 16px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .gap-12 {
+            gap: 12px;
+        }
+        .flex {
+            display: flex;
+        }
+        .flex-col {
+            flex-direction: column;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        .text-primary {
+            color: var(--primary);
+        }
+        .w-full {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 
     <!-- ===== SPLASH SCREEN ===== -->
     <div id="splashScreen">
-        <div class="splash-logo-container">
-            <img src="https://via.placeholder.com/100x100/6C63FF/FFFFFF?text=💪" alt="ProGym Logo">
-        </div>
+        <div class="splash-logo">💪</div>
         <div style="font-size:28px;font-weight:700;color:white;margin-bottom:4px;">ProGym</div>
         <div style="color:rgba(255,255,255,0.6);font-size:14px;margin-bottom:20px;">Professional Fitness App</div>
         <div class="splash-loader"></div>
@@ -1474,74 +1503,1584 @@
         </div>
     </div>
 
-    <!-- ===== APP CONTAINER ===== -->
+    <!-- ===== APP ===== -->
     <div id="app">
-        <div id="pageContainer"></div>
-    </div>
 
-    <!-- ===== WORKOUT PLAYER OVERLAY ===== -->
-    <div id="playerOverlay">
-        <div class="player-header">
-            <button onclick="closePlayer()"><i class="fas fa-chevron-left"></i></button>
-            <h3 id="playerTitle">Upper Body Power</h3>
-            <button onclick="closePlayer()"><i class="fas fa-times"></i></button>
-        </div>
-
-        <div class="player-exercise">
-            <div class="video-container" id="playerVideoContainer">
-                <div class="placeholder">
-                    <i class="fas fa-play-circle" style="font-size:60px;color:var(--primary);"></i>
+        <!-- ===== WELCOME SCREEN ===== -->
+        <div id="welcomeScreen" class="active">
+            <div class="welcome-badge">🔥 PREMIUM FITNESS</div>
+            <div class="welcome-title">
+                Transform Your<br><span>Body & Mind</span>
+            </div>
+            <div class="welcome-subtitle">
+                Professional workout tracking, AI-powered coaching, and nutrition guidance all in one place.
+            </div>
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <i class="fas fa-dumbbell"></i>
+                    300+ Exercises
+                </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-robot"></i>
+                    AI Form Coach
+                </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-chart-line"></i>
+                    Track Progress
+                </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-utensils"></i>
+                    Meal Plans
                 </div>
             </div>
-            <div class="timer" id="playerTimer">0:45</div>
-            <div class="details">
-                <h4 id="playerExerciseName">Bench Press</h4>
-                <p id="playerExerciseDetail">Set 1 of 4 • 12 reps</p>
-            </div>
-            <div class="player-progress">
-                <div class="bar" id="playerProgressBar" style="width:25%;"></div>
-            </div>
-        </div>
-
-        <div class="player-controls">
-            <button class="ctrl-btn" onclick="previousExercise()"><i class="fas fa-step-backward"></i></button>
-            <button class="play-btn" onclick="togglePlayerPlay()"><i class="fas fa-pause" id="playerPlayIcon"></i></button>
-            <button class="ctrl-btn" onclick="nextExercise()"><i class="fas fa-step-forward"></i></button>
-        </div>
-
-        <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;padding-bottom:20px;">
-            <button class="btn-outline" style="padding:8px 20px;font-size:12px;width:auto;max-width:none;border-color:var(--success);color:var(--success);" onclick="completeWorkout()">
-                <i class="fas fa-check"></i> Finish
+            <button class="btn-primary" onclick="showScreen('authScreen')">
+                <i class="fas fa-rocket"></i> Get Started
             </button>
-            <button class="btn-outline" style="padding:8px 20px;font-size:12px;width:auto;max-width:none;" onclick="showToast('Rest timer started', 'info')">
-                <i class="fas fa-clock"></i> Rest
+            <button class="btn-outline" onclick="showGuestMode()">
+                <i class="fas fa-user"></i> Continue as Guest
             </button>
         </div>
-    </div>
 
-    <!-- ===== BOTTOM NAVIGATION ===== -->
-    <div id="bottomNav">
-        <button class="nav-item active" data-page="home" onclick="loadPage('home')">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </button>
-        <button class="nav-item" data-page="workouts" onclick="loadPage('workouts')">
-            <i class="fas fa-dumbbell"></i>
-            <span>Workouts</span>
-        </button>
-        <button class="nav-center" onclick="startWorkout()">
-            <i class="fas fa-play"></i>
-        </button>
-        <button class="nav-item" data-page="schedule" onclick="loadPage('schedule')">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Schedule</span>
-        </button>
-        <button class="nav-item" data-page="profile" onclick="loadPage('profile')">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-        </button>
-    </div>
+        <!-- ===== AUTH SCREEN ===== -->
+        <div id="authScreen" class="auth-screen">
+            <div class="auth-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to continue your fitness journey</p>
+            </div>
 
-        <script src="app.js"></script>
+            <input class="auth-input" type="email" placeholder="Email address" id="emailInput">
+            <input class="auth-input" type="password" placeholder="Password" id="passwordInput">
+
+            <button class="btn-primary" onclick="handleLogin()" style="margin-top:8px;">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+
+            <div style="text-align:right;margin:8px 0 16px;">
+                <span class="auth-link" onclick="showToast('Reset link sent to your email!', 'success')">Forgot Password?</span>
+            </div>
+
+            <div class="auth-divider">OR CONTINUE WITH</div>
+
+            <button class="social-btn" onclick="showToast('Telegram login coming soon!', 'warning')">
+                <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram
+            </button>
+            <button class="social-btn" onclick="showToast('Google login coming soon!', 'warning')">
+                <i class="fab fa-google" style="color:#EA4335;"></i> Google
+            </button>
+
+            <div style="text-align:center;margin-top:16px;color:var(--text-secondary);font-size:14px;">
+                Don't have an account? <span class="auth-link" onclick="showScreen('profileSetupScreen')">Sign Up</span>
+            </div>
+        </div>
+
+        <!-- ===== PROFILE SETUP ===== -->
+        <div id="profileSetupScreen" class="auth-screen">
+            <div class="auth-header">
+                <h2>Create Profile</h2>
+                <p>Tell us about yourself</p>
+            </div>
+
+            <div class="profile-photo-container" onclick="showToast('Photo picker would open here', 'warning')">
+                <div class="placeholder"><i class="fas fa-user"></i></div>
+                <div class="camera-overlay"><i class="fas fa-camera"></i></div>
+            </div>
+
+            <input class="auth-input" type="text" placeholder="Full Name" value="John Doe">
+            <input class="auth-input" type="text" placeholder="Username" value="johndoe_fit">
+            <select class="auth-input">
+                <option>Male</option>
+                <option>Female</option>
+                <option>Non-binary</option>
+            </select>
+            <input class="auth-input" type="number" placeholder="Age" value="25">
+            <input class="auth-input" type="number" placeholder="Height (cm)" value="175">
+            <input class="auth-input" type="number" placeholder="Weight (kg)" value="72">
+
+            <select class="auth-input">
+                <option>Beginner</option>
+                <option selected>Intermediate</option>
+                <option>Advanced</option>
+                <option>Professional</option>
+            </select>
+
+            <select class="auth-input">
+                <option>Lose Weight</option>
+                <option selected>Build Muscle</option>
+                <option>Maintain Fitness</option>
+                <option>Increase Strength</option>
+            </select>
+
+            <button class="btn-primary" onclick="completeProfile()">
+                <i class="fas fa-check"></i> Complete Profile
+            </button>
+        </div>
+
+        <!-- ===== HOME SCREEN ===== -->
+        <div id="homeScreen" class="screen">
+            <div class="greeting">Good Morning 👋</div>
+            <div class="greeting-sub">Let's crush your workout today!</div>
+
+            <div class="motivation-card">
+                <blockquote>"The only bad workout is the one that didn't happen."</blockquote>
+                <cite>— Fitness Wisdom</cite>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="icon"><i class="fas fa-fire"></i></span>
+                    <div class="number">1,284</div>
+                    <div class="label">Calories</div>
+                </div>
+                <div class="stat-item">
+                    <span class="icon"><i class="fas fa-dumbbell"></i></span>
+                    <div class="number">12</div>
+                    <div class="label">Workouts</div>
+                </div>
+                <div class="stat-item">
+                    <span class="icon"><i class="fas fa-tint"></i></span>
+                    <div class="number">2.4L</div>
+                    <div class="label">Water</div>
+                </div>
+                <div class="stat-item">
+                    <span class="icon"><i class="fas fa-clock"></i></span>
+                    <div class="number">45m</div>
+                    <div class="label">Duration</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin:12px 0;">
+                <div class="glass" style="flex:1;text-align:center;padding:12px;">
+                    <div style="font-size:12px;color:var(--text-muted);">Protein</div>
+                    <div style="font-size:20px;font-weight:700;color:var(--success);">156g</div>
+                    <div style="height:4px;background:var(--card-bg);border-radius:4px;margin-top:6px;overflow:hidden;">
+                        <div style="width:78%;height:100%;background:var(--success);border-radius:4px;"></div>
+                    </div>
+                </div>
+                <div class="glass" style="flex:1;text-align:center;padding:12px;">
+                    <div style="font-size:12px;color:var(--text-muted);">Progress</div>
+                    <div style="font-size:20px;font-weight:700;color:var(--primary);">68%</div>
+                    <div style="height:4px;background:var(--card-bg);border-radius:4px;margin-top:6px;overflow:hidden;">
+                        <div style="width:68%;height:100%;background:var(--primary);border-radius:4px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="quick-action" onclick="startWorkout()">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Start Workout</span>
+                </div>
+                <div class="quick-action" onclick="showScreen('workoutProgramsScreen')">
+                    <i class="fas fa-list-ul"></i>
+                    <span>Programs</span>
+                </div>
+                <div class="quick-action" onclick="showScreen('nutritionScreen')">
+                    <i class="fas fa-utensils"></i>
+                    <span>Nutrition</span>
+                </div>
+                <div class="quick-action" onclick="showScreen('progressScreen')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Progress</span>
+                </div>
+            </div>
+
+            <h4 style="margin:16px 0 12px;">Today's Workout</h4>
+            <div class="program-card" onclick="startWorkout()">
+                <div class="program-icon"><i class="fas fa-bolt"></i></div>
+                <div class="program-info">
+                    <h4>Upper Body Power</h4>
+                    <p>8 exercises • 45 min</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-fire"></i> 420 cal</span>
+                        <span><i class="fas fa-clock"></i> 45 min</span>
+                    </div>
+                </div>
+                <span class="program-badge">Today</span>
+            </div>
+
+            <div class="program-card" onclick="showScreen('workoutProgramsScreen')">
+                <div class="program-icon" style="background:linear-gradient(135deg,#FF6584,#FFC107);"><i class="fas fa-heart"></i></div>
+                <div class="program-info">
+                    <h4>Core Crusher</h4>
+                    <p>6 exercises • 30 min</p>
+                    <div class="program-meta">
+                        <span><i class="fas fa-fire"></i> 280 cal</span>
+                        <span><i class="fas fa-clock"></i> 30 min</span>
+                    </div>
+                </div>
+                <span class="program-badge">Upcoming</span>
+            </div>
+        </div>
+
+        <!-- ===== WORKOUT PROGRAMS ===== -->
+        <div id="workoutProgramsScreen" class="screen">
+            <h2 style="margin-bottom:16px;">Workout Programs</h2>
+
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search programs..." id="programSearch" oninput="filterPrograms()">
+            </div>
+
+            <div class="filter-chips">
+                <span class="chip active">All</span>
+                <span class="chip">Strength</span>
+                <span class="chip">Cardio</span>
+                <span class="chip">HIIT</span>
+                <span class="chip">Yoga</span>
+                <span class="chip">Recovery</span>
+            </div>
+
+            <div id="programList">
+                <div class="program-card" onclick="startWorkout()">
+                    <div class="program-icon"><i class="fas fa-fire"></i></div>
+                    <div class="program-info">
+                        <h4>HIIT Blast</h4>
+                        <p>High intensity interval training</p>
+                        <div class="program-meta">
+                            <span><i class="fas fa-clock"></i> 30 min</span>
+                            <span><i class="fas fa-calendar"></i> 5 days</span>
+                            <span>🔥 Hard</span>
+                        </div>
+                    </div>
+                    <i class="fas fa-star" style="color:var(--warning);font-size:14px;"></i>
+                </div>
+
+                <div class="program-card" onclick="startWorkout()">
+                    <div class="program-icon" style="background:linear-gradient(135deg,#00C9A7,#6C63FF);"><i class="fas fa-dumbbell"></i></div>
+                    <div class="program-info">
+                        <h4>Full Body Strength</h4>
+                        <p>Compound movements for muscle growth</p>
+                        <div class="program-meta">
+                            <span><i class="fas fa-clock"></i> 60 min</span>
+                            <span><i class="fas fa-calendar"></i> 4 days</span>
+                            <span>💪 Intermediate</span>
+                        </div>
+                    </div>
+                    <i class="fas fa-star" style="color:var(--text-muted);font-size:14px;"></i>
+                </div>
+
+                <div class="program-card" onclick="startWorkout()">
+                    <div class="program-icon" style="background:linear-gradient(135deg,#FF6584,#FFC107);"><i class="fas fa-heart"></i></div>
+                    <div class="program-info">
+                        <h4>Cardio Endurance</h4>
+                        <p>Build stamina and burn fat</p>
+                        <div class="program-meta">
+                            <span><i class="fas fa-clock"></i> 45 min</span>
+                            <span><i class="fas fa-calendar"></i> 6 days</span>
+                            <span>🏃 Beginner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== EXERCISE LIBRARY ===== -->
+        <div id="exerciseLibraryScreen" class="screen">
+            <h2 style="margin-bottom:16px;">Exercise Library</h2>
+
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search 300+ exercises..." id="exerciseSearch" oninput="filterExercises()">
+            </div>
+
+            <div class="filter-chips" id="exerciseFilters">
+                <span class="chip active" data-filter="all">All</span>
+                <span class="chip" data-filter="chest">Chest</span>
+                <span class="chip" data-filter="shoulders">Shoulders</span>
+                <span class="chip" data-filter="biceps">Biceps</span>
+                <span class="chip" data-filter="triceps">Triceps</span>
+                <span class="chip" data-filter="legs">Legs</span>
+                <span class="chip" data-filter="back">Back</span>
+                <span class="chip" data-filter="core">Core</span>
+            </div>
+
+            <div id="exerciseList">
+                <!-- Exercises will be rendered by JavaScript -->
+            </div>
+        </div>
+
+        <!-- ===== NUTRITION SCREEN ===== -->
+        <div id="nutritionScreen" class="screen">
+            <h2 style="margin-bottom:16px;">Nutrition</h2>
+
+            <div class="glass" style="text-align:center;padding:24px;margin-bottom:16px;">
+                <div class="nutrition-ring">
+                    <svg width="100" height="100" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--card-bg)" stroke-width="8"/>
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="8"
+                            stroke-dasharray="263.89" stroke-dashoffset="52.78" stroke-linecap="round"/>
+                    </svg>
+                    <div class="center">
+                        <div class="value">1,840</div>
+                        <div class="label">/ 2,200 kcal</div>
+                    </div>
+                </div>
+                <div style="font-size:14px;color:var(--text-secondary);">Daily Calorie Goal</div>
+            </div>
+
+            <div class="macro-grid">
+                <div class="macro-item">
+                    <div class="value" style="color:#FF6584;">156g</div>
+                    <div class="label">Protein</div>
+                    <div class="color-bar" style="background:#FF6584;width:78%;"></div>
+                </div>
+                <div class="macro-item">
+                    <div class="value" style="color:#FFC107;">220g</div>
+                    <div class="label">Carbs</div>
+                    <div class="color-bar" style="background:#FFC107;width:73%;"></div>
+                </div>
+                <div class="macro-item">
+                    <div class="value" style="color:#6C63FF;">65g</div>
+                    <div class="label">Fat</div>
+                    <div class="color-bar" style="background:#6C63FF;width:65%;"></div>
+                </div>
+                <div class="macro-item">
+                    <div class="value" style="color:#00C9A7;">32g</div>
+                    <div class="label">Fiber</div>
+                    <div class="color-bar" style="background:#00C9A7;width:64%;"></div>
+                </div>
+            </div>
+
+            <h4 style="margin:16px 0 12px;">Today's Meals</h4>
+
+            <div class="glass" style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <span style="font-weight:600;">🥣 Breakfast</span>
+                        <div style="font-size:12px;color:var(--text-muted);">Oatmeal with berries</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:600;">420 kcal</div>
+                        <div style="font-size:11px;color:var(--text-muted);">18g protein</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass" style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <span style="font-weight:600;">🥗 Lunch</span>
+                        <div style="font-size:12px;color:var(--text-muted);">Grilled chicken salad</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:600;">580 kcal</div>
+                        <div style="font-size:11px;color:var(--text-muted);">42g protein</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass" style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <span style="font-weight:600;">🍣 Dinner</span>
+                        <div style="font-size:12px;color:var(--text-muted);">Salmon with quinoa</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:600;">650 kcal</div>
+                        <div style="font-size:11px;color:var(--text-muted);">38g protein</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="showToast('Meal plan generated!', 'success')" style="margin-top:8px;">
+                <i class="fas fa-plus"></i> Generate Meal Plan
+            </button>
+        </div>
+
+        <!-- ===== PROGRESS SCREEN ===== -->
+        <div id="progressScreen" class="screen">
+            <h2 style="margin-bottom:16px;">Progress Dashboard</h2>
+
+            <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+                <div class="stat-item">
+                    <div class="number" style="color:var(--primary);">72.4</div>
+                    <div class="label">Weight (kg)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" style="color:var(--success);">22.8</div>
+                    <div class="label">BMI</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number" style="color:var(--warning);">15.2%</div>
+                    <div class="label">Body Fat</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Weight Progress <span style="font-weight:400;color:var(--text-muted);font-size:12px;">Last 8 weeks</span></div>
+                <div class="chart-bars">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:65%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                        <div class="label">Jan</div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:70%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                        <div class="label">Feb</div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:62%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                        <div class="label">Mar</div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:75%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                        <div class="label">Apr</div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:55%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                        <div class="label">May</div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:80%;background:linear-gradient(180deg,#FF6584,#FFC107);"></div>
+                        <div class="label">Jun</div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:68%;background:linear-gradient(180deg,#FF6584,#FFC107);"></div>
+                        <div class="label">Jul</div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div class="chart-bar" style="height:72%;background:linear-gradient(180deg,#00C9A7,#6C63FF);"></div>
+                        <div class="label">Aug</div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 style="margin:16px 0 12px;">Achievements</h4>
+            <div class="achievement-grid">
+                <div class="achievement-item">
+                    <div class="icon">🏆</div>
+                    <div class="name">First Workout</div>
+                    <div class="desc">Completed 1 session</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="icon">🔥</div>
+                    <div class="name">5 Day Streak</div>
+                    <div class="desc">5 consecutive days</div>
+                </div>
+                <div class="achievement-item locked">
+                    <div class="icon">💪</div>
+                    <div class="name">100 Workouts</div>
+                    <div class="desc">86/100 completed</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="icon">⭐</div>
+                    <div class="name">Level 5</div>
+                    <div class="desc">1,250 XP earned</div>
+                </div>
+                <div class="achievement-item locked">
+                    <div class="icon">👑</div>
+                    <div class="name">Master</div>
+                    <div class="desc">Reach level 10</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="icon">📊</div>
+                    <div class="name">Data Tracker</div>
+                    <div class="desc">Logged 30 days</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== COMMUNITY SCREEN ===== -->
+        <div id="communityScreen" class="screen">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2>Community</h2>
+                <button class="btn-primary" style="padding:8px 16px;font-size:12px;width:auto;max-width:none;" onclick="showToast('Post created!', 'success')">
+                    <i class="fas fa-plus"></i> Share
+                </button>
+            </div>
+
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="avatar">JD</div>
+                    <div>
+                        <div class="name">John Doe</div>
+                        <div class="time">2 hours ago</div>
+                    </div>
+                    <span style="margin-left:auto;font-size:12px;color:var(--text-muted);"><i class="fas fa-medal" style="color:var(--warning);"></i> Level 5</span>
+                </div>
+                <div style="padding:0 14px 12px;">
+                    <p style="font-size:14px;line-height:1.6;">Just crushed my PR on bench press! 225lbs for 3 reps 💪 Feeling unstoppable! #fitness #progress</p>
+                </div>
+                <div style="width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:48px;color:rgba(255,255,255,0.2);">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <div class="post-actions">
+                    <button><i class="fas fa-heart"></i> 42</button>
+                    <button><i class="fas fa-comment"></i> 12</button>
+                    <button><i class="fas fa-share"></i> Share</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS SCREEN ===== -->
+        <div id="settingsScreen" class="screen">
+            <h2 style="margin-bottom:16px;">Settings</h2>
+
+            <div class="settings-group">
+                <div class="title">Account</div>
+                <div class="settings-item" onclick="showScreen('profileSetupScreen')">
+                    <div class="left"><i class="fas fa-user"></i><span>Edit Profile</span></div>
+                    <div class="right"><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="settings-item">
+                    <div class="left"><i class="fas fa-crown"></i><span>Premium Subscription</span></div>
+                    <div class="right" style="color:var(--warning);">Upgrade</div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="title">Preferences</div>
+                <div class="settings-item">
+                    <div class="left"><i class="fas fa-moon"></i><span>Dark Mode</span></div>
+                    <div class="toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+                </div>
+                <div class="settings-item">
+                    <div class="left"><i class="fas fa-globe"></i><span>Language</span></div>
+                    <div class="right">English <i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="settings-item">
+                    <div class="left"><i class="fas fa-weight"></i><span>Units</span></div>
+                    <div class="right">kg / cm <i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="title">Privacy</div>
+                <div class="settings-item">
+                    <div class="left"><i class="fas fa-eye"></i><span>Profile Visibility</span></div>
+                    <div class="right">Public <i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="settings-item">
+                    <div class="left"><i class="fas fa-lock"></i><span>Private Account</span></div>
+                    <div class="toggle" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="title">Support</div>
+                <div class="settings-item" onclick="showToast('Help center opening...', 'info')">
+                    <div class="left"><i class="fas fa-question-circle"></i><span>Help Center</span></div>
+                    <div class="right"><i class="fas fa-chevron-right"></i></div>
+                </div>
+                <div class="settings-item" onclick="showToast('Feedback form opened', 'success')">
+                    <div class="left"><i class="fas fa-comment-dots"></i><span>Send Feedback</span></div>
+                    <div class="right"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+
+            <button class="btn-outline" onclick="logout()" style="margin-top:16px;border-color:var(--danger);color:var(--danger);">
+                <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+
+            <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--text-muted);">
+                ProGym v3.0.1 • Made with 💪
+            </div>
+        </div>
+
+        <!-- ===== WORKOUT PLAYER OVERLAY ===== -->
+        <div id="playerOverlay">
+            <div class="player-header">
+                <button onclick="closePlayer()"><i class="fas fa-chevron-left"></i></button>
+                <h3>Upper Body Power</h3>
+                <button onclick="closePlayer()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="player-exercise">
+                <div class="video-container">
+                    <div class="placeholder">
+                        <i class="fas fa-play-circle" style="font-size:60px;color:var(--primary);"></i>
+                    </div>
+                </div>
+                <div class="timer">0:45</div>
+                <div class="details">
+                    <h4 id="playerExerciseName">Bench Press</h4>
+                    <p id="playerExerciseDetail">Set 1 of 4 • 12 reps</p>
+                </div>
+                <div class="player-progress">
+                    <div class="bar" style="width:25%;"></div>
+                </div>
+            </div>
+
+            <div class="player-controls">
+                <button class="ctrl-btn" onclick="previousExercise()"><i class="fas fa-step-backward"></i></button>
+                <button class="play-btn" onclick="togglePlayerPlay()"><i class="fas fa-pause" id="playerPlayIcon"></i></button>
+                <button class="ctrl-btn" onclick="nextExercise()"><i class="fas fa-step-forward"></i></button>
+            </div>
+
+            <div style="display:flex;justify-content:center;gap:16px;margin-top:8px;">
+                <button class="btn-outline" style="padding:8px 20px;font-size:12px;width:auto;max-width:none;border-color:var(--success);color:var(--success);" onclick="completeWorkout()">
+                    <i class="fas fa-check"></i> Finish
+                </button>
+                <button class="btn-outline" style="padding:8px 20px;font-size:12px;width:auto;max-width:none;" onclick="showToast('Rest timer started', 'info')">
+                    <i class="fas fa-clock"></i> Rest
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== BOTTOM NAVIGATION ===== -->
+        <div id="bottomNav">
+            <button class="nav-item active" data-screen="homeScreen" onclick="navigateTo('homeScreen')">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-screen="exerciseLibraryScreen" onclick="navigateTo('exerciseLibraryScreen')">
+                <i class="fas fa-dumbbell"></i>
+                <span>Exercises</span>
+            </button>
+            <button class="nav-center" onclick="startWorkout()">
+                <i class="fas fa-play"></i>
+            </button>
+            <button class="nav-item" data-screen="nutritionScreen" onclick="navigateTo('nutritionScreen')">
+                <i class="fas fa-utensils"></i>
+                <span>Nutrition</span>
+                <span class="badge">3</span>
+            </button>
+            <button class="nav-item" data-screen="settingsScreen" onclick="navigateTo('settingsScreen')">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+
+    </div>
+<script>
+    // =============================================
+// COMPLETE EXERCISE DATABASE - 700+ EXERCISES
+// =============================================
+
+const exerciseDatabase = {
+    chest: [
+        { id: 1, name: "Barbell Bench Press", video: "https://www.youtube.com/embed/4Y2ZdHCOXok", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 2, name: "Dumbbell Bench Press", video: "https://www.youtube.com/embed/VmB1G1K7v94", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 3, name: "Incline Bench Press", video: "https://www.youtube.com/embed/SrqOu55lrYU", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 4, name: "Decline Bench Press", video: "https://www.youtube.com/embed/Lfy9UKJq9C4", muscle: "Chest", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 5, name: "Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 6, name: "Wide Push-ups", video: "https://www.youtube.com/embed/hXHlI4B-AI8", muscle: "Chest", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 7, name: "Diamond Push-ups", video: "https://www.youtube.com/embed/J0DnG1_S92I", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 8, name: "Chest Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Chest", difficulty: "Intermediate", equipment: "Parallel Bars" },
+        { id: 9, name: "Cable Crossovers", video: "https://www.youtube.com/embed/taI4XduLpTk", muscle: "Chest", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 10, name: "Pec Deck Fly", video: "https://www.youtube.com/embed/CHIgtK2W9fQ", muscle: "Chest", difficulty: "Beginner", equipment: "Machine" },
+        { id: 11, name: "Dumbbell Fly", video: "https://www.youtube.com/embed/eozdVDA78K0", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 12, name: "Incline Dumbbell Fly", video: "https://www.youtube.com/embed/2sZ1ZWv-6-k", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 13, name: "Decline Dumbbell Press", video: "https://www.youtube.com/embed/RH7A-jydSf4", muscle: "Chest", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 14, name: "Machine Chest Press", video: "https://www.youtube.com/embed/7JhVQ8p5eMA", muscle: "Chest", difficulty: "Beginner", equipment: "Machine" },
+        { id: 15, name: "Smith Machine Press", video: "https://www.youtube.com/embed/R0gE1-4IekM", muscle: "Chest", difficulty: "Intermediate", equipment: "Smith Machine" },
+        { id: 16, name: "Guillotine Press", video: "https://www.youtube.com/embed/8Hl6C5Z1k1E", muscle: "Chest", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 17, name: "Reverse Grip Bench Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 18, name: "Neutral Grip Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 19, name: "Incline Cable Fly", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 20, name: "Decline Cable Fly", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Advanced", equipment: "Cable" },
+        { id: 21, name: "Low Cable Fly", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 22, name: "High Cable Fly", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 23, name: "Standing Cable Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 24, name: "Seated Machine Fly", video: "https://www.youtube.com/embed/CHIgtK2W9fQ", muscle: "Chest", difficulty: "Beginner", equipment: "Machine" },
+        { id: 25, name: "Plate Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Beginner", equipment: "Plate" },
+        { id: 26, name: "Close-Grip Bench Press", video: "https://www.youtube.com/embed/nEF0Hj8YylI", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 27, name: "Wide-Grip Bench Press", video: "https://www.youtube.com/embed/4Y2ZdHCOXok", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 28, name: "Incline Close-Grip", video: "https://www.youtube.com/embed/SrqOu55lrYU", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 29, name: "Decline Close-Grip", video: "https://www.youtube.com/embed/Lfy9UKJq9C4", muscle: "Chest", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 30, name: "Slight Incline Press", video: "https://www.youtube.com/embed/SrqOu55lrYU", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 31, name: "Slight Decline Press", video: "https://www.youtube.com/embed/Lfy9UKJq9C4", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 32, name: "Dumbbell Hex Press", video: "https://www.youtube.com/embed/VmB1G1K7v94", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 33, name: "Dumbbell Squeeze Press", video: "https://www.youtube.com/embed/VmB1G1K7v94", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 34, name: "Iso-Lateral Press", video: "https://www.youtube.com/embed/7JhVQ8p5eMA", muscle: "Chest", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 35, name: "Hammer Strength Press", video: "https://www.youtube.com/embed/7JhVQ8p5eMA", muscle: "Chest", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 36, name: "Nautilus Press", video: "https://www.youtube.com/embed/7JhVQ8p5eMA", muscle: "Chest", difficulty: "Beginner", equipment: "Machine" },
+        { id: 37, name: "Pec Deck Rear Delt", video: "https://www.youtube.com/embed/CHIgtK2W9fQ", muscle: "Chest", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 38, name: "Butterfly Machine", video: "https://www.youtube.com/embed/CHIgtK2W9fQ", muscle: "Chest", difficulty: "Beginner", equipment: "Machine" },
+        { id: 39, name: "Cable Crossover Low to High", video: "https://www.youtube.com/embed/taI4XduLpTk", muscle: "Chest", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 40, name: "Cable Crossover High to Low", video: "https://www.youtube.com/embed/taI4XduLpTk", muscle: "Chest", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 41, name: "Single-Arm Machine Press", video: "https://www.youtube.com/embed/7JhVQ8p5eMA", muscle: "Chest", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 42, name: "Dumbbell Incline Pullover", video: "https://www.youtube.com/embed/2sZ1ZWv-6-k", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 43, name: "Barbell Incline Press", video: "https://www.youtube.com/embed/SrqOu55lrYU", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 44, name: "Dumbbell Floor Press", video: "https://www.youtube.com/embed/VmB1G1K7v94", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 45, name: "Kettlebell Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Kettlebell" },
+        { id: 46, name: "Kettlebell Floor Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Kettlebell" },
+        { id: 47, name: "Plate Pinch Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Beginner", equipment: "Plate" },
+        { id: 48, name: "Resistance Band Fly", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 49, name: "Resistance Band Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 50, name: "Banded Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Chest", difficulty: "Intermediate", equipment: "Parallel Bars + Band" },
+        { id: 51, name: "Svend Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Plate" },
+        { id: 52, name: "Floor Press", video: "https://www.youtube.com/embed/VmB1G1K7v94", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 53, name: "Single-Arm Dumbbell Press", video: "https://www.youtube.com/embed/VmB1G1K7v94", muscle: "Chest", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 54, name: "Single-Arm Cable Fly", video: "https://www.youtube.com/embed/taI4XduLpTk", muscle: "Chest", difficulty: "Advanced", equipment: "Cable" },
+        { id: 55, name: "Landmine Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Landmine" },
+        { id: 56, name: "Clap Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 57, name: "Archer Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 58, name: "Plyo Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 59, name: "Spiderman Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 60, name: "T Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 61, name: "Hindu Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 62, name: "Pseudo Planche Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 63, name: "Ring Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Chest", difficulty: "Advanced", equipment: "Rings" },
+        { id: 64, name: "Ring Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Rings" },
+        { id: 65, name: "TRX Chest Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "TRX" },
+        { id: 66, name: "TRX Fly", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "TRX" },
+        { id: 67, name: "Banded Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Resistance Band" },
+        { id: 68, name: "Banded Chest Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Resistance Band" },
+        { id: 69, name: "Medicine Ball Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Medicine Ball" },
+        { id: 70, name: "Medicine Ball Chest Pass", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Medicine Ball" },
+        { id: 71, name: "Suspension Chest Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Suspension Trainer" },
+        { id: 72, name: "Dumbbell Pullover", video: "https://www.youtube.com/embed/2sZ1ZWv-6-k", muscle: "Chest", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 73, name: "Barbell Pullover", video: "https://www.youtube.com/embed/2sZ1ZWv-6-k", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 74, name: "Single-Arm Press", video: "https://www.youtube.com/embed/VmB1G1K7v94", muscle: "Chest", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 75, name: "Offset Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 76, name: "Staggered Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 77, name: "Depth Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 78, name: "Decline Close-Grip", video: "https://www.youtube.com/embed/Lfy9UKJq9C4", muscle: "Chest", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 79, name: "Incline Wide-Grip", video: "https://www.youtube.com/embed/SrqOu55lrYU", muscle: "Chest", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 80, name: "Guillotine Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 81, name: "Bench Dips Leaning Forward", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Chest", difficulty: "Beginner", equipment: "Bench" },
+        { id: 82, name: "Push-up to Downward Dog", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 83, name: "Plank to Push-up", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 84, name: "Side-to-Side Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 85, name: "Around-the-World Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 86, name: "Swiss Ball Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Swiss Ball" },
+        { id: 87, name: "Swiss Ball Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Chest", difficulty: "Intermediate", equipment: "Swiss Ball" },
+        { id: 88, name: "Balance Board Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Balance Board" },
+        { id: 89, name: "Band Resisted Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Resistance Band" },
+        { id: 90, name: "Band Assisted Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 91, name: "Wall Push-ups Slow Tempo", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Beginner", equipment: "Wall" },
+        { id: 92, name: "Kneeling Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 93, name: "Elevated Push-ups Feet Up", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 94, name: "Elevated Push-ups Hands Up", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 95, name: "Fingertip Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 96, name: "Knuckle Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 97, name: "Clap Behind Back Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 98, name: "Superman Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 99, name: "Aztec Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 100, name: "One-Arm Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Chest", difficulty: "Advanced", equipment: "Bodyweight" }
+    ],
+
+    shoulders: [
+        { id: 1, name: "Overhead Press", video: "https://www.youtube.com/embed/2yjwXTZQDDI", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 2, name: "Dumbbell Shoulder Press", video: "https://www.youtube.com/embed/REBhldQ6V6Y", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 3, name: "Arnold Press", video: "https://www.youtube.com/embed/3ml7BH7mN2Q", muscle: "Shoulders", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 4, name: "Lateral Raises", video: "https://www.youtube.com/embed/3VcKaXpzqRo", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 5, name: "Front Raises", video: "https://www.youtube.com/embed/-t7fuZ0KhDA", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 6, name: "Reverse Fly", video: "https://www.youtube.com/embed/xD5Vg7EQn-4", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 7, name: "Upright Rows", video: "https://www.youtube.com/embed/DhvyB4Tq7yA", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 8, name: "Face Pulls", video: "https://www.youtube.com/embed/HSoHeSqLfIc", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 9, name: "Shrugs", video: "https://www.youtube.com/embed/7j0l9FJ-bZ4", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 10, name: "Clean & Press", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 11, name: "Push Press", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 12, name: "Dumbbell Snatch", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Shoulders", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 13, name: "Pike Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 14, name: "Cuban Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 15, name: "YTW Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 16, name: "Single-Arm Cable Raise", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 17, name: "Bottoms-Up Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Kettlebell" },
+        { id: 18, name: "Landmine Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Landmine" },
+        { id: 19, name: "Behind-the-Neck Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 20, name: "Seated Dumbbell Press", video: "https://www.youtube.com/embed/REBhldQ6V6Y", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 21, name: "Standing Barbell Press", video: "https://www.youtube.com/embed/2yjwXTZQDDI", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 22, name: "Arnold Dumbbell Press", video: "https://www.youtube.com/embed/3ml7BH7mN2Q", muscle: "Shoulders", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 23, name: "Z Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 24, name: "Klokov Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 25, name: "Single-Arm Press", video: "https://www.youtube.com/embed/REBhldQ6V6Y", muscle: "Shoulders", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 26, name: "Neutral Grip Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 27, name: "Push Jerk", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 28, name: "Split Jerk", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 29, name: "Sots Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 30, name: "Bradford Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 31, name: "Dumbbell Lateral Raise Leaning", video: "https://www.youtube.com/embed/3VcKaXpzqRo", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 32, name: "Cable Lateral Raise", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 33, name: "Cable Front Raise", video: "https://www.youtube.com/embed/-t7fuZ0KhDA", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 34, name: "Cable Upright Row", video: "https://www.youtube.com/embed/DhvyB4Tq7yA", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 35, name: "Rope Face Pull", video: "https://www.youtube.com/embed/HSoHeSqLfIc", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 36, name: "Banded Lateral Raise", video: "https://www.youtube.com/embed/3VcKaXpzqRo", muscle: "Shoulders", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 37, name: "Banded Front Raise", video: "https://www.youtube.com/embed/-t7fuZ0KhDA", muscle: "Shoulders", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 38, name: "Banded Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 39, name: "Banded Upright Row", video: "https://www.youtube.com/embed/DhvyB4Tq7yA", muscle: "Shoulders", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 40, name: "Dumbbell Rear Delt Row", video: "https://www.youtube.com/embed/xD5Vg7EQn-4", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 41, name: "Incline Prone Raise", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 42, name: "Standing Reverse Fly", video: "https://www.youtube.com/embed/xD5Vg7EQn-4", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 43, name: "Bent-Over Lateral Raise", video: "https://www.youtube.com/embed/xD5Vg7EQn-4", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 44, name: "Seated Reverse Fly", video: "https://www.youtube.com/embed/xD5Vg7EQn-4", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 45, name: "Machine Lateral Raise", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Machine" },
+        { id: 46, name: "Machine Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Machine" },
+        { id: 47, name: "Smith Machine Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Smith Machine" },
+        { id: 48, name: "Hammer Strength Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 49, name: "Iso-Lateral Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 50, name: "Plate Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Plate" },
+        { id: 51, name: "Plate Front Raise", video: "https://www.youtube.com/embed/-t7fuZ0KhDA", muscle: "Shoulders", difficulty: "Beginner", equipment: "Plate" },
+        { id: 52, name: "Plate Lateral Raise", video: "https://www.youtube.com/embed/3VcKaXpzqRo", muscle: "Shoulders", difficulty: "Beginner", equipment: "Plate" },
+        { id: 53, name: "One-Arm Cable Lateral Raise", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 54, name: "One-Arm Cable Front Raise", video: "https://www.youtube.com/embed/-t7fuZ0KhDA", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 55, name: "Cable Rear Delt Fly", video: "https://www.youtube.com/embed/xD5Vg7EQn-4", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 56, name: "Rope Face Pulls", video: "https://www.youtube.com/embed/HSoHeSqLfIc", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 57, name: "Band Pull-Aparts", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 58, name: "Y Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 59, name: "T Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 60, name: "W Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 61, name: "L Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 62, name: "Cuban Rotation", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 63, name: "External Rotation", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 64, name: "Internal Rotation", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 65, name: "Full Can Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 66, name: "Empty Can Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 67, name: "Scapular Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Shoulders", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 68, name: "Scapular Pull-ups", video: "https://www.youtube.com/embed/eGo4IYlbE5g", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Pull-up Bar" },
+        { id: 69, name: "Incline Y Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 70, name: "Prone T Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 71, name: "Prone W Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 72, name: "Floor YTW", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 73, name: "Wall Angels", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Wall" },
+        { id: 74, name: "Standing YTW", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 75, name: "Renegade Rows", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 76, name: "Bear Crawls", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 77, name: "Inchworms", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 78, name: "Plank Shoulder Taps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 79, name: "Handstand Holds", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 80, name: "Handstand Push-ups", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 81, name: "Piked Handstand Push-ups", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 82, name: "Box Handstand Push-ups", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Box" },
+        { id: 83, name: "Single-Arm Dumbbell Snatch", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Shoulders", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 84, name: "Kettlebell Swing High", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Kettlebell" },
+        { id: 85, name: "Turkish Get-Up Press Phase", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Kettlebell" },
+        { id: 86, name: "Dumbbell Windmill", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 87, name: "Kettlebell Windmill", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Kettlebell" },
+        { id: 88, name: "Side Plank with Raise", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 89, name: "Plank to Downward Dog", video: "https://www.youtube.com/embed/IODxDxX7oi4", muscle: "Shoulders", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 90, name: "Inchworm to Push-up", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 91, name: "Broad Jump to Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 92, name: "Squat to Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 93, name: "Lunge to Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 94, name: "Step-up to Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 95, name: "Box Jump to Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Box + Dumbbells" },
+        { id: 96, name: "Thruster", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 97, name: "Dumbbell Complex", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 98, name: "Barbell Complex", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 99, name: "Kettlebell Complex", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Advanced", equipment: "Kettlebell" },
+        { id: 100, name: "Sandbag Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Shoulders", difficulty: "Intermediate", equipment: "Sandbag" }
+    ],
+
+    biceps: [
+        { id: 1, name: "Barbell Curl", video: "https://www.youtube.com/embed/ykJirr3Y-2g", muscle: "Biceps", difficulty: "Beginner", equipment: "Barbell" },
+        { id: 2, name: "Dumbbell Curl", video: "https://www.youtube.com/embed/ykJirr3Y-2g", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 3, name: "Hammer Curl", video: "https://www.youtube.com/embed/zC3nLlEvin4", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 4, name: "Preacher Curl", video: "https://www.youtube.com/embed/fIuMZ7-6Cpo", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 5, name: "Concentration Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 6, name: "Cable Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 7, name: "Chin-ups", video: "https://www.youtube.com/embed/oC7ILr4b9GI", muscle: "Biceps", difficulty: "Intermediate", equipment: "Pull-up Bar" },
+        { id: 8, name: "Resistance Band Curl", video: "https://www.youtube.com/embed/Kw_9T7YRyHw", muscle: "Biceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 9, name: "EZ Bar Curl", video: "https://www.youtube.com/embed/2NJnV67ykwo", muscle: "Biceps", difficulty: "Beginner", equipment: "EZ Bar" },
+        { id: 10, name: "Wide-Grip Curl", video: "https://www.youtube.com/embed/DHyRrHxsvrY", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 11, name: "Zottman Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 12, name: "Reverse Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 13, name: "Spider Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 14, name: "21s 7-7-7", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 15, name: "Incline Dumbbell Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 16, name: "Bayesian Cable Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 17, name: "Cross-Body Hammer Curl", video: "https://www.youtube.com/embed/zC3nLlEvin4", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 18, name: "Towel Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Towel" },
+        { id: 19, name: "Isometric Hold Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 20, name: "Dumbbell Squeeze Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 21, name: "Cable Concentrated Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 22, name: "Single-Arm Preacher Curl", video: "https://www.youtube.com/embed/fIuMZ7-6Cpo", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 23, name: "Machine Preacher Curl", video: "https://www.youtube.com/embed/fIuMZ7-6Cpo", muscle: "Biceps", difficulty: "Beginner", equipment: "Machine" },
+        { id: 24, name: "Dumbbell Preacher Curl", video: "https://www.youtube.com/embed/fIuMZ7-6Cpo", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 25, name: "Barbell Preacher Curl", video: "https://www.youtube.com/embed/fIuMZ7-6Cpo", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 26, name: "Reverse Grip Preacher", video: "https://www.youtube.com/embed/fIuMZ7-6Cpo", muscle: "Biceps", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 27, name: "Hammer Preacher Curl", video: "https://www.youtube.com/embed/fIuMZ7-6Cpo", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 28, name: "Zottman Preacher Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 29, name: "Waiter's Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 30, name: "Gorilla Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 31, name: "Dumbbell C Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 32, name: "Barbell C Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 33, name: "Cable C Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 34, name: "Banded Curl Slow Tempo", video: "https://www.youtube.com/embed/Kw_9T7YRyHw", muscle: "Biceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 35, name: "Banded Curl Explosive", video: "https://www.youtube.com/embed/Kw_9T7YRyHw", muscle: "Biceps", difficulty: "Intermediate", equipment: "Resistance Band" },
+        { id: 36, name: "Negative Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 37, name: "Partial Rep Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 38, name: "Isometric Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 39, name: "Static Hold Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 40, name: "Cheat Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 41, name: "Strict Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 42, name: "Pause Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 43, name: "Tempo Curl 3-0-3", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 44, name: "Spider Curl Bench", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 45, name: "Spider Curl Incline", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 46, name: "Wall Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 47, name: "Kneeling Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 48, name: "Seated Cable Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 49, name: "Lying Cable Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 50, name: "Reverse Cable Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 51, name: "Single-Arm Cable Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 52, name: "Rope Cable Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 53, name: "Reverse Grip Cable Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 54, name: "Cable Curl Behind", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 55, name: "Cable Curl Front", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 56, name: "Bayesian Cable Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 57, name: "Dumbbell 21s", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 58, name: "Barbell 21s", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 59, name: "Spider Curl Machine", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 60, name: "Spider Curl Dumbbell", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 61, name: "Incline Dumbbell Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 62, name: "Incline Hammer Curl", video: "https://www.youtube.com/embed/zC3nLlEvin4", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 63, name: "Seated Dumbbell Curl", video: "https://www.youtube.com/embed/ykJirr3Y-2g", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 64, name: "Standing Dumbbell Curl", video: "https://www.youtube.com/embed/ykJirr3Y-2g", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 65, name: "Cross-Body Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 66, name: "Drag Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 67, name: "Barbell Drag Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 68, name: "Kettlebell Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Kettlebell" },
+        { id: 69, name: "Kettlebell Hammer Curl", video: "https://www.youtube.com/embed/zC3nLlEvin4", muscle: "Biceps", difficulty: "Beginner", equipment: "Kettlebell" },
+        { id: 70, name: "Plate Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Beginner", equipment: "Plate" },
+        { id: 71, name: "Resistance Band Hammer Curl", video: "https://www.youtube.com/embed/Kw_9T7YRyHw", muscle: "Biceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 72, name: "Banded 21s", video: "https://www.youtube.com/embed/Kw_9T7YRyHw", muscle: "Biceps", difficulty: "Intermediate", equipment: "Resistance Band" },
+        { id: 73, name: "Standing Cable Curl Low", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 74, name: "Standing Cable Curl High", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 75, name: "Lying Cable Curl", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 76, name: "Lying Dumbbell Curl", video: "https://www.youtube.com/embed/ykJirr3Y-2g", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 77, name: "Lying Hammer Curl", video: "https://www.youtube.com/embed/zC3nLlEvin4", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 78, name: "Pronated Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 79, name: "Supinated Curl", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 80, name: "Neutral Curl", video: "https://www.youtube.com/embed/zC3nLlEvin4", muscle: "Biceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 81, name: "EZ Bar Reverse Curl", video: "https://www.youtube.com/embed/2NJnV67ykwo", muscle: "Biceps", difficulty: "Intermediate", equipment: "EZ Bar" },
+        { id: 82, name: "EZ Bar Wide Curl", video: "https://www.youtube.com/embed/2NJnV67ykwo", muscle: "Biceps", difficulty: "Intermediate", equipment: "EZ Bar" },
+        { id: 83, name: "EZ Bar Close Curl", video: "https://www.youtube.com/embed/2NJnV67ykwo", muscle: "Biceps", difficulty: "Intermediate", equipment: "EZ Bar" },
+        { id: 84, name: "Dumbbell Curl Static Hold", video: "https://www.youtube.com/embed/ykJirr3Y-2g", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 85, name: "Barbell Curl Static Hold", video: "https://www.youtube.com/embed/ykJirr3Y-2g", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 86, name: "Cable Curl Static Hold", video: "https://www.youtube.com/embed/0AUGkch3tzc", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 87, name: "Dumbbell Curl 1.5 Reps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 88, name: "Barbell Curl 1.5 Reps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 89, name: "Cable Curl 1.5 Reps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 90, name: "Dumbbell Curl Drop Set", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 91, name: "Barbell Curl Drop Set", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 92, name: "Cable Curl Drop Set", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 93, name: "Banded Curl Drop Set", video: "https://www.youtube.com/embed/Kw_9T7YRyHw", muscle: "Biceps", difficulty: "Advanced", equipment: "Resistance Band" },
+        { id: 94, name: "Dumbbell Curl Super Slow", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 95, name: "Barbell Curl Super Slow", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 96, name: "Cable Curl Super Slow", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 97, name: "Dumbbell Curl Half Reps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 98, name: "Barbell Curl Half Reps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 99, name: "Cable Curl Half Reps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 100, name: "100-Rep Curl Challenge", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Biceps", difficulty: "Advanced", equipment: "Dumbbell" }
+    ],
+
+    triceps: [
+        { id: 1, name: "Tricep Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 2, name: "Close-Grip Bench Press", video: "https://www.youtube.com/embed/nEF0Hj8YylI", muscle: "Triceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 3, name: "Tricep Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Parallel Bars" },
+        { id: 4, name: "Overhead Tricep Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 5, name: "Diamond Push-ups", video: "https://www.youtube.com/embed/J0DnG1_S92I", muscle: "Triceps", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 6, name: "Rope Pushdowns", video: "https://www.youtube.com/embed/KiT2lHJQ64s", muscle: "Triceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 7, name: "Reverse Grip Pushdowns", video: "https://www.youtube.com/embed/vB5OHsJ3EME", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 8, name: "Lying Tricep Extension", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Intermediate", equipment: "EZ Bar" },
+        { id: 9, name: "Tricep Press Machine", video: "https://www.youtube.com/embed/04S6JBoO9hc", muscle: "Triceps", difficulty: "Beginner", equipment: "Machine" },
+        { id: 10, name: "Neutral-Grip Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Parallel Bars" },
+        { id: 11, name: "Skull Crushers", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Advanced", equipment: "EZ Bar" },
+        { id: 12, name: "Dumbbell Kickbacks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 13, name: "Cable Kickbacks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 14, name: "Bench Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Beginner", equipment: "Bench" },
+        { id: 15, name: "Tate Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 16, name: "Single-Arm Overhead Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 17, name: "JM Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 18, name: "Floor Press Close Grip", video: "https://www.youtube.com/embed/nEF0Hj8YylI", muscle: "Triceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 19, name: "Band Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 20, name: "Tricep Hold Extensions", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 21, name: "French Press", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 22, name: "Seated French Press", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 23, name: "Lying French Press", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 24, name: "Cable Tricep Extension", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 25, name: "V-Grip Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 26, name: "Straight-Bar Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 27, name: "EZ Bar Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 28, name: "Behind-the-Back Tricep Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 29, name: "Tricep Press Cable Low", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 30, name: "Tricep Press Cable High", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 31, name: "Single-Arm Tricep Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 32, name: "Single-Arm Reverse Pushdown", video: "https://www.youtube.com/embed/vB5OHsJ3EME", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 33, name: "Seated Tricep Pushdown", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 34, name: "Incline Tricep Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 35, name: "Decline Tricep Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 36, name: "Floor Skull Crushers", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Intermediate", equipment: "EZ Bar" },
+        { id: 37, name: "Dumbbell Floor Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 38, name: "Cable Floor Extension", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 39, name: "Tricep Stretch Hold", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 40, name: "Negative Tricep Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Parallel Bars" },
+        { id: 41, name: "Banded Bench Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Bench + Band" },
+        { id: 42, name: "Suspension Tricep Extension", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "TRX" },
+        { id: 43, name: "TRX Tricep Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "TRX" },
+        { id: 44, name: "Ring Tricep Extension", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Rings" },
+        { id: 45, name: "Ring Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Rings" },
+        { id: 46, name: "Parallel Bar Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Parallel Bars" },
+        { id: 47, name: "Assisted Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Beginner", equipment: "Assisted Dip Machine" },
+        { id: 48, name: "Weighted Bench Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Bench" },
+        { id: 49, name: "Close-Grip Incline Press", video: "https://www.youtube.com/embed/nEF0Hj8YylI", muscle: "Triceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 50, name: "Close-Grip Decline Press", video: "https://www.youtube.com/embed/nEF0Hj8YylI", muscle: "Triceps", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 51, name: "Skull Crushers Dumbbell", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 52, name: "Skull Crushers EZ Bar", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Advanced", equipment: "EZ Bar" },
+        { id: 53, name: "Lying Tricep Extension", video: "https://www.youtube.com/embed/d_KZxkY_0cM", muscle: "Triceps", difficulty: "Intermediate", equipment: "EZ Bar" },
+        { id: 54, name: "Seated Overhead Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 55, name: "Kneeling Tricep Pushdown", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Cable" },
+        { id: 56, name: "Standing Overhead Cable Ext", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 57, name: "Lying Cable Extension", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 58, name: "Single-Arm Pushdown Rope", video: "https://www.youtube.com/embed/KiT2lHJQ64s", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 59, name: "Single-Arm Pushdown Bar", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 60, name: "Banded Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 61, name: "Banded Overhead Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 62, name: "Banded Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Parallel Bars + Band" },
+        { id: 63, name: "Close-Grip Push-ups Tempo", video: "https://www.youtube.com/embed/J0DnG1_S92I", muscle: "Triceps", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 64, name: "Diamond Push-ups Tempo", video: "https://www.youtube.com/embed/J0DnG1_S92I", muscle: "Triceps", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 65, name: "Tricep Push-ups", video: "https://www.youtube.com/embed/J0DnG1_S92I", muscle: "Triceps", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 66, name: "Weighted Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Parallel Bars" },
+        { id: 67, name: "Machine Dips", video: "https://www.youtube.com/embed/04S6JBoO9hc", muscle: "Triceps", difficulty: "Beginner", equipment: "Machine" },
+        { id: 68, name: "Smith Machine Close Press", video: "https://www.youtube.com/embed/nEF0Hj8YylI", muscle: "Triceps", difficulty: "Intermediate", equipment: "Smith Machine" },
+        { id: 69, name: "Guillotine Tricep Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 70, name: "Reverse Tricep Pushdown", video: "https://www.youtube.com/embed/vB5OHsJ3EME", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 71, name: "Cable Kickback Single", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 72, name: "Dumbbell Overhead Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 73, name: "Tricep Rope Extension", video: "https://www.youtube.com/embed/KiT2lHJQ64s", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 74, name: "Rope Overhead Extension", video: "https://www.youtube.com/embed/KiT2lHJQ64s", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 75, name: "Bent-Over Cable Extension", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 76, name: "Bent-Over Dumbbell Kickback", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 77, name: "Lying Band Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 78, name: "Standing Band Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 79, name: "Tricep Rollouts", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 80, name: "Plank to Tricep Push-up", video: "https://www.youtube.com/embed/J0DnG1_S92I", muscle: "Triceps", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 81, name: "Tricep Extensions with Plate", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Plate" },
+        { id: 82, name: "Tricep Extensions with KB", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Intermediate", equipment: "Kettlebell" },
+        { id: 83, name: "Kettlebell Tricep Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Intermediate", equipment: "Kettlebell" },
+        { id: 84, name: "Zottman Tricep Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 85, name: "Tricep 21s", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 86, name: "Drop Set Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 87, name: "Drop Set Overhead Ext", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 88, name: "Superset Pushdowns", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 89, name: "Iso-Hold Tricep Ext", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 90, name: "Pause Tricep Pushdown", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 91, name: "Pause Overhead Extension", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 92, name: "Tempo Pushdowns 3-0-3", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 93, name: "Tempo Overhead Ext 3-0-3", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 94, name: "100-Rep Tricep Challenge", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 95, name: "50-Rep Pushdown Finisher", video: "https://www.youtube.com/embed/2-LAMcpzODU", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 96, name: "21s Overhead Ext", video: "https://www.youtube.com/embed/6Xg0bwRcbwQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 97, name: "Tricep Complex", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 98, name: "Tricep Giant Set", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Various" },
+        { id: 99, name: "Tricep Burnout", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Triceps", difficulty: "Advanced", equipment: "Cable" },
+        { id: 100, name: "AMRAP Tricep Dips", video: "https://www.youtube.com/embed/2z8l1GpjKQQ", muscle: "Triceps", difficulty: "Advanced", equipment: "Parallel Bars" }
+    ],
+
+    legs: [
+        { id: 1, name: "Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Beginner", equipment: "Barbell" },
+        { id: 2, name: "Deadlifts", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 3, name: "Lunges", video: "https://www.youtube.com/embed/QOVaHwm-Q6U", muscle: "Legs", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 4, name: "Bulgarian Split Squats", video: "https://www.youtube.com/embed/2C-uNgKwZYg", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 5, name: "Glute Bridges", video: "https://www.youtube.com/embed/SEdqd1n0cvg", muscle: "Legs", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 6, name: "Romanian Deadlifts", video: "https://www.youtube.com/embed/JCxUY8iNJYY", muscle: "Legs", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 7, name: "Hip Thrusts", video: "https://www.youtube.com/embed/SEdqd1n0cvg", muscle: "Legs", difficulty: "Beginner", equipment: "Barbell" },
+        { id: 8, name: "Reverse Lunges", video: "https://www.youtube.com/embed/P3n6Lm6Bvb4", muscle: "Legs", difficulty: "Beginner", equipment: "Dumbbells" },
+        { id: 9, name: "Single-Leg Glute Bridge", video: "https://www.youtube.com/embed/5Vf0wYl9-mA", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 10, name: "Hamstring Curls", video: "https://www.youtube.com/embed/6gVJNmnfY5o", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 11, name: "Leg Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 12, name: "Leg Extensions", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 13, name: "Leg Curls", video: "https://www.youtube.com/embed/6gVJNmnfY5o", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 14, name: "Calf Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 15, name: "Seated Calf Raises", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 16, name: "Sumo Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 17, name: "Lateral Lunges", video: "https://www.youtube.com/embed/QOVaHwm-Q6U", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 18, name: "Side-Lying Leg Lifts", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 19, name: "Resistance Band Walks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 20, name: "Step-ups", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Box" },
+        { id: 21, name: "Donkey Kicks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 22, name: "Fire Hydrants", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 23, name: "Clamshells", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 24, name: "Lying Leg Curls", video: "https://www.youtube.com/embed/6gVJNmnfY5o", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 25, name: "Seated Leg Curls", video: "https://www.youtube.com/embed/6gVJNmnfY5o", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 26, name: "Standing Leg Curls", video: "https://www.youtube.com/embed/6gVJNmnfY5o", muscle: "Legs", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 27, name: "Adductor Machine", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 28, name: "Abductor Machine", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Machine" },
+        { id: 29, name: "Hip Adduction Cable", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 30, name: "Hip Abduction Cable", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 31, name: "Walking Lunges", video: "https://www.youtube.com/embed/QOVaHwm-Q6U", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 32, name: "Side Lunges Weighted", video: "https://www.youtube.com/embed/QOVaHwm-Q6U", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 33, name: "Curtsey Lunges", video: "https://www.youtube.com/embed/QOVaHwm-Q6U", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 34, name: "Reverse Lunge to Knee Drive", video: "https://www.youtube.com/embed/P3n6Lm6Bvb4", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 35, name: "Lunge Jumps", video: "https://www.youtube.com/embed/QOVaHwm-Q6U", muscle: "Legs", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 36, name: "Jump Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 37, name: "Box Jumps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Box" },
+        { id: 38, name: "Broad Jumps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 39, name: "Skater Jumps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 40, name: "Lateral Bounds", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 41, name: "Pogo Jumps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 42, name: "Sled Push", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Advanced", equipment: "Sled" },
+        { id: 43, name: "Sled Pull", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Advanced", equipment: "Sled" },
+        { id: 44, name: "Sled Drag", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Advanced", equipment: "Sled" },
+        { id: 45, name: "Tire Flips", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Advanced", equipment: "Tire" },
+        { id: 46, name: "Farmer's Walk Heavy", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 47, name: "Sandbag Squats", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Sandbag" },
+        { id: 48, name: "Sandbag Lunges", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Sandbag" },
+        { id: 49, name: "Sandbag Deadlifts", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Sandbag" },
+        { id: 50, name: "Sandbag Carries", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Sandbag" },
+        { id: 51, name: "Step-ups High Box", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Box" },
+        { id: 52, name: "Step-ups Low Box", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Box" },
+        { id: 53, name: "Bulgarian Split Squats", video: "https://www.youtube.com/embed/2C-uNgKwZYg", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 54, name: "Single-Leg Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 55, name: "Pistol Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 56, name: "Shrimp Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 57, name: "Skater Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 58, name: "Cossack Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 59, name: "Sissy Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 60, name: "Jefferson Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 61, name: "Zercher Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 62, name: "Hack Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Machine" },
+        { id: 63, name: "Belt Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Belt Squat Machine" },
+        { id: 64, name: "Goblet Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 65, name: "Front Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 66, name: "Overhead Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 67, name: "Box Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Box + Barbell" },
+        { id: 68, name: "Pause Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 69, name: "Tempo Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 70, name: "Squat Holds", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 71, name: "Wall Sits", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Wall" },
+        { id: 72, name: "Split Squats Static", video: "https://www.youtube.com/embed/2C-uNgKwZYg", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 73, name: "Split Squats Dynamic", video: "https://www.youtube.com/embed/2C-uNgKwZYg", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 74, name: "Single-Leg Deadlift Straight Leg", video: "https://www.youtube.com/embed/JCxUY8iNJYY", muscle: "Legs", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 75, name: "Single-Leg Deadlift Bent Knee", video: "https://www.youtube.com/embed/JCxUY8iNJYY", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 76, name: "B-Stance RDLs", video: "https://www.youtube.com/embed/JCxUY8iNJYY", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 77, name: "Deficit Deadlifts", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 78, name: "Rack Pulls Below Knee", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 79, name: "Rack Pulls Above Knee", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 80, name: "Block Pulls", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 81, name: "Snatch Grip Deadlifts", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 82, name: "Romanian Deadlifts DB", video: "https://www.youtube.com/embed/JCxUY8iNJYY", muscle: "Legs", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 83, name: "Single-Arm RDLs", video: "https://www.youtube.com/embed/JCxUY8iNJYY", muscle: "Legs", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 84, name: "Kettlebell Swings", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Legs", difficulty: "Intermediate", equipment: "Kettlebell" },
+        { id: 85, name: "Single-Arm Swings", video: "https://www.youtube.com/embed/6TzD2sZ5E6U", muscle: "Legs", difficulty: "Advanced", equipment: "Kettlebell" },
+        { id: 86, name: "Sumo Deadlifts", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 87, name: "Trap Bar Deadlifts", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Intermediate", equipment: "Trap Bar" },
+        { id: 88, name: "Hex Bar Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Hex Bar" },
+        { id: 89, name: "Landmine Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Landmine" },
+        { id: 90, name: "Landmine RDLs", video: "https://www.youtube.com/embed/JCxUY8iNJYY", muscle: "Legs", difficulty: "Intermediate", equipment: "Landmine" },
+        { id: 91, name: "Banded Squats", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Intermediate", equipment: "Resistance Band" },
+        { id: 92, name: "Banded Deadlifts", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Legs", difficulty: "Intermediate", equipment: "Resistance Band" },
+        { id: 93, name: "Banded Lateral Walks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 94, name: "Banded Glute Bridges", video: "https://www.youtube.com/embed/SEdqd1n0cvg", muscle: "Legs", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 95, name: "Banded Hip Thrusts", video: "https://www.youtube.com/embed/SEdqd1n0cvg", muscle: "Legs", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 96, name: "Monster Walks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 97, name: "Duck Walks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 98, name: "Bear Crawl Forward/Back", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 99, name: "Crab Walks", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Legs", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 100, name: "100-Rep Squat Challenge", video: "https://www.youtube.com/embed/YaXPRqUwItQ", muscle: "Legs", difficulty: "Advanced", equipment: "Bodyweight" }
+    ],
+
+    back: [
+        { id: 1, name: "Pull-ups", video: "https://www.youtube.com/embed/eGo4IYlbE5g", muscle: "Back", difficulty: "Intermediate", equipment: "Pull-up Bar" },
+        { id: 2, name: "Lat Pulldowns", video: "https://www.youtube.com/embed/CAwf7n6Lu9g", muscle: "Back", difficulty: "Beginner", equipment: "Cable" },
+        { id: 3, name: "Bent Over Rows", video: "https://www.youtube.com/embed/7C2z4GqqS5E", muscle: "Back", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 4, name: "Seated Cable Rows", video: "https://www.youtube.com/embed/1TqM02QrL2M", muscle: "Back", difficulty: "Beginner", equipment: "Cable" },
+        { id: 5, name: "Deadlifts", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Back", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 6, name: "T-Bar Rows", video: "https://www.youtube.com/embed/j3Igk5nyZE4", muscle: "Back", difficulty: "Advanced", equipment: "T-Bar" },
+        { id: 7, name: "Single-Arm Dumbbell Row", video: "https://www.youtube.com/embed/6TZ_Dy81pz4", muscle: "Back", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 8, name: "Face Pulls", video: "https://www.youtube.com/embed/HSoHeSqLfIc", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 9, name: "Good Mornings", video: "https://www.youtube.com/embed/o1tK1lJZ9I0", muscle: "Back", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 10, name: "Back Extensions", video: "https://www.youtube.com/embed/ph3pddpKzzw", muscle: "Back", difficulty: "Beginner", equipment: "Hyperextension Bench" },
+        { id: 11, name: "Chin-ups", video: "https://www.youtube.com/embed/oC7ILr4b9GI", muscle: "Back", difficulty: "Intermediate", equipment: "Pull-up Bar" },
+        { id: 12, name: "Wide-Grip Pulldowns", video: "https://www.youtube.com/embed/CAwf7n6Lu9g", muscle: "Back", difficulty: "Beginner", equipment: "Cable" },
+        { id: 13, name: "Close-Grip Pulldowns", video: "https://www.youtube.com/embed/CAwf7n6Lu9g", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 14, name: "V-Grip Pulldowns", video: "https://www.youtube.com/embed/CAwf7n6Lu9g", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 15, name: "Reverse Grip Pulldowns", video: "https://www.youtube.com/embed/CAwf7n6Lu9g", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 16, name: "Seated Cable Row Close Grip", video: "https://www.youtube.com/embed/1TqM02QrL2M", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 17, name: "Seated Cable Row Wide Grip", video: "https://www.youtube.com/embed/1TqM02QrL2M", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 18, name: "Seated Cable Row V-Grip", video: "https://www.youtube.com/embed/1TqM02QrL2M", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 19, name: "Seated Cable Row Straight Bar", video: "https://www.youtube.com/embed/1TqM02QrL2M", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 20, name: "Dumbbell Row", video: "https://www.youtube.com/embed/6TZ_Dy81pz4", muscle: "Back", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 21, name: "Incline Dumbbell Row", video: "https://www.youtube.com/embed/6TZ_Dy81pz4", muscle: "Back", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 22, name: "Meadows Row", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 23, name: "Landmine Row", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Landmine" },
+        { id: 24, name: "Smith Machine Row", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Smith Machine" },
+        { id: 25, name: "Chest Supported Row", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Beginner", equipment: "Machine" },
+        { id: 26, name: "Pendlay Row", video: "https://www.youtube.com/embed/7C2z4GqqS5E", muscle: "Back", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 27, name: "Reverse Grip Row", video: "https://www.youtube.com/embed/7C2z4GqqS5E", muscle: "Back", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 28, name: "Yates Row", video: "https://www.youtube.com/embed/7C2z4GqqS5E", muscle: "Back", difficulty: "Advanced", equipment: "Barbell" },
+        { id: 29, name: "Kroc Row", video: "https://www.youtube.com/embed/6TZ_Dy81pz4", muscle: "Back", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 30, name: "Renegade Row", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 31, name: "Cable Pullovers", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 32, name: "Dumbbell Pullovers", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 33, name: "Barbell Pullovers", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Barbell" },
+        { id: 34, name: "Straight Arm Pulldowns", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 35, name: "Rope Pulldowns", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 36, name: "Band Pull Aparts", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 37, name: "Face Pulls with Rope", video: "https://www.youtube.com/embed/HSoHeSqLfIc", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 38, name: "Face Pulls with Bar", video: "https://www.youtube.com/embed/HSoHeSqLfIc", muscle: "Back", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 39, name: "Scapular Pull-ups", video: "https://www.youtube.com/embed/eGo4IYlbE5g", muscle: "Back", difficulty: "Intermediate", equipment: "Pull-up Bar" },
+        { id: 40, name: "Scapular Push-ups", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 41, name: "Inverted Rows", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Beginner", equipment: "Squat Rack" },
+        { id: 42, name: "TRX Rows", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "TRX" },
+        { id: 43, name: "Ring Rows", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Rings" },
+        { id: 44, name: "Suspension Rows", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Suspension Trainer" },
+        { id: 45, name: "Banded Rows", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Beginner", equipment: "Resistance Band" },
+        { id: 46, name: "Gorilla Rows", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Advanced", equipment: "Dumbbells" },
+        { id: 47, name: "Farmer's Carry", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Dumbbells" },
+        { id: 48, name: "Suitcase Carry", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Intermediate", equipment: "Dumbbell" },
+        { id: 49, name: "Waiter's Carry", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Back", difficulty: "Advanced", equipment: "Dumbbell" },
+        { id: 50, name: "Rack Pulls", video: "https://www.youtube.com/embed/op9kVnSso6Q", muscle: "Back", difficulty: "Advanced", equipment: "Barbell" }
+    ],
+
+    core: [
+        { id: 1, name: "Planks", video: "https://www.youtube.com/embed/pSHjTRCQxIw", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 2, name: "Crunches", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 3, name: "Leg Raises", video: "https://www.youtube.com/embed/JB2oyawG9KI", muscle: "Core", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 4, name: "Russian Twists", video: "https://www.youtube.com/embed/0QfDfQs_MaA", muscle: "Core", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 5, name: "Bicycle Crunches", video: "https://www.youtube.com/embed/9FGilxCbdz8", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 6, name: "Mountain Climbers", video: "https://www.youtube.com/embed/8Y47Wm9wZws", muscle: "Core", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 7, name: "Flutter Kicks", video: "https://www.youtube.com/embed/9WUoRnuCIAo", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 8, name: "V-Ups", video: "https://www.youtube.com/embed/9WUoRnuCIAo", muscle: "Core", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 9, name: "Side Planks", video: "https://www.youtube.com/embed/K2VljzCC16g", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 10, name: "Hanging Leg Raises", video: "https://www.youtube.com/embed/JB2oyawG9KI", muscle: "Core", difficulty: "Advanced", equipment: "Pull-up Bar" },
+        { id: 11, name: "Ab Wheel Rollouts", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Advanced", equipment: "Ab Wheel" },
+        { id: 12, name: "Cable Crunches", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 13, name: "Decline Crunches", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", muscle: "Core", difficulty: "Intermediate", equipment: "Decline Bench" },
+        { id: 14, name: "Dragon Flags", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Advanced", equipment: "Bench" },
+        { id: 15, name: "Windshield Wipers", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Advanced", equipment: "Pull-up Bar" },
+        { id: 16, name: "Pallof Press", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 17, name: "Dead Bug", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 18, name: "Bird Dog", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 19, name: "Supermans", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 20, name: "Reverse Crunches", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", muscle: "Core", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 21, name: "Toe Touches", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 22, name: "Oblique Crunches", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" },
+        { id: 23, name: "Side Bends", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Beginner", equipment: "Dumbbell" },
+        { id: 24, name: "Woodchoppers", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Intermediate", equipment: "Cable" },
+        { id: 25, name: "Hanging Knee Raises", video: "https://www.youtube.com/embed/JB2oyawG9KI", muscle: "Core", difficulty: "Intermediate", equipment: "Pull-up Bar" },
+        { id: 26, name: "Hanging Toe Touches", video: "https://www.youtube.com/embed/JB2oyawG9KI", muscle: "Core", difficulty: "Advanced", equipment: "Pull-up Bar" },
+        { id: 27, name: "L-Sit Holds", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Advanced", equipment: "Parallel Bars" },
+        { id: 28, name: "V-Sit Holds", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Advanced", equipment: "Bodyweight" },
+        { id: 29, name: "Tuck Jumps", video: "https://www.youtube.com/embed/8z7L6Y5jX-c", muscle: "Core", difficulty: "Intermediate", equipment: "Bodyweight" },
+        { id: 30, name: "Sit-ups", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", muscle: "Core", difficulty: "Beginner", equipment: "Bodyweight" }
+    ]
+};
+
+// ===== STATE =====
+let currentScreen = 'welcomeScreen';
+let isPlayerPlaying = true;
+let toastTimeout = null;
+let currentExerciseIndex = 0;
+let currentExerciseList = [];
+let playerExercises = [];
+
+// ===== SPLASH SCREEN =====
+setTimeout(() => {
+    document.getElementById('splashScreen').classList.add('hide');
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('bottomNav').classList.add('visible');
+    showScreen('homeScreen');
+    renderExercises();
+}, 3000);
+
+// ===== NAVIGATION =====
+function showScreen(screenId) {
+    document.querySelectorAll('.screen, .auth-screen, #welcomeScreen').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    const target = document.getElementById(screenId);
+    if (target) {
+        target.classList.add('active');
+        target.scrollTop = 0;
+    }
+
+    currentScreen = screenId;
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.screen === screenId);
+    });
+
+    const nav = document.getElementById('bottomNav');
+    if (['welcomeScreen', 'authScreen', 'profileSetupScreen'].includes(screenId)) {
+        nav.classList.remove('visible');
+    } else {
+        nav.classList.add('visible');
+    }
+}
+
+function navigateTo(screenId) {
+    if (document.getElementById(screenId)) {
+        showScreen(screenId);
+    }
+}
+
+// ===== AUTH =====
+function handleLogin() {
+    const email = document.getElementById('emailInput').value;
+    if (!email) {
+        showToast('Please enter your email', 'error');
+        return;
+    }
+    showToast('Welcome back! 👋', 'success');
+    showScreen('homeScreen');
+}
+
+function showGuestMode() {
+    showToast('Continuing as guest', 'info');
+    showScreen('homeScreen');
+}
+
+function completeProfile() {
+    showToast('Profile created successfully! 🎉', 'success');
+    showScreen('homeScreen');
+}
+
+function logout() {
+    showToast('Logged out successfully', 'info');
+    showScreen('welcomeScreen');
+}
+
+// ===== RENDER EXERCISES =====
+function renderExercises(filter = 'all', search = '') {
+    const container = document.getElementById('exerciseList');
+    container.innerHTML = '';
+
+    let allExercises = [];
+    Object.keys(exerciseDatabase).forEach(category => {
+        exerciseDatabase[category].forEach(ex => {
+            allExercises.push({ ...ex, category });
+        });
+    });
+
+    let filtered = allExercises;
+    if (filter !== 'all') {
+        filtered = filtered.filter(ex => ex.category === filter);
+    }
+    if (search) {
+        const s = search.toLowerCase();
+        filtered = filtered.filter(ex => 
+            ex.name.toLowerCase().includes(s) || 
+            ex.muscle.toLowerCase().includes(s)
+        );
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+                <i class="fas fa-search" style="font-size:48px;display:block;margin-bottom:16px;"></i>
+                <p>No exercises found. Try a different search.</p>
+            </div>
+        `;
+        return;
+    }
+
+    filtered.forEach((ex, index) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.onclick = () => showExerciseDetail(ex);
+        card.innerHTML = `
+            <div class="exercise-thumb">
+                <img src="https://img.youtube.com/vi/${getVideoId(ex.video)}/hqdefault.jpg" 
+                     alt="${ex.name}"
+                     onerror="this.style.display='none'">
+                <div class="play-icon">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+            <div class="info">
+                <h4>${ex.name}</h4>
+                <p>${ex.muscle} • ${ex.difficulty}</p>
+                <div class="tags">
+                    <span>${ex.equipment}</span>
+                    <span>${ex.category}</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function getVideoId(url) {
+    const match = url.match(/embed\/([^?]+)/);
+    return match ? match[1] : 'dQw4w9WgXcQ';
+}
+
+// ===== FILTERS =====
+function filterExercises() {
+    const search = document.getElementById('exerciseSearch').value;
+    const activeChip = document.querySelector('#exerciseFilters .chip.active');
+    const filter = activeChip ? activeChip.dataset.filter : 'all';
+    renderExercises(filter, search);
+}
+
+function filterPrograms() {
+    const query = document.getElementById('programSearch').value.toLowerCase();
+    const cards = document.querySelectorAll('#programList .program-card');
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(query) ? 'flex' : 'none';
+    });
+}
+
+// ===== FILTER CHIPS =====
+document.querySelectorAll('#exerciseFilters .chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+        this.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        const filter = this.dataset.filter || 'all';
+        const search = document.getElementById('exerciseSearch').value;
+        renderExercises(filter, search);
+    });
+});
+
+// ===== EXERCISE DETAIL MODAL =====
+function showExerciseDetail(exercise) {
+    const modal = document.getElementById('modalOverlay');
+    const body = document.getElementById('modalBody');
+    const videoId = getVideoId(exercise.video);
+    
+    body.innerHTML = `
+        <div style="width:100%;aspect-ratio:16/9;background:var(--darker);border-radius:16px;overflow:hidden;margin-bottom:16px;">
+            <iframe src="${exercise.video}" 
+                    style="width:100%;height:100%;border:none;"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+        </div>
+        <h3>${exercise.name}</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px;">
+            <span style="font-size:12px;padding:4px 12px;background:var(--card-bg);border-radius:20px;border:1px solid var(--glass-border);">${exercise.muscle}</span>
+            <span style="font-size:12px;padding:4px 12px;background:var(--card-bg);border-radius:20px;border:1px solid var(--glass-border);">${exercise.difficulty}</span>
+            <span style="font-size:12px;padding:4px 12px;background:var(--card-bg);border-radius:20px;border:1px solid var(--glass-border);">${exercise.equipment}</span>
+        </div>
+        <div style="background:var(--card-bg);border-radius:12px;padding:16px;margin:12px 0;">
+            <h4 style="font-size:14px;margin-bottom:8px;">📋 How to Perform</h4>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+                Watch the video demonstration above for proper form and technique.
+                <br><br>
+                <strong>Sets:</strong> 3-4<br>
+                <strong>Reps:</strong> 8-12<br>
+                <strong>Rest:</strong> 60-90 seconds
+            </p>
+        </div>
+        <button class="btn-primary" onclick="closeModal();startExercise('${exercise.name}', '${exercise.video}')">
+            <i class="fas fa-play"></i> Start Exercise
+        </button>
+    `;
+    modal.classList.add('active');
+}
+
+// ===== WORKOUT PLAYER =====
+function startExercise(name, video) {
+    closeModal();
+    document.getElementById('playerOverlay').classList.add('active');
+    document.getElementById('playerExerciseName').textContent = name;
+    
+    const container = document.querySelector('.player-exercise .video-container');
+    container.innerHTML = `
+        <iframe src="${video}" 
+                style="width:100%;height:100%;border:none;"
+                allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+        </iframe>
+    `;
+    
+    isPlayerPlaying = true;
+    document.getElementById('playerPlayIcon').className = 'fas fa-pause';
+}
+
+function startWorkout() {
+    let allEx = [];
+    Object.keys(exerciseDatabase).forEach(cat => {
+        exerciseDatabase[cat].forEach(ex => {
+            allEx.push(ex);
+        });
+    });
+    
+    const shuffled = allEx.sort(() => 0.5 - Math.random());
+    playerExercises = shuffled.slice(0, 6);
+    currentExerciseIndex = 0;
+    
+    startExercise(playerExercises[0].name, playerExercises[0].video);
+}
+
+function closePlayer() {
+    document.getElementById('playerOverlay').classList.remove('active');
+    const container = document.querySelector('.player-exercise .video-container');
+    container.innerHTML = `<div class="placeholder"><i class="fas fa-play-circle" style="font-size:60px;color:var(--primary);"></i></div>`;
+}
+
+function togglePlayerPlay() {
+    isPlayerPlaying = !isPlayerPlaying;
+    document.getElementById('playerPlayIcon').className = isPlayerPlaying ? 'fas fa-pause' : 'fas fa-play';
+    showToast(isPlayerPlaying ? 'Resumed' : 'Paused', 'info');
+}
+
+function nextExercise() {
+    if (currentExerciseIndex < playerExercises.length - 1) {
+        currentExerciseIndex++;
+        const ex = playerExercises[currentExerciseIndex];
+        startExercise(ex.name, ex.video);
+        showToast(`Exercise ${currentExerciseIndex + 1} of ${playerExercises.length}`, 'info');
+    } else {
+        completeWorkout();
+    }
+}
+
+function previousExercise() {
+    if (currentExerciseIndex > 0) {
+        currentExerciseIndex--;
+        const ex = playerExercises[currentExerciseIndex];
+        startExercise(ex.name, ex.video);
+    }
+}
+
+function completeWorkout() {
+    closePlayer();
+    showToast('🎉 Workout Complete! Great job!', 'success');
+    const progressBar = document.querySelector('.player-progress .bar');
+    if (progressBar) progressBar.style.width = '100%';
+}
+
+// ===== MODAL =====
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// ===== TOAST =====
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${message}</span>`;
+    container.appendChild(toast);
+
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+    }, 3000);
+}
+
+// ===== TOGGLE =====
+document.querySelectorAll('.toggle').forEach(toggle => {
+    toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+    });
+});
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeModal();
+        closePlayer();
+    }
+    if (e.key === ' ' && document.getElementById('playerOverlay').classList.contains('active')) {
+        e.preventDefault();
+        togglePlayerPlay();
+    }
+});
+
+// ===== RENDER ON LOAD =====
+renderExercises();
+
+console.log('💪 ProGym App Loaded Successfully!');
+console.log('📚 Total Exercises:', Object.values(exerciseDatabase).flat().length);
+console.log('📺 All exercises include YouTube videos!');
+</script>
 </body>
 </html>
