@@ -1,5 +1,5 @@
 // =============================================
-// BACKEND - server.js (Full Production Ready)
+// BACKEND - server.js (Full Admin Panel + Telegram Bot)
 // =============================================
 
 const express = require('express');
@@ -9,35 +9,22 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
 
 // =============================================
-// SECURITY & MIDDLEWARE
+// MIDDLEWARE
 // =============================================
 
 app.use(helmet());
-app.use(cors({
-    origin: process.env.FRONTEND_URL || '*',
-    credentials: true
-}));
+app.use(cors({ origin: '*', credentials: true }));
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: 'Too many requests, please try again later.'
-});
-app.use('/api', limiter);
-
-// Static files for uploads
-app.use('/uploads', express.static('uploads'));
+console.log('🚀 Starting server...');
+console.log('📡 Webhook URL:', process.env.WEBHOOK_URL);
 
 // =============================================
 // DATABASE CONNECTION
@@ -49,36 +36,29 @@ mongoose.connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 5000
 });
 
-mongoose.connection.on('connected', () => {
-    console.log('✅ MongoDB connected successfully');
-});
-
-mongoose.connection.on('error', (err) => {
-    console.error('❌ MongoDB connection error:', err);
-});
+mongoose.connection.on('connected', () => console.log('✅ MongoDB connected'));
+mongoose.connection.on('error', (err) => console.error('❌ MongoDB error:', err));
 
 // =============================================
 // MODELS
 // =============================================
 
-// User Schema
+// User Model
 const UserSchema = new mongoose.Schema({
     telegramId: { type: String, unique: true, sparse: true },
     email: { type: String, unique: true, sparse: true },
     password: { type: String },
-    googleId: { type: String, unique: true, sparse: true },
-    username: { type: String, unique: true },
+    username: { type: String, unique: true, sparse: true },
     fullName: { type: String },
     profilePhoto: { type: String },
     gender: { type: String, enum: ['Male', 'Female', 'Non-binary'] },
     age: { type: Number },
     height: { type: Number },
     weight: { type: Number },
-    fitnessLevel: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced', 'Professional'] },
-    fitnessGoal: { type: String, enum: ['Lose Weight', 'Build Muscle', 'Maintain Fitness', 'Increase Strength'] },
+    fitnessLevel: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced', 'Professional'], default: 'Beginner' },
+    fitnessGoal: { type: String, enum: ['Lose Weight', 'Build Muscle', 'Maintain Fitness', 'Increase Strength'], default: 'Build Muscle' },
     activityLevel: { type: String, enum: ['Sedentary', 'Light', 'Moderate', 'Active', 'Very Active'] },
-    workoutExperience: { type: String, enum: ['Less than 1 year', '1-3 years', '3-5 years', '5+ years'] },
-    role: { type: String, enum: ['User', 'Coach', 'Admin'], default: 'User' },
+    role: { type: String, enum: ['User', 'Admin', 'SuperAdmin'], default: 'User' },
     isPremium: { type: Boolean, default: false },
     premiumExpiry: { type: Date },
     xp: { type: Number, default: 0 },
@@ -86,6 +66,7 @@ const UserSchema = new mongoose.Schema({
     streak: { type: Number, default: 0 },
     lastWorkoutDate: { type: Date },
     isActive: { type: Boolean, default: true },
+    isBanned: { type: Boolean, default: false },
     refreshTokens: { type: [String], default: [] },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
@@ -93,7 +74,7 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema);
 
-// Exercise Schema
+// Exercise Model
 const ExerciseSchema = new mongoose.Schema({
     name: { type: String, required: true },
     category: { type: String, required: true },
@@ -109,12 +90,14 @@ const ExerciseSchema = new mongoose.Schema({
     rest: { type: String, default: '60s' },
     tempo: { type: String, default: '2010' },
     isActive: { type: Boolean, default: true },
-    createdAt: { type: Date, default: Date.now }
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 const Exercise = mongoose.model('Exercise', ExerciseSchema);
 
-// Workout Schema
+// Workout Model
 const WorkoutSchema = new mongoose.Schema({
     name: { type: String, required: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -133,18 +116,24 @@ const WorkoutSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     completed: { type: Boolean, default: false },
     completionTime: { type: Date },
-    rating: { type: Number, min: 1, max: 5 }
+    rating: { type: Number, min: 1, max: 5 },
+    notes: { type: String }
 });
 
 const Workout = mongoose.model('Workout', WorkoutSchema);
 
-// Progress Schema
+// Progress Model
 const ProgressSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     date: { type: Date, default: Date.now },
     weight: { type: Number },
     bodyFat: { type: Number },
     bmi: { type: Number },
+    chest: { type: Number },
+    waist: { type: Number },
+    hips: { type: Number },
+    arms: { type: Number },
+    legs: { type: Number },
     caloriesBurned: { type: Number },
     workoutDuration: { type: Number },
     exercisesCompleted: { type: Number }
@@ -152,7 +141,7 @@ const ProgressSchema = new mongoose.Schema({
 
 const Progress = mongoose.model('Progress', ProgressSchema);
 
-// Nutrition Schema
+// Nutrition Model
 const NutritionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     date: { type: Date, default: Date.now },
@@ -160,6 +149,7 @@ const NutritionSchema = new mongoose.Schema({
     protein: { type: Number },
     carbs: { type: Number },
     fat: { type: Number },
+    fiber: { type: Number },
     water: { type: Number },
     meals: [{
         type: { type: String, enum: ['Breakfast', 'Lunch', 'Dinner', 'Snack'] },
@@ -173,7 +163,7 @@ const NutritionSchema = new mongoose.Schema({
 
 const Nutrition = mongoose.model('Nutrition', NutritionSchema);
 
-// Challenge Schema
+// Challenge Model
 const ChallengeSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String },
@@ -181,6 +171,7 @@ const ChallengeSchema = new mongoose.Schema({
     type: { type: String, enum: ['Daily', 'Weekly', 'Monthly'] },
     startDate: { type: Date },
     endDate: { type: Date },
+    exercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }],
     requiredWorkouts: { type: Number },
     rewardXp: { type: Number },
     rewardBadge: { type: String },
@@ -190,15 +181,17 @@ const ChallengeSchema = new mongoose.Schema({
         completed: { type: Boolean, default: false },
         joinedAt: { type: Date, default: Date.now }
     }],
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdAt: { type: Date, default: Date.now }
 });
 
 const Challenge = mongoose.model('Challenge', ChallengeSchema);
 
-// Notification Schema
+// Notification Model
 const NotificationSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    type: { type: String, enum: ['Workout', 'Meal', 'Water', 'Challenge', 'Achievement', 'System'] },
+    type: { type: String, enum: ['Workout', 'Meal', 'Water', 'Challenge', 'Achievement', 'System', 'Admin'] },
     title: { type: String },
     message: { type: String },
     read: { type: Boolean, default: false },
@@ -207,7 +200,7 @@ const NotificationSchema = new mongoose.Schema({
 
 const Notification = mongoose.model('Notification', NotificationSchema);
 
-// Achievement Schema
+// Achievement Model
 const AchievementSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     name: { type: String, required: true },
@@ -219,8 +212,21 @@ const AchievementSchema = new mongoose.Schema({
 
 const Achievement = mongoose.model('Achievement', AchievementSchema);
 
+// Admin Log Model
+const AdminLogSchema = new mongoose.Schema({
+    adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    action: { type: String },
+    target: { type: String },
+    targetId: { type: String },
+    details: { type: mongoose.Schema.Types.Mixed },
+    ip: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const AdminLog = mongoose.model('AdminLog', AdminLogSchema);
+
 // =============================================
-// MIDDLEWARE
+// AUTH MIDDLEWARE
 // =============================================
 
 const authenticate = async (req, res, next) => {
@@ -232,8 +238,8 @@ const authenticate = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.userId);
-        if (!user || !user.isActive) {
-            return res.status(401).json({ error: 'User not found or inactive' });
+        if (!user || !user.isActive || user.isBanned) {
+            return res.status(401).json({ error: 'User not found or banned' });
         }
 
         req.user = user;
@@ -242,6 +248,54 @@ const authenticate = async (req, res, next) => {
         return res.status(401).json({ error: 'Invalid token' });
     }
 };
+
+const authorize = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ error: 'Access denied. Admin only.' });
+        }
+        next();
+    };
+};
+
+const isAdmin = authorize('Admin', 'SuperAdmin');
+const isSuperAdmin = authorize('SuperAdmin');
+
+// =============================================
+// TELEGRAM BOT FUNCTIONS
+// =============================================
+
+const TELEGRAM_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+const ADMIN_IDS = process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',') : [];
+
+async function sendTelegramMessage(chatId, text, replyMarkup = null) {
+    try {
+        const response = await axios.post(`${TELEGRAM_API}/sendMessage`, {
+            chat_id: chatId,
+            text: text,
+            parse_mode: 'HTML',
+            reply_markup: replyMarkup
+        });
+        return response.data;
+    } catch (error) {
+        console.error('❌ Send message error:', error.response?.data || error.message);
+        throw error;
+    }
+}
+
+async function sendTelegramPhoto(chatId, photoUrl, caption = '') {
+    try {
+        const response = await axios.post(`${TELEGRAM_API}/sendPhoto`, {
+            chat_id: chatId,
+            photo: photoUrl,
+            caption: caption,
+            parse_mode: 'HTML'
+        });
+        return response.data;
+    } catch (error) {
+        console.error('❌ Send photo error:', error.response?.data || error.message);
+    }
+}
 
 // =============================================
 // AUTH ROUTES
@@ -433,7 +487,7 @@ app.get('/api/v1/users/profile', authenticate, async (req, res) => {
 app.put('/api/v1/users/profile', authenticate, async (req, res) => {
     try {
         const allowed = ['fullName', 'gender', 'age', 'height', 'weight', 'fitnessLevel', 
-                        'fitnessGoal', 'activityLevel', 'workoutExperience'];
+                        'fitnessGoal', 'activityLevel'];
         const updates = {};
         allowed.forEach(field => {
             if (req.body[field] !== undefined) updates[field] = req.body[field];
@@ -448,387 +502,506 @@ app.put('/api/v1/users/profile', authenticate, async (req, res) => {
 });
 
 // =============================================
-// EXERCISE ROUTES
+// ADMIN ROUTES
 // =============================================
 
-// Get Exercises with Filters
-app.get('/api/v1/exercises', async (req, res) => {
+// === Dashboard Stats ===
+app.get('/api/v1/admin/dashboard', authenticate, isAdmin, async (req, res) => {
     try {
-        const { category, muscle, difficulty, search, page = 1, limit = 20 } = req.query;
-        
-        let query = { isActive: true };
-        if (category) query.category = category;
-        if (muscle) query.muscle = { $regex: muscle, $options: 'i' };
-        if (difficulty) query.difficulty = difficulty;
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { muscle: { $regex: search, $options: 'i' } }
-            ];
-        }
+        const totalUsers = await User.countDocuments();
+        const activeUsers = await User.countDocuments({ isActive: true });
+        const bannedUsers = await User.countDocuments({ isBanned: true });
+        const premiumUsers = await User.countDocuments({ isPremium: true });
+        const totalWorkouts = await Workout.countDocuments({ completed: true });
+        const totalExercises = await Exercise.countDocuments();
+        const totalChallenges = await Challenge.countDocuments({ isActive: true });
 
-        const skip = (parseInt(page) - 1) * parseInt(limit);
-        const exercises = await Exercise.find(query).skip(skip).limit(parseInt(limit));
-        const total = await Exercise.countDocuments(query);
+        // Recent users
+        const recentUsers = await User.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select('-password -refreshTokens');
+
+        // Recent workouts
+        const recentWorkouts = await Workout.find({ completed: true })
+            .sort({ completionTime: -1 })
+            .limit(5)
+            .populate('userId', 'fullName username');
 
         res.json({
             success: true,
-            exercises,
-            pagination: { page: parseInt(page), limit: parseInt(limit), total }
+            stats: {
+                totalUsers,
+                activeUsers,
+                bannedUsers,
+                premiumUsers,
+                totalWorkouts,
+                totalExercises,
+                totalChallenges
+            },
+            recentUsers,
+            recentWorkouts
         });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch exercises' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get dashboard stats' });
     }
 });
 
-// Get Single Exercise
-app.get('/api/v1/exercises/:id', async (req, res) => {
+// === Get All Users ===
+app.get('/api/v1/admin/users', authenticate, isAdmin, async (req, res) => {
     try {
-        const exercise = await Exercise.findById(req.params.id);
+        const { page = 1, limit = 20, search = '' } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        let query = {};
+        if (search) {
+            query.$or = [
+                { fullName: { $regex: search, $options: 'i' } },
+                { username: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const users = await User.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .select('-password -refreshTokens');
+
+        const total = await User.countDocuments(query);
+
+        res.json({
+            success: true,
+            users,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / parseInt(limit))
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get users' });
+    }
+});
+
+// === Get User by ID (Admin) ===
+app.get('/api/v1/admin/users/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password -refreshTokens');
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Get user stats
+        const totalWorkouts = await Workout.countDocuments({ userId: user._id, completed: true });
+        const workouts = await Workout.find({ userId: user._id, completed: true })
+            .sort({ date: -1 })
+            .limit(10);
+
+        res.json({
+            success: true,
+            user,
+            stats: { totalWorkouts },
+            recentWorkouts: workouts
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get user' });
+    }
+});
+
+// === Update User (Admin) ===
+app.put('/api/v1/admin/users/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { role, isPremium, isActive, isBanned, fitnessLevel, fitnessGoal } = req.body;
+        
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (role) user.role = role;
+        if (isPremium !== undefined) user.isPremium = isPremium;
+        if (isActive !== undefined) user.isActive = isActive;
+        if (isBanned !== undefined) user.isBanned = isBanned;
+        if (fitnessLevel) user.fitnessLevel = fitnessLevel;
+        if (fitnessGoal) user.fitnessGoal = fitnessGoal;
+
+        await user.save();
+
+        // Log admin action
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'UPDATE_USER',
+            target: 'User',
+            targetId: user._id.toString(),
+            details: req.body,
+            ip: req.ip
+        });
+
+        res.json({
+            success: true,
+            message: 'User updated successfully',
+            user: user.toObject({ versionKey: false })
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+});
+
+// === Delete User (Admin) ===
+app.delete('/api/v1/admin/users/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Don't allow deleting yourself
+        if (user._id.toString() === req.user._id.toString()) {
+            return res.status(400).json({ error: 'Cannot delete your own account' });
+        }
+
+        await user.deleteOne();
+
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'DELETE_USER',
+            target: 'User',
+            targetId: user._id.toString(),
+            details: { username: user.username, email: user.email },
+            ip: req.ip
+        });
+
+        res.json({ success: true, message: 'User deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
+});
+
+// === Get All Exercises (Admin) ===
+app.get('/api/v1/admin/exercises', authenticate, isAdmin, async (req, res) => {
+    try {
+        const exercises = await Exercise.find().sort({ createdAt: -1 });
+        res.json({ success: true, exercises });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get exercises' });
+    }
+});
+
+// === Create Exercise (Admin) ===
+app.post('/api/v1/admin/exercises', authenticate, isAdmin, async (req, res) => {
+    try {
+        const exercise = new Exercise({
+            ...req.body,
+            createdBy: req.user._id
+        });
+        await exercise.save();
+
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'CREATE_EXERCISE',
+            target: 'Exercise',
+            targetId: exercise._id.toString(),
+            details: { name: exercise.name },
+            ip: req.ip
+        });
+
+        res.status(201).json({ success: true, exercise });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to create exercise' });
+    }
+});
+
+// === Update Exercise (Admin) ===
+app.put('/api/v1/admin/exercises/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        const exercise = await Exercise.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!exercise) {
             return res.status(404).json({ error: 'Exercise not found' });
         }
+
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'UPDATE_EXERCISE',
+            target: 'Exercise',
+            targetId: exercise._id.toString(),
+            details: { name: exercise.name },
+            ip: req.ip
+        });
+
         res.json({ success: true, exercise });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch exercise' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update exercise' });
     }
 });
 
-// =============================================
-// WORKOUT ROUTES
-// =============================================
-
-// Create Workout
-app.post('/api/v1/workouts', authenticate, async (req, res) => {
+// === Delete Exercise (Admin) ===
+app.delete('/api/v1/admin/exercises/:id', authenticate, isAdmin, async (req, res) => {
     try {
-        const workout = new Workout({
-            userId: req.user._id,
-            ...req.body
-        });
-        await workout.save();
-        res.status(201).json({ success: true, workout });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to create workout' });
-    }
-});
-
-// Get User Workouts
-app.get('/api/v1/workouts', authenticate, async (req, res) => {
-    try {
-        const { completed, limit = 20, page = 1 } = req.query;
-        let query = { userId: req.user._id };
-        if (completed !== undefined) query.completed = completed === 'true';
-
-        const skip = (parseInt(page) - 1) * parseInt(limit);
-        const workouts = await Workout.find(query)
-            .populate('exercises.exerciseId')
-            .sort({ date: -1 })
-            .skip(skip)
-            .limit(parseInt(limit));
-
-        res.json({ success: true, workouts });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch workouts' });
-    }
-});
-
-// Complete Workout
-app.put('/api/v1/workouts/:id/complete', authenticate, async (req, res) => {
-    try {
-        const workout = await Workout.findOne({ _id: req.params.id, userId: req.user._id });
-        if (!workout) {
-            return res.status(404).json({ error: 'Workout not found' });
+        const exercise = await Exercise.findByIdAndDelete(req.params.id);
+        if (!exercise) {
+            return res.status(404).json({ error: 'Exercise not found' });
         }
 
-        workout.completed = true;
-        workout.completionTime = new Date();
-        workout.rating = req.body.rating;
-        await workout.save();
-
-        // Update user stats
-        const user = await User.findById(req.user._id);
-        user.xp += 50;
-        user.streak = user.streak + 1;
-        user.lastWorkoutDate = new Date();
-
-        // Level up
-        if (user.xp >= user.level * 100) {
-            user.level += 1;
-            await Notification.create({
-                userId: user._id,
-                type: 'Achievement',
-                title: 'Level Up!',
-                message: `🎉 Congratulations! You've reached Level ${user.level}!`
-            });
-        }
-
-        await user.save();
-        res.json({ success: true, workout });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to complete workout' });
-    }
-});
-
-// =============================================
-// PROGRESS ROUTES
-// =============================================
-
-// Log Progress
-app.post('/api/v1/progress', authenticate, async (req, res) => {
-    try {
-        const progress = new Progress({
-            userId: req.user._id,
-            ...req.body
-        });
-        await progress.save();
-        res.status(201).json({ success: true, progress });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to log progress' });
-    }
-});
-
-// Get Progress
-app.get('/api/v1/progress', authenticate, async (req, res) => {
-    try {
-        const { limit = 30 } = req.query;
-        const progress = await Progress.find({ userId: req.user._id })
-            .sort({ date: -1 })
-            .limit(parseInt(limit));
-        res.json({ success: true, progress });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch progress' });
-    }
-});
-
-// =============================================
-// NUTRITION ROUTES
-// =============================================
-
-// Log Nutrition
-app.post('/api/v1/nutrition', authenticate, async (req, res) => {
-    try {
-        const nutrition = new Nutrition({
-            userId: req.user._id,
-            ...req.body
-        });
-        await nutrition.save();
-        res.status(201).json({ success: true, nutrition });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to log nutrition' });
-    }
-});
-
-// Get Today's Nutrition
-app.get('/api/v1/nutrition/today', authenticate, async (req, res) => {
-    try {
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
-
-        const nutrition = await Nutrition.findOne({
-            userId: req.user._id,
-            date: { $gte: startOfDay, $lte: endOfDay }
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'DELETE_EXERCISE',
+            target: 'Exercise',
+            targetId: exercise._id.toString(),
+            details: { name: exercise.name },
+            ip: req.ip
         });
 
-        res.json({ success: true, nutrition });
+        res.json({ success: true, message: 'Exercise deleted' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch nutrition' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete exercise' });
     }
 });
 
-// =============================================
-// CHALLENGE ROUTES
-// =============================================
-
-// Get Active Challenges
-app.get('/api/v1/challenges/active', authenticate, async (req, res) => {
+// === Get All Challenges (Admin) ===
+app.get('/api/v1/admin/challenges', authenticate, isAdmin, async (req, res) => {
     try {
-        const challenges = await Challenge.find({
-            isActive: true,
-            startDate: { $lte: new Date() },
-            endDate: { $gte: new Date() }
-        });
+        const challenges = await Challenge.find()
+            .sort({ createdAt: -1 })
+            .populate('createdBy', 'fullName username');
         res.json({ success: true, challenges });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch challenges' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get challenges' });
     }
 });
 
-// Join Challenge
-app.post('/api/v1/challenges/:id/join', authenticate, async (req, res) => {
+// === Create Challenge (Admin) ===
+app.post('/api/v1/admin/challenges', authenticate, isAdmin, async (req, res) => {
     try {
-        const challenge = await Challenge.findById(req.params.id);
+        const challenge = new Challenge({
+            ...req.body,
+            createdBy: req.user._id
+        });
+        await challenge.save();
+
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'CREATE_CHALLENGE',
+            target: 'Challenge',
+            targetId: challenge._id.toString(),
+            details: { name: challenge.name },
+            ip: req.ip
+        });
+
+        res.status(201).json({ success: true, challenge });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to create challenge' });
+    }
+});
+
+// === Delete Challenge (Admin) ===
+app.delete('/api/v1/admin/challenges/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        const challenge = await Challenge.findByIdAndDelete(req.params.id);
         if (!challenge) {
             return res.status(404).json({ error: 'Challenge not found' });
         }
 
-        const alreadyJoined = challenge.participants.some(
-            p => p.userId.toString() === req.user._id.toString()
-        );
-        if (alreadyJoined) {
-            return res.status(400).json({ error: 'Already joined this challenge' });
-        }
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'DELETE_CHALLENGE',
+            target: 'Challenge',
+            targetId: challenge._id.toString(),
+            details: { name: challenge.name },
+            ip: req.ip
+        });
 
-        challenge.participants.push({ userId: req.user._id });
-        await challenge.save();
-        res.json({ success: true, challenge });
+        res.json({ success: true, message: 'Challenge deleted' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to join challenge' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete challenge' });
     }
 });
 
-// =============================================
-// STATS ROUTES
-// =============================================
-
-// Get User Statistics
-app.get('/api/v1/stats', authenticate, async (req, res) => {
+// === Get All Notifications ===
+app.get('/api/v1/admin/notifications', authenticate, isAdmin, async (req, res) => {
     try {
-        const totalWorkouts = await Workout.countDocuments({ 
-            userId: req.user._id, 
-            completed: true 
+        const notifications = await Notification.find()
+            .sort({ createdAt: -1 })
+            .limit(100)
+            .populate('userId', 'fullName username');
+        res.json({ success: true, notifications });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get notifications' });
+    }
+});
+
+// === Send Broadcast Notification ===
+app.post('/api/v1/admin/broadcast', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { title, message, target = 'all' } = req.body;
+
+        let query = { isActive: true, isBanned: false };
+        if (target === 'premium') {
+            query.isPremium = true;
+        }
+
+        const users = await User.find(query);
+        const notifications = users.map(user => ({
+            userId: user._id,
+            type: 'Admin',
+            title,
+            message
+        }));
+
+        await Notification.insertMany(notifications);
+
+        // Send Telegram notification to admins
+        for (const adminId of ADMIN_IDS) {
+            await sendTelegramMessage(
+                adminId,
+                `📢 <b>Broadcast Sent</b>\n\n📌 ${title}\n📝 ${message}\n👥 Sent to: ${users.length} users`
+            );
+        }
+
+        await AdminLog.create({
+            adminId: req.user._id,
+            action: 'BROADCAST',
+            target: 'Notification',
+            details: { title, message, target, count: users.length },
+            ip: req.ip
         });
-        
-        const caloriesBurned = await Workout.aggregate([
-            { $match: { userId: req.user._id, completed: true } },
-            { $group: { _id: null, total: { $sum: '$calories' } } }
+
+        res.json({ 
+            success: true, 
+            message: `Broadcast sent to ${users.length} users` 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to send broadcast' });
+    }
+});
+
+// === Get Admin Logs ===
+app.get('/api/v1/admin/logs', authenticate, isSuperAdmin, async (req, res) => {
+    try {
+        const { limit = 50, page = 1 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const logs = await AdminLog.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .populate('adminId', 'fullName username');
+
+        const total = await AdminLog.countDocuments();
+
+        res.json({
+            success: true,
+            logs,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / parseInt(limit))
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get logs' });
+    }
+});
+
+// === Get App Stats (Admin) ===
+app.get('/api/v1/admin/stats', authenticate, isAdmin, async (req, res) => {
+    try {
+        const [
+            totalUsers,
+            activeUsers,
+            premiumUsers,
+            totalWorkouts,
+            completedWorkouts,
+            totalExercises,
+            totalChallenges,
+            activeChallenges
+        ] = await Promise.all([
+            User.countDocuments(),
+            User.countDocuments({ isActive: true }),
+            User.countDocuments({ isPremium: true }),
+            Workout.countDocuments(),
+            Workout.countDocuments({ completed: true }),
+            Exercise.countDocuments(),
+            Challenge.countDocuments(),
+            Challenge.countDocuments({ isActive: true })
         ]);
 
-        const weeklyWorkouts = await Workout.countDocuments({
-            userId: req.user._id,
+        // Weekly stats
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const newUsersThisWeek = await User.countDocuments({
+            createdAt: { $gte: weekAgo }
+        });
+
+        const workoutsThisWeek = await Workout.countDocuments({
             completed: true,
-            date: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+            completionTime: { $gte: weekAgo }
         });
 
         res.json({
             success: true,
             stats: {
+                totalUsers,
+                activeUsers,
+                premiumUsers,
                 totalWorkouts,
-                caloriesBurned: caloriesBurned[0]?.total || 0,
-                currentStreak: req.user.streak,
-                weeklyWorkouts,
-                level: req.user.level,
-                xp: req.user.xp,
-                xpToNextLevel: req.user.level * 100
+                completedWorkouts,
+                totalExercises,
+                totalChallenges,
+                activeChallenges,
+                newUsersThisWeek,
+                workoutsThisWeek
             }
         });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch stats' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get stats' });
     }
 });
 
-// =============================================
-// AI COACH ROUTES
-// =============================================
-
-// AI Workout Generator
-app.post('/api/v1/ai/workout', authenticate, async (req, res) => {
+// === Get All Workouts (Admin) ===
+app.get('/api/v1/admin/workouts', authenticate, isAdmin, async (req, res) => {
     try {
-        const user = req.user;
-        const difficulty = user.fitnessLevel || 'Intermediate';
-        const goal = user.fitnessGoal || 'Build Muscle';
+        const { limit = 50, page = 1 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
 
-        // Get exercises based on user level
-        const exercises = await Exercise.find({ 
-            difficulty: difficulty,
-            isActive: true 
-        }).limit(8);
+        const workouts = await Workout.find()
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .populate('userId', 'fullName username');
 
-        if (exercises.length === 0) {
-            return res.status(404).json({ error: 'No exercises found for your level' });
-        }
-
-        const workout = {
-            name: `AI Custom Workout - ${new Date().toLocaleDateString()}`,
-            exercises: exercises.map(ex => ({
-                exerciseId: ex._id,
-                name: ex.name,
-                muscle: ex.muscle,
-                sets: ex.sets || 3,
-                reps: ex.reps || '10-12',
-                rest: ex.rest || '60s',
-                video: ex.video
-            })),
-            category: goal,
-            difficulty: difficulty,
-            duration: 45,
-            calories: 350
-        };
+        const total = await Workout.countDocuments();
 
         res.json({
             success: true,
-            workout,
-            recommendation: `💪 Based on your ${difficulty.toLowerCase()} level, here's a personalized workout for ${goal.toLowerCase()}.`
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to generate AI workout' });
-    }
-});
-
-// AI Nutrition Planner
-app.post('/api/v1/ai/nutrition', authenticate, async (req, res) => {
-    try {
-        const user = req.user;
-        const goal = user.fitnessGoal || 'Maintain Fitness';
-
-        // Calculate macros based on goal
-        let macros;
-        switch(goal) {
-            case 'Build Muscle':
-                macros = { calories: 2800, protein: 200, carbs: 300, fat: 80 };
-                break;
-            case 'Lose Weight':
-                macros = { calories: 1800, protein: 160, carbs: 150, fat: 50 };
-                break;
-            default:
-                macros = { calories: 2200, protein: 150, carbs: 200, fat: 65 };
-        }
-
-        // Meal suggestions
-        const meals = [
-            {
-                type: 'Breakfast',
-                name: 'Protein Oatmeal',
-                calories: 450,
-                protein: 30,
-                carbs: 50,
-                fat: 10
-            },
-            {
-                type: 'Lunch',
-                name: 'Grilled Chicken Salad',
-                calories: 550,
-                protein: 45,
-                carbs: 30,
-                fat: 20
-            },
-            {
-                type: 'Dinner',
-                name: 'Salmon with Quinoa',
-                calories: 650,
-                protein: 40,
-                carbs: 45,
-                fat: 25
-            },
-            {
-                type: 'Snack',
-                name: 'Greek Yogurt with Berries',
-                calories: 200,
-                protein: 20,
-                carbs: 15,
-                fat: 5
+            workouts,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / parseInt(limit))
             }
-        ];
-
-        res.json({
-            success: true,
-            macros,
-            meals,
-            recommendation: `🍽️ Here are your daily macro targets for ${goal.toLowerCase()}.`
         });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to generate nutrition plan' });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to get workouts' });
     }
 });
 
@@ -836,42 +1009,21 @@ app.post('/api/v1/ai/nutrition', authenticate, async (req, res) => {
 // TELEGRAM BOT WEBHOOK
 // =============================================
 
-const axios = require('axios');
-
-// Send Telegram message helper
-async function sendTelegramMessage(chatId, text, replyMarkup = null) {
-    try {
-        const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
-        const payload = {
-            chat_id: chatId,
-            text: text,
-            parse_mode: 'HTML',
-            reply_markup: replyMarkup
-        };
-        await axios.post(url, payload);
-    } catch (error) {
-        console.error('Telegram send error:', error.message);
-    }
-}
-
-// Telegram Webhook
 app.post(`/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, async (req, res) => {
+    console.log('📩 Webhook received');
+    
     try {
         const { message, callback_query } = req.body;
 
-        // Handle callback queries (button presses)
+        // Handle callback queries
         if (callback_query) {
             const chatId = callback_query.message.chat.id;
             const userId = callback_query.from.id;
-            const data = callback_query.data;
+            
+            await axios.post(`${TELEGRAM_API}/answerCallbackQuery`, {
+                callback_query_id: callback_query.id
+            });
 
-            // Answer callback query
-            await axios.post(
-                `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/answerCallbackQuery`,
-                { callback_query_id: callback_query.id }
-            );
-
-            // Find user
             let user = await User.findOne({ telegramId: userId.toString() });
             if (!user) {
                 user = new User({
@@ -882,261 +1034,176 @@ app.post(`/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, async (req, res) => {
                 await user.save();
             }
 
-            // Handle different callback actions
-            if (data === 'workout') {
-                const exercises = await Exercise.find({ isActive: true }).limit(5);
-                let workoutText = '🏋️ <b>Your Workout</b>\n\n';
-                exercises.forEach((ex, i) => {
-                    workoutText += `${i+1}. ${ex.name}\n   🎯 ${ex.muscle} | ${ex.difficulty}\n\n`;
-                });
-                workoutText += '🔹 Sets: 3-4\n🔹 Reps: 8-12\n🔹 Rest: 60s';
+            // Handle admin callbacks
+            if (callback_query.data === 'admin_dashboard') {
+                if (!ADMIN_IDS.includes(userId.toString())) {
+                    await sendTelegramMessage(chatId, '⛔ Access denied. Admin only.');
+                    return res.json({ success: true });
+                }
 
-                await sendTelegramMessage(chatId, workoutText, {
+                const totalUsers = await User.countDocuments();
+                const activeUsers = await User.countDocuments({ isActive: true });
+                const totalWorkouts = await Workout.countDocuments({ completed: true });
+                const premiumUsers = await User.countDocuments({ isPremium: true });
+
+                const text = `👑 <b>Admin Dashboard</b>\n\n` +
+                    `👥 Total Users: ${totalUsers}\n` +
+                    `🟢 Active Users: ${activeUsers}\n` +
+                    `⭐ Premium Users: ${premiumUsers}\n` +
+                    `🏋️ Total Workouts: ${totalWorkouts}\n\n` +
+                    `📊 <b>Quick Actions:</b>`;
+
+                await sendTelegramMessage(chatId, text, {
                     inline_keyboard: [
-                        [{ text: '✅ Complete Workout', callback_data: 'complete' }],
-                        [{ text: '📊 View Progress', callback_data: 'progress' }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
+                        [{ text: '👥 View Users', callback_data: 'admin_users' }],
+                        [{ text: '📢 Send Broadcast', callback_data: 'admin_broadcast' }],
+                        [{ text: '📊 Full Stats', callback_data: 'admin_stats' }],
+                        [{ text: '📱 Open Admin Panel', url: process.env.FRONTEND_URL + '/admin' }]
                     ]
                 });
             }
 
-            else if (data === 'progress') {
+            else if (callback_query.data === 'admin_users') {
+                if (!ADMIN_IDS.includes(userId.toString())) {
+                    await sendTelegramMessage(chatId, '⛔ Access denied.');
+                    return res.json({ success: true });
+                }
+
+                const users = await User.find()
+                    .sort({ createdAt: -1 })
+                    .limit(10)
+                    .select('fullName username role isActive isPremium createdAt');
+
+                let text = '👥 <b>Recent Users</b>\n\n';
+                users.forEach((u, i) => {
+                    text += `${i+1}. ${u.fullName || u.username}\n` +
+                        `   Role: ${u.role} | Premium: ${u.isPremium ? '✅' : '❌'}\n` +
+                        `   Status: ${u.isActive ? '🟢 Active' : '🔴 Inactive'}\n\n`;
+                });
+
+                await sendTelegramMessage(chatId, text, {
+                    inline_keyboard: [
+                        [{ text: '📊 Admin Dashboard', callback_data: 'admin_dashboard' }],
+                        [{ text: '📱 Open Admin Panel', url: process.env.FRONTEND_URL + '/admin' }]
+                    ]
+                });
+            }
+
+            else if (callback_query.data === 'admin_broadcast') {
+                if (!ADMIN_IDS.includes(userId.toString())) {
+                    await sendTelegramMessage(chatId, '⛔ Access denied.');
+                    return res.json({ success: true });
+                }
+
+                await sendTelegramMessage(chatId, 
+                    '📢 <b>Send Broadcast</b>\n\n' +
+                    'Send a message to all users.\n' +
+                    'Format: /broadcast [title] | [message]\n\n' +
+                    'Example:\n' +
+                    '/broadcast New Workout! | Check out our new HIIT program! 🏋️'
+                );
+            }
+
+            else if (callback_query.data === 'admin_stats') {
+                if (!ADMIN_IDS.includes(userId.toString())) {
+                    await sendTelegramMessage(chatId, '⛔ Access denied.');
+                    return res.json({ success: true });
+                }
+
+                const stats = await getAdminStats();
+                const text = `📊 <b>Full Statistics</b>\n\n` +
+                    `👥 Total Users: ${stats.totalUsers}\n` +
+                    `🟢 Active Users: ${stats.activeUsers}\n` +
+                    `⭐ Premium Users: ${stats.premiumUsers}\n` +
+                    `🏋️ Total Workouts: ${stats.totalWorkouts}\n` +
+                    `✅ Completed Workouts: ${stats.completedWorkouts}\n` +
+                    `📝 Total Exercises: ${stats.totalExercises}\n` +
+                    `🏆 Active Challenges: ${stats.activeChallenges}\n` +
+                    `📈 New Users This Week: ${stats.newUsersThisWeek}`;
+
+                await sendTelegramMessage(chatId, text, {
+                    inline_keyboard: [
+                        [{ text: '👑 Dashboard', callback_data: 'admin_dashboard' }],
+                        [{ text: '📱 Open Admin Panel', url: process.env.FRONTEND_URL + '/admin' }]
+                    ]
+                });
+            }
+
+            // Regular user callbacks
+            else if (callback_query.data === 'workout') {
+                const exercises = await Exercise.find({ isActive: true }).limit(5);
+                let text = '🏋️ <b>Your Workout</b>\n\n';
+                exercises.forEach((ex, i) => {
+                    text += `${i+1}. ${ex.name}\n   🎯 ${ex.muscle}\n\n`;
+                });
+                text += '🔹 Sets: 3-4\n🔹 Reps: 8-12\n🔹 Rest: 60s';
+                
+                await sendTelegramMessage(chatId, text, {
+                    inline_keyboard: [
+                        [{ text: '✅ Complete Workout', callback_data: 'complete' }],
+                        [{ text: '📊 Progress', callback_data: 'progress' }],
+                        [{ text: '📱 Open App', url: process.env.FRONTEND_URL }]
+                    ]
+                });
+            }
+
+            else if (callback_query.data === 'progress') {
                 const totalWorkouts = await Workout.countDocuments({ 
                     userId: user._id, 
                     completed: true 
                 });
                 
-                const progressText = `📊 <b>Your Progress</b>\n\n` +
+                const text = `📊 <b>Your Progress</b>\n\n` +
                     `🏋️ Total Workouts: ${totalWorkouts}\n` +
                     `🔥 Current Streak: ${user.streak} days\n` +
                     `⭐ Level: ${user.level}\n` +
                     `💪 XP: ${user.xp}\n\n` +
                     `Keep pushing! You're doing great! 💪`;
-
-                await sendTelegramMessage(chatId, progressText, {
-                    inline_keyboard: [
-                        [{ text: '📈 Full Stats', callback_data: 'stats' }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
-                    ]
-                });
-            }
-
-            else if (data === 'stats') {
-                const stats = await Workout.aggregate([
-                    { $match: { userId: user._id, completed: true } },
-                    { $group: { 
-                        _id: null, 
-                        totalCalories: { $sum: '$calories' },
-                        avgDuration: { $avg: '$duration' }
-                    } }
-                ]);
-
-                const statsText = `📈 <b>Detailed Statistics</b>\n\n` +
-                    `📊 Total Workouts: ${await Workout.countDocuments({ userId: user._id, completed: true })}\n` +
-                    `🔥 Calories Burned: ${stats[0]?.totalCalories || 0} kcal\n` +
-                    `⏱️ Avg Duration: ${Math.round(stats[0]?.avgDuration || 0)} min\n` +
-                    `🏆 Current Level: ${user.level}\n` +
-                    `⭐ Total XP: ${user.xp}`;
-
-                await sendTelegramMessage(chatId, statsText, {
-                    inline_keyboard: [
-                        [{ text: '📊 Progress', callback_data: 'progress' }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
-                    ]
-                });
-            }
-
-            else if (data === 'complete') {
-                // Find last incomplete workout
-                const workout = await Workout.findOne({
-                    userId: user._id,
-                    completed: false
-                }).sort({ date: -1 });
-
-                if (workout) {
-                    workout.completed = true;
-                    workout.completionTime = new Date();
-                    await workout.save();
-
-                    user.xp += 50;
-                    user.streak += 1;
-                    user.lastWorkoutDate = new Date();
-                    
-                    if (user.xp >= user.level * 100) {
-                        user.level += 1;
-                    }
-                    await user.save();
-
-                    await sendTelegramMessage(chatId, '✅ <b>Workout Complete!</b>\n\n🎉 Great job! You earned 50 XP!\n🔥 Streak: ' + user.streak + ' days');
-                } else {
-                    await sendTelegramMessage(chatId, 'ℹ️ No active workout found. Start a new workout!');
-                }
-            }
-
-            else if (data === 'nutrition') {
-                const nutrition = await Nutrition.findOne({
-                    userId: user._id,
-                    date: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-                });
-
-                let nutritionText;
-                if (nutrition) {
-                    nutritionText = `🍽️ <b>Today's Nutrition</b>\n\n` +
-                        `🔥 Calories: ${nutrition.calories || 0}\n` +
-                        `💪 Protein: ${nutrition.protein || 0}g\n` +
-                        `🍚 Carbs: ${nutrition.carbs || 0}g\n` +
-                        `🥑 Fat: ${nutrition.fat || 0}g\n` +
-                        `💧 Water: ${nutrition.water || 0}L`;
-                } else {
-                    nutritionText = `🍽️ <b>Nutrition</b>\n\n` +
-                        `No nutrition data logged today.\n` +
-                        `Track your meals in the app!`;
-                }
-
-                await sendTelegramMessage(chatId, nutritionText, {
-                    inline_keyboard: [
-                        [{ text: '📱 Log Meals', url: `${process.env.FRONTEND_URL}?tg=${userId}` }],
-                        [{ text: '🍽️ Meal Plan', callback_data: 'mealplan' }]
-                    ]
-                });
-            }
-
-            else if (data === 'mealplan') {
-                const goal = user.fitnessGoal || 'Maintain Fitness';
-                let mealText = `🍽️ <b>Your Meal Plan</b>\n\n`;
                 
-                if (goal === 'Build Muscle') {
-                    mealText += '🥚 <b>Breakfast:</b> Protein Oatmeal (450 cal)\n' +
-                        '🥗 <b>Lunch:</b> Grilled Chicken Salad (550 cal)\n' +
-                        '🍣 <b>Dinner:</b> Salmon with Quinoa (650 cal)\n' +
-                        '🥜 <b>Snack:</b> Greek Yogurt (200 cal)\n\n' +
-                        '📊 Total: 1850 cal | 135g Protein';
-                } else if (goal === 'Lose Weight') {
-                    mealText += '🥚 <b>Breakfast:</b> Egg Whites & Veggies (300 cal)\n' +
-                        '🥗 <b>Lunch:</b> Tuna Salad (400 cal)\n' +
-                        '🍗 <b>Dinner:</b> Grilled Chicken & Broccoli (450 cal)\n' +
-                        '🥜 <b>Snack:</b> Apple & Almonds (150 cal)\n\n' +
-                        '📊 Total: 1300 cal | 100g Protein';
-                } else {
-                    mealText += '🥚 <b>Breakfast:</b> Oatmeal with Berries (400 cal)\n' +
-                        '🥗 <b>Lunch:</b> Turkey Sandwich (500 cal)\n' +
-                        '🍣 <b>Dinner:</b> Fish with Rice (600 cal)\n' +
-                        '🥜 <b>Snack:</b> Mixed Nuts (200 cal)\n\n' +
-                        '📊 Total: 1700 cal | 120g Protein';
-                }
-
-                await sendTelegramMessage(chatId, mealText, {
+                await sendTelegramMessage(chatId, text, {
                     inline_keyboard: [
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
+                        [{ text: '💪 Start Workout', callback_data: 'workout' }],
+                        [{ text: '📱 Open App', url: process.env.FRONTEND_URL }]
                     ]
                 });
             }
 
-            else if (data === 'challenge') {
-                const challenge = await Challenge.findOne({
-                    isActive: true,
-                    endDate: { $gte: new Date() }
+            else if (callback_query.data === 'complete') {
+                const workout = new Workout({
+                    userId: user._id,
+                    completed: true,
+                    date: new Date(),
+                    duration: 30,
+                    calories: 200
                 });
-
-                let challengeText = '🏆 <b>Active Challenges</b>\n\n';
-                if (challenge) {
-                    challengeText += `📌 ${challenge.name}\n` +
-                        `📝 ${challenge.description || 'Complete workouts to earn rewards!'}\n` +
-                        `🎯 ${challenge.requiredWorkouts} workouts required\n` +
-                        `⭐ Reward: ${challenge.rewardXp} XP`;
-
-                    const isJoined = challenge.participants.some(
-                        p => p.userId.toString() === user._id.toString()
-                    );
-
-                    const buttons = [];
-                    if (!isJoined) {
-                        buttons.push([{ text: '🎯 Join Challenge', callback_data: 'join_challenge' }]);
-                    }
-                    buttons.push([{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]);
-                    
-                    await sendTelegramMessage(chatId, challengeText, {
-                        inline_keyboard: buttons
-                    });
-                } else {
-                    await sendTelegramMessage(chatId, '🏆 No active challenges right now. Check back soon!');
+                await workout.save();
+                
+                user.xp += 50;
+                user.streak += 1;
+                if (user.xp >= user.level * 100) {
+                    user.level += 1;
                 }
-            }
-
-            else if (data === 'join_challenge') {
-                const challenge = await Challenge.findOne({
-                    isActive: true,
-                    endDate: { $gte: new Date() }
-                });
-
-                if (challenge) {
-                    const alreadyJoined = challenge.participants.some(
-                        p => p.userId.toString() === user._id.toString()
-                    );
-
-                    if (!alreadyJoined) {
-                        challenge.participants.push({ userId: user._id });
-                        await challenge.save();
-                        await sendTelegramMessage(chatId, '🎯 <b>Challenge Joined!</b>\n\nGood luck! Complete the required workouts to earn rewards! 💪');
-                    } else {
-                        await sendTelegramMessage(chatId, 'ℹ️ You already joined this challenge!');
-                    }
-                }
-            }
-
-            else if (data === 'profile') {
-                const profileText = `👤 <b>Your Profile</b>\n\n` +
-                    `📛 Name: ${user.fullName || 'Not set'}\n` +
-                    `🔹 Username: ${user.username}\n` +
-                    `🎯 Goal: ${user.fitnessGoal || 'Not set'}\n` +
-                    `📊 Level: ${user.fitnessLevel || 'Not set'}\n` +
-                    `⭐ Level: ${user.level}\n` +
-                    `💪 XP: ${user.xp}\n` +
-                    `🔥 Streak: ${user.streak} days`;
-
-                await sendTelegramMessage(chatId, profileText, {
-                    inline_keyboard: [
-                        [{ text: '✏️ Update Profile', url: `${process.env.FRONTEND_URL}?tg=${userId}` }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
-                    ]
-                });
-            }
-
-            else if (data === 'help') {
-                const helpText = `❓ <b>Help & Support</b>\n\n` +
-                    `Available commands:\n` +
-                    `/start - Start the bot\n` +
-                    `/workout - Get a workout\n` +
-                    `/progress - View progress\n` +
-                    `/nutrition - Nutrition info\n` +
-                    `/challenge - View challenges\n` +
-                    `/profile - View profile\n` +
-                    `/help - Show this help\n\n` +
-                    `📱 Open the web app for full features!`;
-
-                await sendTelegramMessage(chatId, helpText, {
-                    inline_keyboard: [
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }],
-                        [{ text: '📧 Contact Support', url: `mailto:${process.env.SUPPORT_EMAIL || 'support@gymapp.com'}` }]
-                    ]
-                });
+                await user.save();
+                
+                await sendTelegramMessage(
+                    chatId,
+                    '✅ <b>Workout Complete!</b>\n\n🎉 Great job! You earned 50 XP!\n🔥 Current Streak: ' + user.streak + ' days'
+                );
             }
 
             else {
-                // Default response for unknown callback
-                await sendTelegramMessage(chatId, '❓ Unknown command. Use /help to see available options.');
+                await sendTelegramMessage(chatId, '❓ Use /start to see menu.');
             }
 
             return res.json({ success: true });
         }
 
-        // Handle regular messages
+        // Handle messages
         if (message) {
             const chatId = message.chat.id;
             const userId = message.from.id;
             const text = message.text || '';
 
-            // Find or create user
             let user = await User.findOne({ telegramId: userId.toString() });
             if (!user) {
                 user = new User({
@@ -1147,7 +1214,10 @@ app.post(`/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, async (req, res) => {
                 await user.save();
             }
 
-            // Handle commands
+            // Check if user is admin
+            const isUserAdmin = ADMIN_IDS.includes(userId.toString());
+
+            // Handle /start
             if (text === '/start') {
                 const welcomeText = `🏋️ <b>Welcome to ProGym, ${user.fullName}!</b>\n\n` +
                     `Your AI-powered fitness companion is ready to help you reach your goals.\n\n` +
@@ -1157,14 +1227,82 @@ app.post(`/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, async (req, res) => {
                     `📊 Progress tracking\n` +
                     `🤖 AI Coach`;
 
+                const keyboard = [
+                    [{ text: '💪 Start Workout', callback_data: 'workout' }],
+                    [{ text: '📊 My Progress', callback_data: 'progress' }],
+                    [{ text: '📱 Open App', url: process.env.FRONTEND_URL }]
+                ];
+
+                // Add admin button if user is admin
+                if (isUserAdmin) {
+                    keyboard.push([{ text: '👑 Admin Panel', callback_data: 'admin_dashboard' }]);
+                }
+
                 await sendTelegramMessage(chatId, welcomeText, {
+                    inline_keyboard: keyboard
+                });
+            }
+
+            // Admin commands
+            else if (text.startsWith('/broadcast') && isUserAdmin) {
+                try {
+                    const parts = text.replace('/broadcast', '').trim().split('|');
+                    if (parts.length < 2) {
+                        await sendTelegramMessage(chatId, 
+                            '❌ Invalid format.\n' +
+                            'Use: /broadcast [title] | [message]'
+                        );
+                        return;
+                    }
+
+                    const title = parts[0].trim();
+                    const message = parts[1].trim();
+
+                    const users = await User.find({ isActive: true, isBanned: false });
+                    const notifications = users.map(u => ({
+                        userId: u._id,
+                        type: 'Admin',
+                        title,
+                        message
+                    }));
+
+                    await Notification.insertMany(notifications);
+
+                    await AdminLog.create({
+                        adminId: user._id,
+                        action: 'BROADCAST',
+                        target: 'Notification',
+                        details: { title, message, count: users.length },
+                        ip: 'telegram'
+                    });
+
+                    await sendTelegramMessage(
+                        chatId,
+                        `✅ Broadcast sent to ${users.length} users!\n\n📌 ${title}\n📝 ${message}`
+                    );
+                } catch (error) {
+                    console.error(error);
+                    await sendTelegramMessage(chatId, '❌ Failed to send broadcast.');
+                }
+            }
+
+            else if (text === '/admin' && isUserAdmin) {
+                const totalUsers = await User.countDocuments();
+                const activeUsers = await User.countDocuments({ isActive: true });
+                const totalWorkouts = await Workout.countDocuments({ completed: true });
+
+                const text = `👑 <b>Admin Dashboard</b>\n\n` +
+                    `👥 Total Users: ${totalUsers}\n` +
+                    `🟢 Active Users: ${activeUsers}\n` +
+                    `🏋️ Total Workouts: ${totalWorkouts}\n\n` +
+                    `📊 <b>Quick Actions:</b>`;
+
+                await sendTelegramMessage(chatId, text, {
                     inline_keyboard: [
-                        [{ text: '💪 Start Workout', callback_data: 'workout' }],
-                        [{ text: '📊 My Progress', callback_data: 'progress' }],
-                        [{ text: '🍽️ Nutrition', callback_data: 'nutrition' }],
-                        [{ text: '🏆 Challenges', callback_data: 'challenge' }],
-                        [{ text: '👤 Profile', callback_data: 'profile' }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
+                        [{ text: '👥 View Users', callback_data: 'admin_users' }],
+                        [{ text: '📢 Send Broadcast', callback_data: 'admin_broadcast' }],
+                        [{ text: '📊 Full Stats', callback_data: 'admin_stats' }],
+                        [{ text: '📱 Open Admin Panel', url: process.env.FRONTEND_URL + '/admin' }]
                     ]
                 });
             }
@@ -1173,15 +1311,14 @@ app.post(`/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, async (req, res) => {
                 const exercises = await Exercise.find({ isActive: true }).limit(5);
                 let workoutText = '🏋️ <b>Your Workout</b>\n\n';
                 exercises.forEach((ex, i) => {
-                    workoutText += `${i+1}. ${ex.name}\n   🎯 ${ex.muscle} | ${ex.difficulty}\n\n`;
+                    workoutText += `${i+1}. ${ex.name}\n   🎯 ${ex.muscle}\n\n`;
                 });
                 workoutText += '🔹 Sets: 3-4\n🔹 Reps: 8-12\n🔹 Rest: 60s';
-
+                
                 await sendTelegramMessage(chatId, workoutText, {
                     inline_keyboard: [
                         [{ text: '✅ Complete Workout', callback_data: 'complete' }],
-                        [{ text: '📊 Progress', callback_data: 'progress' }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
+                        [{ text: '📊 Progress', callback_data: 'progress' }]
                     ]
                 });
             }
@@ -1196,140 +1333,89 @@ app.post(`/webhook/${process.env.TELEGRAM_BOT_TOKEN}`, async (req, res) => {
                     `🏋️ Total Workouts: ${totalWorkouts}\n` +
                     `🔥 Current Streak: ${user.streak} days\n` +
                     `⭐ Level: ${user.level}\n` +
-                    `💪 XP: ${user.xp}\n\n` +
-                    `Keep pushing! You're doing great! 💪`;
-
-                await sendTelegramMessage(chatId, progressText, {
-                    inline_keyboard: [
-                        [{ text: '📈 Full Stats', callback_data: 'stats' }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
-                    ]
-                });
-            }
-
-            else if (text === '/nutrition') {
-                const nutrition = await Nutrition.findOne({
-                    userId: user._id,
-                    date: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-                });
-
-                let nutritionText;
-                if (nutrition) {
-                    nutritionText = `🍽️ <b>Today's Nutrition</b>\n\n` +
-                        `🔥 Calories: ${nutrition.calories || 0}\n` +
-                        `💪 Protein: ${nutrition.protein || 0}g\n` +
-                        `🍚 Carbs: ${nutrition.carbs || 0}g\n` +
-                        `🥑 Fat: ${nutrition.fat || 0}g\n` +
-                        `💧 Water: ${nutrition.water || 0}L`;
-                } else {
-                    nutritionText = `🍽️ <b>Nutrition</b>\n\n` +
-                        `No nutrition data logged today.\n` +
-                        `Track your meals in the app!`;
-                }
-
-                await sendTelegramMessage(chatId, nutritionText, {
-                    inline_keyboard: [
-                        [{ text: '📱 Log Meals', url: `${process.env.FRONTEND_URL}?tg=${userId}` }],
-                        [{ text: '🍽️ Meal Plan', callback_data: 'mealplan' }]
-                    ]
-                });
-            }
-
-            else if (text === '/challenge') {
-                const challenge = await Challenge.findOne({
-                    isActive: true,
-                    endDate: { $gte: new Date() }
-                });
-
-                let challengeText = '🏆 <b>Active Challenges</b>\n\n';
-                if (challenge) {
-                    challengeText += `📌 ${challenge.name}\n` +
-                        `📝 ${challenge.description || 'Complete workouts to earn rewards!'}\n` +
-                        `🎯 ${challenge.requiredWorkouts} workouts required\n` +
-                        `⭐ Reward: ${challenge.rewardXp} XP`;
-
-                    const isJoined = challenge.participants.some(
-                        p => p.userId.toString() === user._id.toString()
-                    );
-
-                    const buttons = [];
-                    if (!isJoined) {
-                        buttons.push([{ text: '🎯 Join Challenge', callback_data: 'join_challenge' }]);
-                    }
-                    buttons.push([{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]);
-                    
-                    await sendTelegramMessage(chatId, challengeText, {
-                        inline_keyboard: buttons
-                    });
-                } else {
-                    await sendTelegramMessage(chatId, '🏆 No active challenges right now. Check back soon!');
-                }
-            }
-
-            else if (text === '/profile') {
-                const profileText = `👤 <b>Your Profile</b>\n\n` +
-                    `📛 Name: ${user.fullName || 'Not set'}\n` +
-                    `🔹 Username: ${user.username}\n` +
-                    `🎯 Goal: ${user.fitnessGoal || 'Not set'}\n` +
-                    `📊 Level: ${user.fitnessLevel || 'Not set'}\n` +
-                    `⭐ Level: ${user.level}\n` +
-                    `💪 XP: ${user.xp}\n` +
-                    `🔥 Streak: ${user.streak} days`;
-
-                await sendTelegramMessage(chatId, profileText, {
-                    inline_keyboard: [
-                        [{ text: '✏️ Update Profile', url: `${process.env.FRONTEND_URL}?tg=${userId}` }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
-                    ]
-                });
+                    `💪 XP: ${user.xp}`;
+                
+                await sendTelegramMessage(chatId, progressText);
             }
 
             else if (text === '/help') {
-                const helpText = `❓ <b>Help & Support</b>\n\n` +
-                    `Available commands:\n` +
-                    `/start - Start the bot\n` +
+                const helpText = `❓ <b>Available Commands</b>\n\n` +
+                    `/start - Show main menu\n` +
                     `/workout - Get a workout\n` +
                     `/progress - View progress\n` +
-                    `/nutrition - Nutrition info\n` +
-                    `/challenge - View challenges\n` +
-                    `/profile - View profile\n` +
-                    `/help - Show this help\n\n` +
-                    `📱 Open the web app for full features!`;
+                    `/help - Show this help\n` +
+                    (isUserAdmin ? `/admin - Admin dashboard\n/broadcast - Send broadcast\n` : '') +
+                    `\n📱 Open the web app for full features!`;
 
-                await sendTelegramMessage(chatId, helpText, {
-                    inline_keyboard: [
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }],
-                        [{ text: '📧 Contact Support', url: `mailto:${process.env.SUPPORT_EMAIL || 'support@gymapp.com'}` }]
-                    ]
-                });
+                await sendTelegramMessage(chatId, helpText);
             }
 
             else {
-                // AI Chat response for any other message
-                const aiResponse = `🤖 <b>AI Coach</b>\n\n` +
-                    `I understand you're asking about fitness. Here are some quick tips:\n\n` +
+                // AI response
+                const aiText = `🤖 <b>AI Coach</b>\n\n` +
+                    `I'm here to help you with your fitness journey!\n\n` +
                     `💪 Stay consistent with your workouts\n` +
                     `🥗 Eat balanced meals with protein\n` +
                     `💧 Drink water throughout the day\n` +
                     `😴 Get 7-9 hours of sleep\n\n` +
-                    `📱 Open the app for personalized guidance!`;
+                    `Use /start to see the main menu.`;
 
-                await sendTelegramMessage(chatId, aiResponse, {
-                    inline_keyboard: [
-                        [{ text: '💪 Start Workout', callback_data: 'workout' }],
-                        [{ text: '📊 View Progress', callback_data: 'progress' }],
-                        [{ text: '📱 Open App', url: `${process.env.FRONTEND_URL}?tg=${userId}` }]
-                    ]
-                });
+                await sendTelegramMessage(chatId, aiText);
             }
         }
 
         res.json({ success: true });
     } catch (error) {
-        console.error('Telegram webhook error:', error);
-        res.status(500).json({ error: 'Webhook processing failed' });
+        console.error('❌ Webhook error:', error);
+        res.status(500).json({ error: 'Webhook failed' });
     }
 });
+
+// =============================================
+// SEED DATA
+// =============================================
+
+async function seedExercises() {
+    const count = await Exercise.countDocuments();
+    if (count === 0) {
+        console.log('🌱 Seeding exercises...');
+        const exercises = [
+            { name: 'Barbell Bench Press', category: 'Chest', muscle: 'Chest', difficulty: 'Intermediate', equipment: 'Barbell', video: 'https://www.youtube.com/embed/4Y2ZdHCOXok' },
+            { name: 'Dumbbell Shoulder Press', category: 'Shoulders', muscle: 'Shoulders', difficulty: 'Intermediate', equipment: 'Dumbbells', video: 'https://www.youtube.com/embed/REBhldQ6V6Y' },
+            { name: 'Squats', category: 'Legs', muscle: 'Legs', difficulty: 'Beginner', equipment: 'Barbell', video: 'https://www.youtube.com/embed/YaXPRqUwItQ' },
+            { name: 'Pull-ups', category: 'Back', muscle: 'Back', difficulty: 'Intermediate', equipment: 'Pull-up Bar', video: 'https://www.youtube.com/embed/eGo4IYlbE5g' },
+            { name: 'Planks', category: 'Core', muscle: 'Core', difficulty: 'Beginner', equipment: 'Bodyweight', video: 'https://www.youtube.com/embed/pSHjTRCQxIw' },
+            { name: 'Tricep Pushdowns', category: 'Triceps', muscle: 'Triceps', difficulty: 'Beginner', equipment: 'Cable', video: 'https://www.youtube.com/embed/2-LAMcpzODU' },
+            { name: 'Barbell Curl', category: 'Biceps', muscle: 'Biceps', difficulty: 'Beginner', equipment: 'Barbell', video: 'https://www.youtube.com/embed/ykJirr3Y-2g' },
+            { name: 'Deadlifts', category: 'Back', muscle: 'Back', difficulty: 'Intermediate', equipment: 'Barbell', video: 'https://www.youtube.com/embed/op9kVnSso6Q' },
+            { name: 'Lunges', category: 'Legs', muscle: 'Legs', difficulty: 'Beginner', equipment: 'Dumbbells', video: 'https://www.youtube.com/embed/QOVaHwm-Q6U' },
+            { name: 'Overhead Press', category: 'Shoulders', muscle: 'Shoulders', difficulty: 'Intermediate', equipment: 'Barbell', video: 'https://www.youtube.com/embed/2yjwXTZQDDI' }
+        ];
+        await Exercise.insertMany(exercises);
+        console.log('✅ Exercises seeded!');
+    }
+}
+
+// =============================================
+// SET WEBHOOK
+// =============================================
+
+async function setWebhook() {
+    try {
+        const webhookUrl = `${process.env.WEBHOOK_URL}/webhook/${process.env.TELEGRAM_BOT_TOKEN}`;
+        console.log('🔗 Setting webhook to:', webhookUrl);
+        
+        const response = await axios.post(`${TELEGRAM_API}/setWebhook`, {
+            url: webhookUrl,
+            allowed_updates: ['message', 'callback_query']
+        });
+        
+        console.log('✅ Webhook set:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('❌ Webhook error:', error.response?.data || error.message);
+    }
+}
 
 // =============================================
 // HEALTH CHECK
@@ -1340,19 +1426,9 @@ app.get('/api/health', (req, res) => {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        environment: process.env.NODE_ENV || 'development'
-    });
-});
-
-// =============================================
-// ERROR HANDLING
-// =============================================
-
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ 
-        error: 'Something went wrong!',
-        message: process.env.NODE_ENV === 'development' ? err.message : undefined
+        mongo: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        adminIds: ADMIN_IDS,
+        webhookUrl: `${process.env.WEBHOOK_URL}/webhook/${process.env.TELEGRAM_BOT_TOKEN}`
     });
 });
 
@@ -1361,11 +1437,17 @@ app.use((err, req, res, next) => {
 // =============================================
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔗 API: http://localhost:${PORT}/api/v1`);
-    console.log(`🤖 Telegram Bot Webhook: http://localhost:${PORT}/webhook/${process.env.TELEGRAM_BOT_TOKEN}`);
+
+app.listen(PORT, async () => {
+    console.log(`\n🚀 Server running on port ${PORT}`);
+    console.log(`🔗 Health: http://localhost:${PORT}/api/health`);
+    console.log(`🤖 Webhook: ${process.env.WEBHOOK_URL}/webhook/${process.env.TELEGRAM_BOT_TOKEN}`);
+    console.log(`👑 Admin IDs: ${ADMIN_IDS.join(', ')}\n`);
+    
+    await seedExercises();
+    await setWebhook();
+    
+    console.log('✅ Server ready!');
 });
 
 module.exports = app;
