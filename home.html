@@ -1,0 +1,270 @@
+<!-- ===== HOME DASHBOARD ===== -->
+<div id="homeScreen" class="screen active">
+    <div class="greeting" id="greetingText">Good Morning 👋</div>
+    <div class="greeting-sub" id="greetingSub">Let's crush your workout today!</div>
+
+    <div class="motivation-card">
+        <blockquote>"The only bad workout is the one that didn't happen."</blockquote>
+        <cite>— Fitness Wisdom</cite>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <span class="icon"><i class="fas fa-fire"></i></span>
+            <div class="number" id="statCalories">1,284</div>
+            <div class="label">Calories</div>
+        </div>
+        <div class="stat-item">
+            <span class="icon"><i class="fas fa-dumbbell"></i></span>
+            <div class="number" id="statWorkouts">12</div>
+            <div class="label">Workouts</div>
+        </div>
+        <div class="stat-item">
+            <span class="icon"><i class="fas fa-tint"></i></span>
+            <div class="number" id="statWater">2.4L</div>
+            <div class="label">Water</div>
+        </div>
+        <div class="stat-item">
+            <span class="icon"><i class="fas fa-clock"></i></span>
+            <div class="number" id="statDuration">45m</div>
+            <div class="label">Duration</div>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin:12px 0;">
+        <div class="glass" style="flex:1;text-align:center;padding:12px;">
+            <div style="font-size:12px;color:var(--text-muted);">Protein</div>
+            <div style="font-size:20px;font-weight:700;color:var(--success);" id="statProtein">156g</div>
+            <div style="height:4px;background:var(--card-bg);border-radius:4px;margin-top:6px;overflow:hidden;">
+                <div style="width:78%;height:100%;background:var(--success);border-radius:4px;"></div>
+            </div>
+        </div>
+        <div class="glass" style="flex:1;text-align:center;padding:12px;">
+            <div style="font-size:12px;color:var(--text-muted);">Progress</div>
+            <div style="font-size:20px;font-weight:700;color:var(--primary);" id="statProgress">68%</div>
+            <div style="height:4px;background:var(--card-bg);border-radius:4px;margin-top:6px;overflow:hidden;">
+                <div style="width:68%;height:100%;background:var(--primary);border-radius:4px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <div class="quick-action" onclick="startWorkout()">
+            <i class="fas fa-play-circle"></i>
+            <span>Start Workout</span>
+        </div>
+        <div class="quick-action" onclick="loadPage('workouts')">
+            <i class="fas fa-list-ul"></i>
+            <span>Programs</span>
+        </div>
+        <div class="quick-action" onclick="loadPage('nutrition')">
+            <i class="fas fa-utensils"></i>
+            <span>Nutrition</span>
+        </div>
+        <div class="quick-action" onclick="loadPage('progress')">
+            <i class="fas fa-chart-bar"></i>
+            <span>Progress</span>
+        </div>
+    </div>
+
+    <h4 style="margin:16px 0 12px;">Today's Workout</h4>
+    <div class="program-card" onclick="startWorkout()">
+        <div class="program-icon"><i class="fas fa-bolt"></i></div>
+        <div class="program-info">
+            <h4>Upper Body Power</h4>
+            <p>8 exercises • 45 min</p>
+            <div class="program-meta">
+                <span><i class="fas fa-fire"></i> 420 cal</span>
+                <span><i class="fas fa-clock"></i> 45 min</span>
+            </div>
+        </div>
+        <span class="program-badge">Today</span>
+    </div>
+
+    <div class="program-card" onclick="loadPage('workouts')">
+        <div class="program-icon" style="background:linear-gradient(135deg,#FF6584,#FFC107);"><i class="fas fa-heart"></i></div>
+        <div class="program-info">
+            <h4>Core Crusher</h4>
+            <p>6 exercises • 30 min</p>
+            <div class="program-meta">
+                <span><i class="fas fa-fire"></i> 280 cal</span>
+                <span><i class="fas fa-clock"></i> 30 min</span>
+            </div>
+        </div>
+        <span class="program-badge">Upcoming</span>
+    </div>
+
+    <!-- ===== NUTRITION SECTION ===== -->
+    <div id="nutritionScreen" style="display:none;">
+        <h2 style="margin:16px 0;">Nutrition</h2>
+        <div class="glass" style="text-align:center;padding:24px;margin-bottom:16px;">
+            <div class="nutrition-ring">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--card-bg)" stroke-width="8"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="8"
+                        stroke-dasharray="263.89" stroke-dashoffset="52.78" stroke-linecap="round"/>
+                </svg>
+                <div class="center">
+                    <div class="value">1,840</div>
+                    <div class="label">/ 2,200 kcal</div>
+                </div>
+            </div>
+            <div style="font-size:14px;color:var(--text-secondary);">Daily Calorie Goal</div>
+        </div>
+
+        <div class="macro-grid">
+            <div class="macro-item">
+                <div class="value" style="color:#FF6584;">156g</div>
+                <div class="label">Protein</div>
+                <div class="color-bar" style="background:#FF6584;width:78%;"></div>
+            </div>
+            <div class="macro-item">
+                <div class="value" style="color:#FFC107;">220g</div>
+                <div class="label">Carbs</div>
+                <div class="color-bar" style="background:#FFC107;width:73%;"></div>
+            </div>
+            <div class="macro-item">
+                <div class="value" style="color:#6C63FF;">65g</div>
+                <div class="label">Fat</div>
+                <div class="color-bar" style="background:#6C63FF;width:65%;"></div>
+            </div>
+            <div class="macro-item">
+                <div class="value" style="color:#00C9A7;">32g</div>
+                <div class="label">Fiber</div>
+                <div class="color-bar" style="background:#00C9A7;width:64%;"></div>
+            </div>
+        </div>
+
+        <h4 style="margin:16px 0 12px;">Today's Meals</h4>
+        <div class="glass" style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <span style="font-weight:600;">🥣 Breakfast</span>
+                    <div style="font-size:12px;color:var(--text-muted);">Oatmeal with berries</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:600;">420 kcal</div>
+                    <div style="font-size:11px;color:var(--text-muted);">18g protein</div>
+                </div>
+            </div>
+        </div>
+        <div class="glass" style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <span style="font-weight:600;">🥗 Lunch</span>
+                    <div style="font-size:12px;color:var(--text-muted);">Grilled chicken salad</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:600;">580 kcal</div>
+                    <div style="font-size:11px;color:var(--text-muted);">42g protein</div>
+                </div>
+            </div>
+        </div>
+        <div class="glass" style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <span style="font-weight:600;">🍣 Dinner</span>
+                    <div style="font-size:12px;color:var(--text-muted);">Salmon with quinoa</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:600;">650 kcal</div>
+                    <div style="font-size:11px;color:var(--text-muted);">38g protein</div>
+                </div>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="showToast('Meal plan generated!', 'success')">
+            <i class="fas fa-plus"></i> Generate Meal Plan
+        </button>
+    </div>
+
+    <!-- ===== PROGRESS SECTION ===== -->
+    <div id="progressScreen" style="display:none;">
+        <h2 style="margin:16px 0;">Progress Dashboard</h2>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stat-item">
+                <div class="number" style="color:var(--primary);">72.4</div>
+                <div class="label">Weight (kg)</div>
+            </div>
+            <div class="stat-item">
+                <div class="number" style="color:var(--success);">22.8</div>
+                <div class="label">BMI</div>
+            </div>
+            <div class="stat-item">
+                <div class="number" style="color:var(--warning);">15.2%</div>
+                <div class="label">Body Fat</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">Weight Progress <span style="font-weight:400;color:var(--text-muted);font-size:12px;">Last 8 weeks</span></div>
+            <div class="chart-bars">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:65%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                    <div class="label">Jan</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:70%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                    <div class="label">Feb</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:62%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                    <div class="label">Mar</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:75%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                    <div class="label">Apr</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:55%;background:linear-gradient(180deg,#6C63FF,#3F3D9E);"></div>
+                    <div class="label">May</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:80%;background:linear-gradient(180deg,#FF6584,#FFC107);"></div>
+                    <div class="label">Jun</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:68%;background:linear-gradient(180deg,#FF6584,#FFC107);"></div>
+                    <div class="label">Jul</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <div class="chart-bar" style="height:72%;background:linear-gradient(180deg,#00C9A7,#6C63FF);"></div>
+                    <div class="label">Aug</div>
+                </div>
+            </div>
+        </div>
+
+        <h4 style="margin:16px 0 12px;">Achievements</h4>
+        <div class="achievement-grid">
+            <div class="achievement-item">
+                <div class="icon">🏆</div>
+                <div class="name">First Workout</div>
+                <div class="desc">Completed 1 session</div>
+            </div>
+            <div class="achievement-item">
+                <div class="icon">🔥</div>
+                <div class="name">5 Day Streak</div>
+                <div class="desc">5 consecutive days</div>
+            </div>
+            <div class="achievement-item locked">
+                <div class="icon">💪</div>
+                <div class="name">100 Workouts</div>
+                <div class="desc">86/100 completed</div>
+            </div>
+            <div class="achievement-item">
+                <div class="icon">⭐</div>
+                <div class="name">Level 5</div>
+                <div class="desc">1,250 XP earned</div>
+            </div>
+            <div class="achievement-item locked">
+                <div class="icon">👑</div>
+                <div class="name">Master</div>
+                <div class="desc">Reach level 10</div>
+            </div>
+            <div class="achievement-item">
+                <div class="icon">📊</div>
+                <div class="name">Data Tracker</div>
+                <div class="desc">Logged 30 days</div>
+            </div>
+        </div>
+    </div>
+                  </div>
